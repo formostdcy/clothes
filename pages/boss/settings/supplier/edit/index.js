@@ -1,5 +1,6 @@
 // pages/boss/settings/supplier/edit/index.js
 const { callCloud } = require('../../../../../utils/request.js');
+const { isValidPhone } = require('../../../../../utils/util.js');
 const pageGuard = require('../../../../../utils/page-guard.js');
 
 pageGuard({
@@ -8,7 +9,8 @@ pageGuard({
     id: '',
     name: '',
     contact_name: '',
-    contact_phone: ''
+    contact_phone: '',
+    phoneError: '',
   },
 
   onLoad(options) {
@@ -22,7 +24,6 @@ pageGuard({
   },
 
   loadDetail() {
-    // 列表接口也能拿到，这里直接复用
     callCloud('supplier-list', { page: 1, pageSize: 100 }).then(res => {
       const target = (res.list || []).find(s => s._id === this.data.id);
       if (target) {
@@ -44,15 +45,38 @@ pageGuard({
   },
 
   onContactPhoneInput(e) {
-    this.setData({ contact_phone: e.detail.value });
+    // 实时输入时只允许数字 / 短横线 / 括号
+    let value = String(e.detail.value || '')
+      .replace(/[^\d\-()]/g, '')
+      .slice(0, 20);
+
+    // 实时校验：有内容但格式错误时，给出错误提示
+    const phoneError = value && !isValidPhone(value) ? '电话格式不正确，请输入正确的手机号或座机' : '';
+
+    this.setData({ contact_phone: value, phoneError });
   },
 
   onSubmit() {
     const { id, name, contact_name, contact_phone } = this.data;
-    if (!name) {
+    if (!name || !name.trim()) {
       wx.showToast({ title: '请输入供应商名称', icon: 'none' });
       return;
     }
+    if (!contact_name || !contact_name.trim()) {
+      wx.showToast({ title: '请输入联系人', icon: 'none' });
+      return;
+    }
+    if (!contact_phone || !contact_phone.trim()) {
+      this.setData({ phoneError: '请输入联系电话' });
+      wx.showToast({ title: '请输入联系电话', icon: 'none' });
+      return;
+    }
+    if (!isValidPhone(contact_phone)) {
+      this.setData({ phoneError: '电话格式不正确，请输入正确的手机号或座机' });
+      wx.showToast({ title: '电话格式不正确', icon: 'none' });
+      return;
+    }
+
     if (id) {
       callCloud('supplier-update', { _id: id, name, contact_name, contact_phone }).then(() => {
         wx.showToast({ title: '保存成功', icon: 'success' });

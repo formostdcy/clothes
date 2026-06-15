@@ -1,0 +1,9 @@
+{
+  "name": "finished-stockRebuildFromHistory",
+  "version": "1.0.0",
+  "description": "扫描已入库的成品确认单，按加工单 actual_quantity 重算成品库存（修复历史 bug）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

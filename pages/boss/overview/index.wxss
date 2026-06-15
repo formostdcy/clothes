@@ -67,6 +67,13 @@
 
 .section { margin-bottom: 24rpx; }
 .section:last-child { margin-bottom: 0; }
+.section-tip {
+  font-size: 22rpx;
+  color: var(--text-tertiary, #94a3b8);
+  margin-top: 8rpx;
+  padding: 0 8rpx;
+  line-height: 1.4;
+}
 
 .section-title {
   font-size: 30rpx;
@@ -106,6 +113,25 @@
 .stat-card.warning { border-left: 6rpx solid var(--warning-color); }
 .stat-card.primary { border-left: 6rpx solid var(--primary-color); }
 .stat-card.success { border-left: 6rpx solid var(--success-color); }
+
+/* 关键：可点击卡片样式（今日入/出库、原材料/成品总量） */
+.stat-card.clickable {
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.stat-card-hover {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-sm);
+  background-color: #f8fafc;
+}
+.stat-arrow {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  font-size: 28rpx;
+  color: var(--text-tertiary, #cbd5e1);
+  font-weight: 600;
+  line-height: 1;
+}
 
 .stat-value {
   font-size: 44rpx;

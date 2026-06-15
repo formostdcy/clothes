@@ -10,6 +10,7 @@ const TYPES = [
 const GROUP_BY = [
   { name: '按学校', value: 'school' },
   { name: '按款式', value: 'style' },
+  { name: '按季节', value: 'season' },
   { name: '按去向', value: 'destination' },
 ];
 
@@ -17,6 +18,7 @@ const GROUP_BY = [
 const GROUP_BY_STOCK = [
   { name: '按学校', value: 'school' },
   { name: '按款式', value: 'style' },
+  { name: '按季节', value: 'season' },
 ];
 
 pageGuard({

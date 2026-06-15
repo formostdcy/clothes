@@ -42,6 +42,9 @@ function callCloud(name, data = {}, showLoading = true) {
       if (res.result.success) {
         return res.result.data;
       } else {
+        // 把整个 result 传出去，方便前端拿到 stockFailInfo 等结构化错误
+        const failErr = new Error(res.result.error || '操作失败');
+        failErr.result = res.result;
         if (!silent) {
           wx.showToast({
             title: res.result.error || '操作失败',
@@ -49,7 +52,7 @@ function callCloud(name, data = {}, showLoading = true) {
             duration: 2000,
           });
         }
-        return Promise.reject(res.result.error);
+        return Promise.reject(failErr);
       }
     } else {
       if (!silent) {

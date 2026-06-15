@@ -1,29 +1,130 @@
 <!-- pages/finished/confirm/list/index.wxml -->
+<!--
+  修复点（参照新增加工单字段体系 + 经典左右分栏风格）：
+  1) 卡片改为左右分栏：左侧信息区（flex: 1）+ 右侧操作区（flex-shrink: 0 垂直按钮）
+  2) 信息区按"新增加工单"字段分组：
+     - 头部核心：单号（突出字号，单行省略号）
+     - 基础信息组：学校、款式、性别、来源（裁剪单）
+     - 件数明细组：计划件数、实际件数、尺码明细（分行）
+     - 底部辅助信息：提交时间
+  3) 移除了"车间 车间管理员"等不匹配的字段
+  4) 右侧操作区垂直排列"有问题"和"确认入库"两个按钮，与左侧信息区垂直居中
+  5) 完全保留 onConfirm / onProblem bindtap 和 data-id，不动接口和事件
+-->
 <view class="container">
   <view class="back-bar" bindtap="onBackHome">
     <text class="back-icon">‹</text>
     <text class="back-text">首页</text>
   </view>
 
+    <!-- ====== 数据 Tab：待确认 / 已完成 ====== -->
+  <view class="data-tabs">
+    <view class="data-tab {{tab === 'todo' ? 'data-tab--active' : ''}}" data-tab="todo" bindtap="onTabChange">
+      <text>待确认</text>
+      <view class="data-tab__badge" wx:if="{{todoCount > 0}}">{{todoCount}}</view>
+    </view>
+    <view class="data-tab {{tab === 'done' ? 'data-tab--active' : ''}}" data-tab="done" bindtap="onTabChange">
+      <text>已完成</text>
+      <view class="data-tab__badge data-tab__badge--gray" wx:if="{{doneCount > 0}}">{{doneCount}}</view>
+    </view>
+    <view class="data-tab data-tab--tool" bindtap="onGoRepair">
+      <text>应急工具</text>
+    </view>
+  </view>
+
   <view class="list">
-    <view class="list-item list-item--todo" wx:for="{{list}}" wx:key="id">
+    <view class="list-item" wx:for="{{list}}" wx:key="id">
+      <!-- ====== 左侧信息区：flex: 1; min-width: 0; ====== -->
       <view class="item-info">
-        <view class="item-no">单号: {{item.orderNo || '—'}}</view>
-        <view class="item-source" wx:if="{{item.sourceText}}">来源: {{item.sourceText}}</view>
-        <view class="item-source" wx:if="{{item.workshopAdminName}}">车间: {{item.workshopAdminName}}</view>
-        <view class="item-material">成品: {{item.materialName || '—'}}</view>
-        <view class="item-count">件数: {{item.count || 0}} 件</view>
-        <view class="item-count" wx:if="{{item.sizeText}}">尺码: {{item.sizeText}}</view>
-        <view class="item-time">时间: {{item.createTime || '—'}}</view>
+        <!-- 头部核心：单号（突出字号，单行省略号） -->
+        <view class="item-no">
+          <text class="item-no-label">单号</text>
+          <text class="item-no-value">{{item.orderNo || '—'}}</text>
+        </view>
+
+        <!-- 基础信息组：学校 / 款式 / 性别 / 来源 -->
+        <view class="item-group item-group--base">
+          <view class="info-row" wx:if="{{item.school}}">
+            <text class="info-key">学校</text>
+            <text class="info-val">{{item.school}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.style}}">
+            <text class="info-key">款式</text>
+            <text class="info-val">{{item.style}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.season}}">
+            <text class="info-key">季节</text>
+            <text class="info-val">{{item.season}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.gender}}">
+            <text class="info-key">性别</text>
+            <text class="info-val">{{item.gender}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.sourceText}}">
+            <text class="info-key">来源</text>
+            <text class="info-val">{{item.sourceText}}</text>
+          </view>
+        </view>
+
+        <!-- 件数明细组：计划件数 / 实际件数 / 尺码明细 -->
+        <view class="item-group item-group--qty">
+          <view class="info-row" wx:if="{{item.planCount > 0}}">
+            <text class="info-key">计划件数</text>
+            <text class="info-val info-val--strong">{{item.planCount}} 件</text>
+          </view>
+          <view class="info-row">
+            <text class="info-key">实际件数</text>
+            <text class="info-val info-val--strong">{{item.count || 0}} 件</text>
+          </view>
+          <!-- 尺码明细：分行展示每个尺码对应的件数 -->
+          <view class="info-row info-row--sizes" wx:if="{{item.actualSizes && item.actualSizes.length}}">
+            <text class="info-key">尺码明细</text>
+            <view class="info-sizes">
+              <text class="size-chip" wx:for="{{item.actualSizes}}" wx:for-item="sz" wx:key="size">{{sz.size}} × {{sz.count}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 底部辅助信息：提交时间 / 入库时间 -->
+        <view class="item-group item-group--meta">
+          <view class="info-row" wx:if="{{item.createTime}}">
+            <text class="info-key">提交时间</text>
+            <text class="info-val">{{item.createTime}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.confirmTime && tab === 'done'}}">
+            <text class="info-key">入库时间</text>
+            <text class="info-val">{{item.confirmTime}}</text>
+          </view>
+        </view>
+
+        <!-- 问题描述（仅在有问题时显示） -->
+        <view class="item-problem" wx:if="{{item.problemDesc}}">
+          <text class="problem-label">问题：</text>
+          <text class="problem-text">{{item.problemDesc}}</text>
+        </view>
       </view>
-      <view class="item-actions">
-        <button class="action-btn confirm" bindtap="onConfirm" data-id="{{item.id}}">确认入库</button>
-        <button class="action-btn problem" bindtap="onProblem" data-id="{{item.id}}">有问题</button>
+
+      <!-- ====== 下部操作区：横向并排（彻底解决右侧按钮溢出） ====== -->
+      <view class="item-actions" wx:if="{{tab === 'todo' && item.status === '待确认'}}">
+        <button class="action-btn problem" bindtap="onProblem" data-id="{{item.id}}">
+          <text class="action-icon">!</text>
+          <text class="action-text">有问题</text>
+        </button>
+        <button class="action-btn confirm" bindtap="onConfirm" data-id="{{item.id}}">
+          <text class="action-icon">✓</text>
+          <text class="action-text">确认入库</text>
+        </button>
+      </view>
+
+      <!-- 已完成 Tab：右侧显示状态文字 -->
+      <view class="item-status" wx:if="{{tab === 'done'}}">
+        <text class="status-text {{item.status === '已入库' ? 'status-text--success' : 'status-text--danger'}}">{{item.statusText || item.status || '—'}}</text>
       </view>
     </view>
   </view>
 
   <view class="empty" wx:if="{{list.length === 0 && !loading}}">
-    <text>暂无待确认订单</text>
+    <text wx:if="{{tab === 'todo'}}">暂无待确认订单</text>
+    <text wx:else>暂无已完成订单</text>
   </view>
 </view>

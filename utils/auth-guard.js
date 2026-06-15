@@ -25,6 +25,7 @@ const PUBLIC_FUNCS = new Set([
   'supplier-list',
   'employee-list',
   'role-list',
+  'workshop-list',
 ]);
 
 // 2. 老板专属：只老板能调
@@ -41,8 +42,16 @@ const BOSS_ONLY_FUNCS = new Set([
   'boss-finishedStats',
   'boss-warning',
   'order-detail',
-  // 系统初始化
+  // 系统初始化 & 修复
   'raw-stockInit',
+  'init-default-accounts',
+  'quickstartFunctions',
+  // 历史数据修复
+  'finished-stockRebuildFromHistory',
+  // debug
+  'debug-check-cuttingStatus',
+  'debug-check-orders',
+  'debug-confirmList',
 ]);
 
 // 3. 角色 -> 允许调用的云函数白名单
@@ -112,8 +121,12 @@ const ROLE_PERMISSIONS = {
     'finished-confirmProblem',
     'finished-availableOrderList',
     'finished-stockList',
+    'finished-stockExport',
     'finished-outboundAdd',
     'finished-outboundList',
+    'finished-outboundDetail',
+    // 应急工具：成品管理员也可以调用（重建库存是日常运维需要）
+    'finished-emergencyRebuildStock',
   ]),
 };
 

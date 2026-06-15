@@ -20,6 +20,7 @@
     "pages/workshop/record/index",
     "pages/workshop/processing/add-b/index",
     "pages/finished/confirm/list/index",
+    "pages/finished/confirm/repair/index",
     "pages/finished/stock/index",
     "pages/finished/outbound/add/index",
     "pages/finished/outbound/record/index",
@@ -36,7 +37,10 @@
     "pages/boss/settings/supplier/edit/index",
     "pages/boss/settings/stock-init/index",
     "pages/boss/settings/data-export/index",
-    "pages/notification/list/index"
+    "pages/notification/list/index",
+    "pages/boss/inbound-list/index",
+    "pages/boss/outbound-list/index",
+    "pages/boss/raw-stock/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#1A73E8",

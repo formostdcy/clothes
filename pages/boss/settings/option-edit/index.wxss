@@ -1,56 +1,485 @@
-/* pages/boss/settings/option-edit/index.wxss */
-.form-container {
+/* pages/boss/settings/option-edit/index.wxss
+ *
+ * 本文件使用 oe- 前缀命名所有 class，100% 避免与 app.wxss 全局类冲突。
+ * 所有尺寸均使用 rpx，颜色按要求 #F0F2F5 / #1677FF / #E8F3FF / #FF4D4F / #FFECE8 / #999999 / #F4F5F7。
+ */
+
+/* ============ 页面容器 ============ */
+.oe-container {
   min-height: 100vh;
-  background-color: var(--bg-color);
-  padding: 20rpx 24rpx 32rpx;
+  /* 反衬卡片 */
+  background-color: #F4F5F7;
+  /* 底 200rpx 留给固定底部按钮 */
+  padding: 0 0 200rpx;
   box-sizing: border-box;
 }
 
-.form-item {
-  margin-bottom: 16rpx;
-  background-color: var(--white);
-  border-radius: 16rpx;
-  padding: 24rpx;
-  box-shadow: var(--shadow-md);
-}
-
-.label {
-  display: block;
-  font-size: 28rpx;
-  color: var(--text-regular);
-  margin-bottom: 16rpx;
-  font-weight: 500;
-}
-
-.input {
+/* ============ ① 顶部 Tab（自动换行 + 4 列网格） ============ */
+/* 外层容器：flex 换行布局
+   关键：用 display:flex + flex-wrap:wrap 让 Tab 自动换行
+        8 个 Tab 分 2 行显示，每行 4 个，750rpx 屏幕刚好放下
+        子元素用 flex 比例分配（flex: 0 0 calc(25% - 24rpx)） */
+.oe-type-tabs-wrap {
+  background-color: #FFFFFF;
+  box-shadow: 0 1rpx 4rpx rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
   width: 100%;
-  height: 80rpx;
-  background-color: var(--bg-section);
-  border: 2rpx solid transparent;
-  border-radius: 12rpx;
-  padding: 0 20rpx;
-  font-size: 28rpx;
-  color: var(--text-primary);
   box-sizing: border-box;
-  transition: border-color 0.2s, background-color 0.2s;
+  padding: 20rpx 24rpx;
+  /* 行间距 */
+  row-gap: 16rpx;
+  /* 列间距用子元素 margin-right 控制，这里不用 gap 避免奇数最后一行错位 */
+  /* gap: 16rpx 0; */
 }
-.input:focus { border-color: var(--primary-color); background-color: var(--white); }
 
-.btn-primary {
-  background-color: var(--primary-color);
-  color: var(--text-inverse);
-  width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
-  border-radius: 44rpx;
-  font-size: 30rpx;
-  font-weight: 500;
-  border: none;
+.oe-type-tab {
+  /* 关键：flex: 0 0 calc(25% - 12rpx) = 4 列均分
+     25% 是单格宽度，减去 margin 的一半实现间距
+     但更稳的是用 calc((100% - 3*12rpx) / 4) 即固定 4 列均分
+     这里考虑实际渲染：用 calc((100% - 36rpx) / 4) = 4 列 */
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 calc((100% - 36rpx) / 4);
+  height: 64rpx;
+  border-radius: 32rpx;
+  font-size: 24rpx;
+  background-color: #F0F2F5;
+  color: #666666;
+  white-space: nowrap;
+  word-break: keep-all;
+  transition: all 0.25s ease;
   box-sizing: border-box;
-  margin-top: 32rpx;
+  /* 右边距 = 12rpx（4 个元素 3 个间隙 = 36rpx） */
+  margin-right: 12rpx;
+  /* 文字超长截断 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8rpx;
 }
-.btn-primary::after { border: none; }
-.btn-primary:active { opacity: 0.85; }
+
+/* 每行第 4 个去掉右边距，避免最后一行错位 */
+.oe-type-tab:nth-child(4n) {
+  margin-right: 0;
+}
+
+.oe-type-tab--active {
+  background-color: #1677FF;
+  color: #FFFFFF;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.25);
+}
+
+/* ============ ② 搜索 + 数量（两端对齐） ============ */
+.oe-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 32rpx 16rpx;
+  box-sizing: border-box;
+  gap: 16rpx;
+  /* 关键：固定高度确保 flex 生效 */
+  width: 100%;
+}
+
+.oe-search-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 72rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid transparent;
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.oe-search-wrap:focus-within { border-color: #1677FF; }
+
+.oe-search-icon {
+  flex-shrink: 0;
+  font-size: 26rpx;
+  margin-right: 12rpx;
+  line-height: 1;
+  align-self: center;
+}
+
+.oe-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 72rpx;
+  line-height: 72rpx;
+  background-color: transparent;
+  border: none;
+  font-size: 28rpx;
+  color: #333333;
+  padding: 0;
+  box-sizing: border-box;
+}
+.oe-search-placeholder {
+  color: #999999;
+  font-size: 28rpx;
+}
+
+/* 数量文字：#999999 + 字号调小 + 不压缩 + 严格 72rpx 高度 */
+.oe-count-text {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #999999;
+  white-space: nowrap;
+  height: 72rpx;
+  line-height: 72rpx;
+  margin-left: 16rpx;
+  align-self: center;
+  box-sizing: border-box;
+}
+
+/* ============ ③ 列表卡片 ============ */
+.oe-list {
+  /* ⑪ 卡片外边距左右 32rpx */
+  margin: 0 32rpx;
+  background-color: #FFFFFF;
+  /* ⑫ 20rpx 圆角 */
+  border-radius: 20rpx;
+  overflow: hidden;
+  /* ⑬ 极其轻柔的弥散阴影 */
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
+}
+
+.oe-list-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 2rpx solid #F0F2F5;
+  box-sizing: border-box;
+  transition: background-color 0.15s;
+}
+.oe-list-item:last-child { border-bottom: none; }
+.oe-list-item:active { background-color: #F8F9FA; }
+
+.oe-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 16rpx;
+}
+
+.oe-item-name {
+  font-size: 30rpx;
+  color: #1A1A1A;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  word-wrap: normal;
+}
+
+.oe-item-meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  line-height: 1;
+}
+
+.oe-meta-tag {
+  display: inline-block;
+  font-size: 22rpx;
+  color: #666666;
+  background-color: #F0F2F5;
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+  line-height: 1.2;
+  white-space: nowrap;
+  max-width: 320rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.oe-meta-tag--muted {
+  color: #999999;
+  background-color: transparent;
+  padding: 6rpx 0;
+}
+
+.oe-item-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  margin-left: 8rpx;
+  height: 56rpx;
+}
+
+/* ============ ④ 操作按钮（现代胶囊） ============ */
+.oe-action-btn {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100rpx;
+  height: 56rpx;
+  line-height: 1;
+  font-size: 24rpx;
+  font-weight: 500;
+  /* ⑭ 全圆角 999rpx */
+  border-radius: 999rpx;
+  border: none;
+  text-align: center;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+/* ⑮ 编辑：浅蓝底 + 深蓝字 */
+.oe-action-btn--edit {
+  background-color: #E8F3FF;
+  color: #1677FF;
+}
+/* ⑯ 删除：浅红底 + 深红字 */
+.oe-action-btn--delete {
+  background-color: #FFECE8;
+  color: #FF4D4F;
+}
+.oe-action-btn:active { opacity: 0.7; }
+
+/* ============ 空态 ============ */
+.oe-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: #999999;
+  font-size: 28rpx;
+}
+
+/* ============ ⑤ 底部新增按钮（固定 + 安全区） ============ */
+.oe-submit-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #FFFFFF;
+  box-shadow: 0 -2rpx 12rpx rgba(15, 23, 42, 0.06);
+  z-index: 99;
+  box-sizing: border-box;
+  padding: 16rpx 32rpx;
+  /* ⑰ 关键：双写兼容 iOS 11.0-11.2 旧版（constant） + 新版（env） */
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(16rpx + constant(safe-area-inset-bottom));
+}
+
+.oe-btn-primary {
+  background-color: #1677FF !important;
+  color: #FFFFFF !important;
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  border: none !important;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  box-shadow: 0 6rpx 16rpx rgba(22, 119, 255, 0.25);
+  min-height: 88rpx;
+}
+.oe-btn-primary::after { border: none !important; }
+.oe-btn-primary:active { opacity: 0.85; }
+
+/* ============ ⑥ 弹层（编辑表单） ============ */
+.oe-modal-mask {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 100;
+}
+
+.oe-modal-panel {
+  width: 100%;
+  background-color: #FFFFFF;
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  padding: 32rpx 24rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(32rpx + constant(safe-area-inset-bottom));
+  box-sizing: border-box;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.oe-modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+  text-align: center;
+  margin-bottom: 24rpx;
+  line-height: 1.4;
+}
+
+.oe-form-item {
+  background-color: #F4F5F7;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+  box-sizing: border-box;
+}
+
+.oe-form-label {
+  display: block;
+  font-size: 26rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.oe-form-input {
+  width: 100%;
+  height: 64rpx;
+  line-height: 64rpx;
+  background-color: transparent;
+  border: none;
+  font-size: 28rpx;
+  color: #1A1A1A;
+  padding: 0;
+  box-sizing: border-box;
+}
+.oe-form-placeholder {
+  color: #999999;
+  font-size: 28rpx;
+}
+
+.oe-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64rpx;
+  line-height: 64rpx;
+}
+
+.oe-picker-text {
+  font-size: 28rpx;
+  color: #1A1A1A;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.oe-picker-text--placeholder {
+  color: #999999;
+}
+
+.oe-picker-arrow {
+  flex-shrink: 0;
+  color: #CCCCCC;
+  font-size: 32rpx;
+  line-height: 1;
+  margin-left: 8rpx;
+}
+
+.oe-modal-footer {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.oe-btn-cancel,
+.oe-btn-confirm {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  text-align: center;
+  border: none;
+  box-sizing: border-box;
+}
+
+.oe-btn-cancel {
+  background-color: #F0F2F5;
+  color: #666666;
+}
+
+.oe-btn-confirm {
+  background-color: #1677FF;
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.2);
+}
+
+.oe-btn-cancel:active,
+.oe-btn-confirm:active { opacity: 0.85; }
+
+/* ============ ⑦ 一级分类选择器 ============ */
+.oe-picker-panel {
+  width: 100%;
+  background-color: #FFFFFF;
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  padding: 24rpx 0;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(24rpx + constant(safe-area-inset-bottom));
+  box-sizing: border-box;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.oe-picker-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+  text-align: center;
+  padding: 8rpx 0 24rpx;
+  border-bottom: 2rpx solid #F0F2F5;
+  line-height: 1.4;
+}
+
+.oe-picker-item {
+  padding: 28rpx 32rpx;
+  font-size: 28rpx;
+  color: #1A1A1A;
+  border-bottom: 2rpx solid #F0F2F5;
+  box-sizing: border-box;
+  line-height: 1.4;
+}
+
+.oe-picker-item--active {
+  background-color: #E8F3FF;
+  color: #1677FF;
+  font-weight: 500;
+}
+
+.oe-picker-item:last-of-type {
+  border-bottom: none;
+}
+
+.oe-picker-cancel {
+  margin: 24rpx 24rpx 0;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  background-color: #F0F2F5;
+  color: #666666;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+.oe-picker-cancel:active { opacity: 0.85; }

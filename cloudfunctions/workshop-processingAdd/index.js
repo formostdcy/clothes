@@ -71,11 +71,17 @@ exports.main = async (event, context) => {
   }
   const accessoryList = Array.from(mergedMap.entries()).map(([name, value]) => ({ name, value }));
 
+  // 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+  await ensureCollections();
+
   try {
     // ==================== 1. 事务：校验库存 + 扣库存 + 写加工单 ====================
     const orderNo = generateOrderNo();
     let processingId = null;
     const stockSnapshot = []; // 用于失败时回滚提示和返回
+
+    // 用本地变量跟踪已成功扣减的库存（用于回滚）
+    const writtenStocks = []; // [{ stockId, qty, action: 'dec' }]
 
     try {
       await db.runTransaction(async transaction => {
@@ -113,6 +119,7 @@ exports.main = async (event, context) => {
                 updated_at: db.serverDate(),
               },
             });
+          writtenStocks.push({ stockId: snap._id, qty: snap.dec, action: 'dec' });
         }
 
         // 1.3 写加工单（accessoryList 是合并去重后的）
@@ -138,28 +145,32 @@ exports.main = async (event, context) => {
         });
         processingId = addRes._id;
 
-        // 1.4 写 cutting_order 终态（事务内）
-        if (source_type === 'cutting' && workshop_confirm_id) {
-          try {
-            await transaction.collection('cutting_order').doc(workshop_confirm_id)
-              .update({
-                data: { status: '已加工', updated_at: db.serverDate() },
-              });
-          } catch (e) {
-            console.error('同步 cutting_order 终态失败:', e);
-            // 不影响主流程
-          }
-        }
+        // 1.4 cutting_order 状态更新移至事务外（第 7 节统一处理）
       });
     } catch (txErr) {
       // 事务整体回滚（库存 / 加工单 / cutting_order 都不会落地）
+      // 注意：runTransaction 已经自动回滚，writtenStocks 只是为了日志/调试
       console.error('车间加工事务失败:', txErr);
       return { success: false, error: txErr.message || '提交失败' };
     }
 
+    // ==================== 1.4 事务提交后：同步 cutting_order 状态 ====================
+    // 关键修复：之前在事务内 try/catch 吞掉错误，会导致 cutting_order 状态可能不一致
+    // 移到事务外：失败只记日志，不影响主流程
+    if (source_type === 'cutting' && workshop_confirm_id) {
+      try {
+        await db.collection('cutting_order').doc(workshop_confirm_id)
+          .update({
+            data: { status: '已加工', updated_at: db.serverDate() },
+          });
+      } catch (e) {
+        console.error('同步 cutting_order 终态失败（不影响主流程）:', e);
+      }
+    }
+
     // ==================== 1.5 事务提交后：写入成品待确认列表 ====================
-    // 关键修复：之前忘了写这一行，导致成品管理员的"待确认"永远是空表
-    // 写入字段：与 finished-confirmIn 期望的 confirm.processing_order_id 对应
+    // 关键修复：之前 confirm 写得太薄（只存 4 个核心字段），导致成品入库页看不到完整订单信息
+    // 这里从 processing_order 重新拉一次，存完整的订单快照，避免前端再 JOIN
     let workshopAdminName = '';
     if (workshop_admin_id) {
       try {
@@ -172,28 +183,82 @@ exports.main = async (event, context) => {
         console.error('查车间管理员姓名失败:', e);
       }
     }
+    let confirmData = null;
+    try {
+      const procRes = await db.collection('processing_order').doc(processingId).get();
+      const proc = procRes.data || {};
+      confirmData = {
+        ...proc, // 包含 plan_quantity, actual_quantity, loss_rate, accessory_usage, gender, style, school, source_type, order_no, workshop_admin_id 等
+        // 覆盖几个字段：确保来源是当前这次提交（防 processing_order 字段为空时丢失）
+        processing_order_id: processingId,
+        order_no: orderNo,
+        source_type,
+        gender: gender || proc.gender || '',
+        style: style || proc.style || '',
+        school: school || proc.school || '',
+        actual_quantity: actual_quantity || proc.actual_quantity || [],
+        plan_quantity: plan_quantity || proc.plan_quantity || [],
+        loss_rate: loss_rate || proc.loss_rate || [],
+        accessory_usage: accessoryList.length > 0 ? accessoryList : (proc.accessory_usage || []),
+        workshop_admin_id: workshop_admin_id || proc.workshop_admin_id || '',
+        // workshop_admin_name：优先从 employee 表拿；拿不到就用 processing_order 里的
+        workshop_admin_name: workshopAdminName || proc.workshop_admin_name || '',
+        // 标记状态为待确认
+        status: '待确认',
+        created_at: db.serverDate(),
+        updated_at: db.serverDate(),
+        // confirm 提交时间（车间端 = confirmTime）
+        confirm_time: db.serverDate(),
+      };
+    } catch (e) {
+      console.error('[workshop-processingAdd] 拉取加工单失败:', e);
+      // 兜底：即使拉不到 processing_order，也用本次提交的参数写 confirm
+      confirmData = {
+        processing_order_id: processingId,
+        order_no: orderNo,
+        source_type,
+        gender: gender || '',
+        style: style || '',
+        school: school || '',
+        actual_quantity: actual_quantity || [],
+        plan_quantity: plan_quantity || [],
+        loss_rate: loss_rate || [],
+        accessory_usage: accessoryList,
+        workshop_admin_id: workshop_admin_id || '',
+        workshop_admin_name: workshopAdminName,
+        status: '待确认',
+        created_at: db.serverDate(),
+        updated_at: db.serverDate(),
+        confirm_time: db.serverDate(),
+      };
+    }
 
     try {
-      await db.collection('finished_product_confirm').add({
-        data: {
-          processing_order_id: processingId,
-          order_no: orderNo,
-          source_type,
-          gender: gender || '',
-          style: style || '',
-          school: school || '',
-          actual_quantity: actual_quantity || [],
-          workshop_admin_id,
-          workshop_admin_name: workshopAdminName,
-          status: '待确认',
-          created_at: db.serverDate(),
-          updated_at: db.serverDate(),
-        },
-      });
+      await db.collection('finished_product_confirm').add({ data: confirmData });
+      console.log('[workshop-processingAdd] 写入 finished_product_confirm 成功, processingId=', processingId, 'order_no=', orderNo);
     } catch (e) {
-      console.error('写入 finished_product_confirm 失败:', e);
-      // 不影响主流程：即使这一行失败，notification 也会发，成品管理员会看到通知
-      // 后续可通过手工 SQL / 同步云函数补齐
+      console.error('[workshop-processingAdd] 写入 finished_product_confirm 失败:', e);
+      // 关键修复：让错误显式返回，前端能看到"提交成功但 confirm 没写"
+      // 同时也回滚已扣的车间辅料库存（数据一致性）
+      for (const w of writtenStocks) {
+        try {
+          if (w.action === 'dec') {
+            await db.collection('workshop_stock').doc(w.stockId).update({
+              data: { total_quantity: _.inc(w.qty), updated_at: db.serverDate() },
+            });
+          }
+        } catch (rollbackErr) {
+          console.error('[workshop-processingAdd] 回滚辅料库存失败:', w, rollbackErr);
+        }
+      }
+      // 注意：processing_order 没法直接删（被事务保护了），但因为没有 confirm 引用它，
+      // 后续可以通过运维脚本清理孤立的 processing_order
+      return {
+        success: false,
+        error: '加工单已提交，但成品待确认列表同步失败，辅料库存已回滚：' + (e.message || e.errMsg || '未知错误'),
+        hint: '请联系管理员检查云数据库权限或手动补写',
+        data: { _id: processingId, order_no: orderNo, rolledBack: writtenStocks.length },
+      };
     }
 
     // ==================== 2. 事务外：发通知 ====================
@@ -227,3 +292,26 @@ exports.main = async (event, context) => {
     return { success: false, error: e.message || '提交失败' };
   }
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ * - 失败若是 "ResourceExists"（已存在）则吞掉
+ * - 其它失败不抛错，只打日志
+ */
+async function ensureCollections() {
+  const db = cloud.database();
+  const collections = ['processing_order', 'finished_product_confirm', 'cutting_order', 'employee', 'notification'];
+  for (const name of collections) {
+    try {
+      await db.createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) {
+        continue;
+      }
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}

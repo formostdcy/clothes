@@ -19,10 +19,10 @@ const orderRes = await transaction.collection('raw_inbound_order').doc(_id).get(
       const order = orderRes.data;
 
       if (order.status === '已取消') {
-        return { success: false, error: '閻犲洢鍎遍崣鍡樻償閹惧啿绀嬬€瑰憡褰冭ぐ鍥р槈'};
+        return { success: false, error: '订单已取消'};
       }
-      if (order.status !== '鐎瑰憡褰冮悾顒勫箣') {
-        return { success: false, error: '闁告瑯浜濆﹢浣割啅閹绘帞鏆氶柟瀛樺姉婵悂骞€娴ｇ儤鐣遍柛蹇嬪劚缁ㄩ亶宕￠弴鐐茶濞寸姰鍎辫ぐ鍥р槈'};
+      if (order.status !== '已入库') {
+        return { success: false, error: '仅已入库订单可取消入库'};
       }
 
       // 2. 閹煎瓨鎸搁悺銊╁炊閻愬娉�

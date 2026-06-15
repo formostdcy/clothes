@@ -1,5 +1,6 @@
 // pages/finished/stock/index.js
 const { callCloud } = require('../../../utils/request.js');
+const { formatDate } = require('../../../utils/util.js');
 const pageGuard = require('../../../utils/page-guard.js');
 
 pageGuard({
@@ -8,16 +9,19 @@ pageGuard({
     list: [],
     schoolList: [],
     styleList: [],
+    seasonList: [],
     genderList: ['全部', '男', '女', '通用'],
     workshopList: [],        // 车间筛选列表
     selectedSchool: null,
     selectedStyle: null,
+    selectedSeason: null,
     selectedWorkshop: null,
     genderIndex: 0,
     page: 1,
     pageSize: 20,
     total: 0,
     totalQuantity: 0,        // 当前页总件数
+    updateTime: '',          // 顶部更新时间
     loading: false
   },
 
@@ -52,39 +56,53 @@ pageGuard({
     Promise.all([
       callCloud('option-list', { type: 'school' }),
       callCloud('option-list', { type: 'style' }),
-      callCloud('role-list', { role: '车间管理员' })  // 车间列表
-    ]).then(([schoolRes, styleRes, wsRes]) => {
+      callCloud('option-list', { type: 'season' }),
+      callCloud('workshop-list')  // 车间列表（取所有车间管理员）
+    ]).then(([schoolRes, styleRes, seasonRes, wsRes]) => {
       const sc = Array.isArray(schoolRes) ? schoolRes : (schoolRes && schoolRes.data) || [];
       const st = Array.isArray(styleRes) ? styleRes : (styleRes && styleRes.data) || [];
-      // role-list 返回的结构是 { data: [{ _id, name, account, role }] } 或直接数组
-      const ws = Array.isArray(wsRes) ? wsRes : (wsRes && wsRes.data) || [];
-      this.setData({ schoolList: sc, styleList: st, workshopList: ws });
-    }).catch(() => {});
+      const sn = Array.isArray(seasonRes) ? seasonRes : (seasonRes && seasonRes.data) || [];
+      // workshop-list 返回结构: { _id, name, account }[]
+      const wsRaw = Array.isArray(wsRes) ? wsRes : (wsRes && wsRes.data) || [];
+      const ws = wsRaw.map(w => ({ _id: w._id, name: w.name || w.account || '(未命名)' }));
+      this.setData({ schoolList: sc, styleList: st, seasonList: sn, workshopList: ws });
+    }).catch((err) => {
+      console.error('[finished-stock] loadOptions 失败:', err);
+    });
   },
 
   loadList(concat = false) {
-    const { selectedSchool, selectedStyle, selectedWorkshop, genderIndex, genderList } = this.data;
+    const { selectedSchool, selectedStyle, selectedSeason, selectedWorkshop, genderIndex, genderList } = this.data;
     const params = {
       page: this.data.page,
       pageSize: this.data.pageSize
     };
     if (selectedSchool) params.school = selectedSchool.name || selectedSchool.value || '';
-    if (selectedStyle) params.style = selectedStyle.name || selectedStyle.value || '';
+    if (selectedStyle)  params.style  = selectedStyle.name  || selectedStyle.value  || '';
+    if (selectedSeason) params.season = selectedSeason.name || selectedSeason.value || '';
     if (genderIndex > 0) params.gender = genderList[genderIndex];
     if (selectedWorkshop) params.workshop_admin_id = selectedWorkshop._id || '';
 
     this.setData({ loading: true });
     return callCloud('finished-stockList', params).then(res => {
       const rawList = res.list || [];
-      // 把 sizeText 字段（性别/款式/学校/尺码 拼成展示文本）补上
+      // 把 sizeText 字段（性别/款式/季节/学校/尺码 拼成展示文本）补上
       const list = rawList.map(item => ({
         ...item,
-        sizeText: [item.gender, item.style, item.school, item.size].filter(Boolean).join(' / ') || '—'
+        sizeText: [item.gender, item.style, item.season, item.school, item.size].filter(Boolean).join(' / ') || '—'
       }));
       const newList = concat ? [...this.data.list, ...list] : list;
       const totalQuantity = newList.reduce((s, x) => s + (Number(x.quantity) || 0), 0);
-      this.setData({ list: newList, total: res.total || 0, totalQuantity, loading: false });
-    }).catch(() => {
+      this.setData({
+        list: newList,
+        total: res.total || 0,
+        totalQuantity,
+        updateTime: formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
+        loading: false,
+      });
+    }).catch((err) => {
+      // 关键：详细打印错误，避免 ReferenceError 等被吞
+      console.error('[finished-stock] loadList 失败:', err);
       this.setData({ loading: false });
     });
   },
@@ -101,6 +119,12 @@ pageGuard({
     this.loadList();
   },
 
+  onSeasonChange(e) {
+    const index = e.detail.value;
+    this.setData({ selectedSeason: this.data.seasonList[index], page: 1, list: [] });
+    this.loadList();
+  },
+
   onGenderChange(e) {
     this.setData({ genderIndex: e.detail.value, page: 1, list: [] });
     this.loadList();
@@ -114,10 +138,11 @@ pageGuard({
 
   onExport() {
     // 用当前筛选条件调导出云函数
-    const { selectedSchool, selectedStyle, selectedWorkshop, genderList, genderIndex } = this.data;
+    const { selectedSchool, selectedStyle, selectedSeason, selectedWorkshop, genderList, genderIndex } = this.data;
     const params = { page: 1, pageSize: 1000 }; // 一次拉全部用于导出
     if (selectedSchool) params.school = selectedSchool.name || selectedSchool.value || '';
-    if (selectedStyle) params.style = selectedStyle.name || selectedStyle.value || '';
+    if (selectedStyle)  params.style  = selectedStyle.name  || selectedStyle.value  || '';
+    if (selectedSeason) params.season = selectedSeason.name || selectedSeason.value || '';
     if (genderIndex > 0) params.gender = genderList[genderIndex];
     if (selectedWorkshop) params.workshop_admin_id = selectedWorkshop._id || '';
 

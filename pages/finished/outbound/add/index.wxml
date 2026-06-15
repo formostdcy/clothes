@@ -18,15 +18,65 @@
       <view class="info-box">
         <text>性别: {{selectedOrder.gender || '—'}}</text>
         <text>款式: {{selectedOrder.style || '—'}}</text>
+        <text>季节: {{selectedOrder.season || '—'}}</text>
         <text>学校: {{selectedOrder.school || '—'}}</text>
-        <text>尺码: {{selectedOrder.size || '—'}}</text>
-        <text class="info-stock">当前库存: {{selectedOrder.availableCount}} 件</text>
+        <text class="info-stock">该订单共 {{selectedOrder.availableCount}} 件</text>
       </view>
     </view>
 
-    <view class="form-item">
-      <text class="label">出库数量</text>
-      <input class="input" type="number" value="{{count}}" placeholder="请输入出库数量" bindinput="onCountInput" />
+    <!-- 各尺码明细：每个尺码一行，含订单件数 / 本次出库两列 -->
+    <view class="form-item" wx:if="{{selectedOrder}}">
+      <view class="size-section-header">
+        <text class="label" style="margin-bottom:0;">各尺码出库</text>
+        <view class="size-quick-btns" wx:if="{{sizeBreakdown && sizeBreakdown.length}}">
+          <text class="size-quick-btn" bindtap="onDebugCompare">数据对比</text>
+          <text class="size-quick-btn" bindtap="onFillAll">全填</text>
+          <text class="size-quick-btn" bindtap="onClearAll">清空</text>
+        </view>
+      </view>
+
+      <view class="size-loading" wx:if="{{sizeLoading === 'loading'}}">尺码加载中…</view>
+
+      <view class="size-table" wx:elif="{{sizeBreakdown && sizeBreakdown.length}}">
+        <view class="size-thead">
+          <text class="size-th col-size">尺码</text>
+          <text class="size-th col-stock">订单件数</text>
+          <text class="size-th col-out">本次出库</text>
+        </view>
+        <view class="size-row" wx:for="{{sizeBreakdown}}" wx:key="size" wx:for-item="sz">
+          <view class="size-td col-size">
+            <text class="size-tag">{{sz.size}}</text>
+          </view>
+          <view class="size-td col-stock">
+            <text class="size-num">{{sz.orderQty}}</text>
+          </view>
+          <view class="size-td col-out">
+            <input
+              class="size-input"
+              type="number"
+              value="{{sz.outQty}}"
+              data-idx="{{index}}"
+              bindinput="onSizeOutInput"
+              placeholder="0"
+              placeholder-class="size-input-ph"
+            />
+          </view>
+        </view>
+        <!-- 合计行 -->
+        <view class="size-row size-total-row">
+          <view class="size-td col-size">
+            <text class="size-total-label">合计</text>
+          </view>
+          <view class="size-td col-stock">
+            <text class="size-num size-total-num">{{totalOrderQty || 0}}</text>
+          </view>
+          <view class="size-td col-out">
+            <text class="size-num size-total-out">{{totalOutQty || 0}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="size-empty" wx:elif="{{selectedOrder && sizeLoading !== 'loading'}}">该订单没有尺码明细</view>
     </view>
 
     <view class="form-item">

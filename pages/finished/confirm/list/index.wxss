@@ -1,12 +1,38 @@
-/* pages/finished/confirm/list/index.wxss */
+/* pages/finished/confirm/list/index.wxss
+ * ============================================================
+ *  经典左右分栏 + 右侧垂直按钮风格
+ *  ------------------------------------------------------------
+ *  修复点：
+ *  1) 卡片改为 flex-direction: row 左右分栏
+ *  2) 左侧 .item-info: flex: 1; min-width: 0;
+ *  3) 右侧 .item-actions: flex-shrink: 0; flex-direction: column;
+ *  4) 卡片 align-items: center 垂直居中
+ *  5) 单号强制单行省略号（min-width: 0 + text-overflow: ellipsis）
+ *  6) 字段分组：基础信息 / 件数明细 / 底部辅助 三组
+ *  7) 移除"车间管理员"等不匹配字段后的样式不再需要
+ *  8) 按钮 bindtap / data-id 完全保持原样
+ * ============================================================
+ */
 
-/* ====== 顶部返回条 ====== */
+/* ================== 根容器 ================== */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow-x: hidden;                /* 关键：禁止横向滚动 */
+}
+
+/* ================== 顶部返回条 ================== */
 .back-bar {
   display: flex;
   align-items: center;
-  padding: 12rpx 16rpx;
-  background: #fff;
-  border-bottom: 1rpx solid #f0f0f0;
+  height: 72rpx;
+  padding: 0 8rpx;
+  margin-bottom: 16rpx;
+  background: transparent;
+  box-sizing: border-box;
 }
 .back-icon {
   font-size: 40rpx;
@@ -21,82 +47,293 @@
   line-height: 1;
 }
 
-/* ====== 根容器 ======
-   修：补全 width: 100% + overflow-x: hidden 兜底 */
-.container {
-  width: 100%;
-  min-height: 100vh;
-  background-color: var(--bg-color);
-  padding: 20rpx 24rpx 32rpx;
+/* ================== 数据 Tab：待确认 / 已完成 ================== */
+.data-tabs {
+  display: flex;
+  background: #ffffff;
+  border-radius: 16rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+  overflow: hidden;
   box-sizing: border-box;
-  overflow-x: hidden;       /* 关键：禁止横向滚动 */
+  width: 100%;
+}
+.data-tab {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  color: #999999;
+  position: relative;
+  border-bottom: 4rpx solid transparent;
+  box-sizing: border-box;
+  transition: color 0.2s, background-color 0.2s;
+}
+.data-tab--active {
+  color: #1A73E8;
+  font-weight: 600;
+  background-color: #F4F8FE;
+  border-bottom-color: #1A73E8;
+}
+.data-tab__badge {
+  min-width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  padding: 0 10rpx;
+  margin-left: 10rpx;
+  background-color: #fa5151;
+  color: #ffffff;
+  font-size: 22rpx;
+  border-radius: 18rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+.data-tab__badge--gray {
+  background-color: #999999;
 }
 
+.data-tab--tool {
+  color: #ef4444;
+  font-weight: 500;
+}
+.data-tab--tool::before {
+  content: "🛠 ";
+}
+
+/* ================== List 容器 ================== */
 .list {
   width: 100%;
   max-width: 100%;
-  background-color: var(--white);
-  border-radius: 16rpx;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;                       /* 多张卡片之间间距 20rpx */
 }
 
+/* ================== 卡片 ==================
+   修复点：改为上下分层布局（彻底解决右侧按钮溢出）
+   上：信息区独占整宽
+   下：操作按钮横铺底部 50:50 */
 .list-item {
   width: 100%;
   max-width: 100%;
-  padding: 24rpx;
-  border-bottom: 2rpx solid var(--divider);
-  position: relative;
-  box-sizing: border-box;   /* 关键 */
-  overflow: hidden;         /* 关键 */
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;                    /* 修复点：保持 flex */
+  flex-direction: column;           /* 修复点：上下分层（不是 row） */
+  align-items: stretch;             /* 修复点：撑满整宽 */
+  gap: 20rpx;                       /* 修复点：信息区与按钮区之间间距 20rpx */
+  border-left: none;                /* 防御性兜底：强制无左边框 */
 }
-.list-item:last-child { border-bottom: none; }
-.list-item.list-item--todo { border-left: 6rpx solid var(--warning-color); padding-left: 18rpx; }
+.list-item.list-item--todo,
+.list-item.list-item--done,
+.list-item.list-item--problem {
+  border-left: none;
+  padding-left: 32rpx;
+}
 
+/* ================== 信息区（核心：独占整宽） ==================
+   修复点：去掉 flex: 1 和 min-width: 0（整宽排版，不再分栏） */
 .item-info {
-  margin-bottom: 20rpx;
-  width: 100%;
+  width: 100%;                      /* 修复点：整宽 */
   max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;                       /* 修复点：组间清晰间距 16rpx */
   box-sizing: border-box;
   overflow: hidden;
 }
+
+/* ================== 单号顶行 ================== */
 .item-no {
   font-size: 30rpx;
-  color: var(--text-primary);
-  font-weight: 600;
-  margin-bottom: 12rpx;
-  line-height: 1.3;
-  white-space: nowrap;       /* 修：补全单行省略 */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-.item-source, .item-material, .item-count, .item-time {
-  font-size: 26rpx;
-  color: var(--text-secondary);
-  margin-top: 8rpx;
-  line-height: 1.5;
-  white-space: nowrap;       /* 修：补全单行省略 */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-.item-source {
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
-.item-actions {
+  color: #333333;
+  font-weight: 700;
+  line-height: 1.4;
   display: flex;
-  gap: 16rpx;
+  align-items: baseline;
+  gap: 12rpx;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-bottom: 14rpx;
+  border-bottom: 2rpx solid #EEF0F3;
+}
+.item-no-label {
+  flex: 0 0 auto;
+  color: #999999;
+  font-weight: 500;
+  font-size: 26rpx;
+}
+.item-no-value {
+  flex: 1 1 0;
+  min-width: 0;                      /* 修复点：允许收缩 */
+  font-family: "SF Mono", "Monaco", "Consolas", "Courier New", monospace;
+  font-size: 32rpx;                  /* 修复点：突出字号 */
+  font-weight: 700;
+  color: #1A73E8;                    /* 修复点：突出蓝色 */
+  letter-spacing: -1rpx;
+  white-space: nowrap;               /* 修复点：强制单行 */
+  overflow: hidden;
+  text-overflow: ellipsis;           /* 修复点：超出省略号 */
+  word-break: keep-all;
+  max-width: 100%;
 }
 
+/* ================== 字段分组 ================== */
+.item-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;                         /* 修复点：同组内字段行间距 8rpx */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+/* 件数明细组：特殊背景区分 */
+.item-group--qty {
+  background-color: #fafbfc;
+  padding: 12rpx 16rpx;
+  border-radius: 10rpx;
+  border-left: 4rpx solid #07c160;
+}
+/* 基础信息组：底部分隔 */
+.item-group--base {
+  padding-bottom: 12rpx;
+  border-bottom: 2rpx dashed #EEF0F3;
+}
+/* 底部辅助组：略灰 */
+.item-group--meta .info-key {
+  color: #bbbbbb;
+}
+.item-group--meta .info-val {
+  color: #888888;
+  font-size: 24rpx;
+}
+
+/* ================== 单行字段 ================== */
+.info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  width: 100%;
+  max-width: 100%;
+  font-size: 26rpx;
+  line-height: 1.55;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.info-key {
+  flex: 0 0 112rpx;                 /* 修复点：固定键宽，4 个汉字 + 间距 */
+  color: #999999;
+  font-size: 24rpx;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.info-val {
+  flex: 1 1 0;
+  min-width: 0;
+  color: #333333;
+  font-size: 26rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.info-val--strong {
+  color: #fa8c16;                    /* 件数突出橙色 */
+  font-weight: 600;
+  font-size: 28rpx;
+}
+
+/* ================== 尺码明细 ================== */
+.info-row--sizes {
+  align-items: baseline;
+}
+.info-sizes {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  align-items: center;
+  overflow: hidden;
+}
+.size-chip {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  background-color: #ffffff;
+  border: 2rpx solid #e0e6ed;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  color: #555555;
+  white-space: nowrap;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+/* ================== 问题描述（高亮） ================== */
+.item-problem {
+  padding: 12rpx 16rpx;
+  background-color: #fff1f0;
+  border-left: 6rpx solid #fa5151;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #cf1322;
+  word-break: break-all;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+}
+.problem-label {
+  font-weight: 600;
+  color: #cf1322;
+  flex: 0 0 auto;
+}
+.problem-text {
+  color: #cf1322;
+  flex: 1 1 0;
+  min-width: 0;
+  word-break: break-all;
+}
+
+/* ================== 底部操作区：双按钮横排 50:50 平分整宽 ==================
+   修复点：彻底改为底部横排
+   信息区整宽排版，按钮独立一行 50:50 平分，绝不溢出 */
+.item-actions {
+  width: 100%;                      /* 修复点：撑满卡片宽度 */
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;              /* 修复点：横向并排 */
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 20rpx;                       /* 修复点：两按钮之间间距 20rpx */
+  margin-top: 4rpx;                 /* 修复点：与上方信息区轻微间距 */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ================== 按钮（底部横排：等分宽度） ==================
+   修复点：flex: 1 等分剩余空间，不再固定 168rpx
+   保留原有 onConfirm / onProblem bindtap，只调整样式 */
 .action-btn {
-  flex: 1;
+  flex: 1 1 0;                      /* 修复点：等分宽度（替代固定 168rpx） */
+  min-width: 0;                     /* 修复点：允许收缩 */
+  width: auto;                      /* 修复点：宽度由 flex 计算 */
   height: 72rpx;
   min-height: 72rpx;
   line-height: 68rpx;
@@ -105,26 +342,89 @@
   justify-content: center;
   font-size: 28rpx;
   font-weight: 500;
-  border-radius: 12rpx;
-  border: none;
-  color: var(--text-inverse);
-  line-height: 1;
-  padding: 0 4rpx;
+  border-radius: 999rpx;             /* 胶囊形 */
+  padding: 0 12rpx;
   margin: 0;
   box-sizing: border-box;
   overflow: hidden;
   letter-spacing: 0;
+  text-align: center;
+  border: 2rpx solid transparent;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.action-btn::after {
+  border: none;
+  content: '';
+  width: auto;
+  height: auto;
+}
+.action-btn:active {
+  opacity: 0.75;
+  transform: scale(0.98);
+}
+
+/* 确认入库：绿底白字（原色） */
+.action-btn.confirm {
+  background: linear-gradient(135deg, #07c160 0%, #06a050 100%);
+  color: #ffffff;
+  border: 2rpx solid transparent;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.25);
+}
+
+/* 有问题：红底白字（原色） */
+.action-btn.problem {
+  background: linear-gradient(135deg, #fa5151 0%, #d4380d 100%);
+  color: #ffffff;
+  border: 2rpx solid transparent;
+  box-shadow: 0 4rpx 12rpx rgba(250, 81, 81, 0.25);
+}
+.action-btn.problem:active {
+  opacity: 0.85;
+}
+
+.action-icon {
+  font-size: 26rpx;
+  font-weight: 700;
+  margin-right: 6rpx;
+  line-height: 1;
+  display: inline-block;
+  flex-shrink: 0;
+  align-self: center;
+}
+.action-text {
+  font-size: 26rpx;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: inline-block;
+  align-self: center;
+}
+
+/* ================== 已完成状态（无按钮时，底部显示） ==================
+   修复点：改为底部整行，与按钮区位置一致 */
+.item-status {
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 8rpx 0 0;
+}
+.status-text {
+  font-size: 26rpx;
+  font-weight: 500;
   white-space: nowrap;
 }
-.action-btn::after { border: none; }
-.action-btn.confirm { background-color: var(--success-color); }
-.action-btn.problem { background-color: var(--danger-color); }
+.status-text--success { color: #34A853; }
+.status-text--danger  { color: #fa5151; }
 
+/* ================== Empty ================== */
 .empty {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 120rpx 0;
-  color: var(--text-secondary);
+  color: #999999;
   font-size: 28rpx;
 }

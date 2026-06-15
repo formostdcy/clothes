@@ -3,7 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 /**
  * 成品 - 库存导出 Excel
- * 支持当前筛选条件（gender/style/school/workshop_admin_id）
+ * 支持当前筛选条件（gender/style/season/school/workshop_admin_id）
  * 一次拉全部（pageSize=10000），写入云存储，返 fileID
  */
 exports.main = async (event, context) => {
@@ -11,11 +11,12 @@ exports.main = async (event, context) => {
 
   try {
     const xlsx = require('xlsx');
-    const { gender, style, school, workshop_admin_id } = event;
+    const { gender, style, season, school, workshop_admin_id } = event;
 
     let where = {};
     if (gender) where.gender = gender;
-    if (style) where.style = style;
+    if (style)  where.style  = style;
+    if (season) where.season = season;
     if (school) where.school = school;
     if (workshop_admin_id) where.workshop_admin_id = workshop_admin_id;
 
@@ -23,6 +24,7 @@ exports.main = async (event, context) => {
       .where(where)
       .orderBy('school', 'asc')
       .orderBy('style', 'asc')
+      .orderBy('season', 'asc')
       .orderBy('size', 'asc')
       .limit(10000)
       .get();
@@ -35,18 +37,19 @@ exports.main = async (event, context) => {
 
     const totalQty = list.reduce((s, x) => s + (x.quantity || 0), 0);
 
-    // 拼 Sheet 数据
+    // 拼 Sheet 数据（SKU 5 维：性别/款式/季节/学校/尺码）
     const sheetData = [
-      ['性别', '款式', '学校', '尺码', '库存数量', '来源车间'],
+      ['性别', '款式', '季节', '学校', '尺码', '库存数量', '来源车间'],
       ...list.map(item => [
         item.gender || '',
-        item.style || '',
+        item.style  || '',
+        item.season || '',
         item.school || '',
-        item.size || '',
+        item.size   || '',
         item.quantity || 0,
         item.workshop_admin_id || '—',
       ]),
-      ['', '', '', '合计', totalQty, ''],
+      ['', '', '', '', '合计', totalQty, ''],
     ];
 
     const ws = xlsx.utils.aoa_to_sheet(sheetData);
@@ -54,6 +57,7 @@ exports.main = async (event, context) => {
     ws['!cols'] = [
       { wch: 8 },  // 性别
       { wch: 12 }, // 款式
+      { wch: 10 }, // 季节
       { wch: 20 }, // 学校
       { wch: 8 },  // 尺码
       { wch: 10 }, // 库存

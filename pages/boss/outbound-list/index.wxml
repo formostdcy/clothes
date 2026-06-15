@@ -1,0 +1,82 @@
+<!-- pages/boss/outbound-list/index.wxml
+  老板视角的"出库记录"快捷入口
+  - 顶部：橙色渐变 + 标题 + 汇总
+  - 日期筛选：今日/昨日/本周/本月/自定义
+  - 列表：单号 + 状态 + 目标 + 物料明细
+-->
+<view class="container">
+  <view class="header">
+    <view class="header-title">出库记录</view>
+    <view class="header-date">{{rangeText}}</view>
+    <view class="header-stats">
+      <view class="stat-item">
+        <text class="stat-label">单数</text>
+        <text class="stat-value">{{total}}</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-label">总件数</text>
+        <text class="stat-value">{{totalQuantity}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="date-tabs">
+    <view class="date-tab {{datePreset === 'today' ? 'active' : ''}}" bindtap="onDatePresetChange" data-preset="today">
+      <text>今日</text>
+    </view>
+    <view class="date-tab {{datePreset === 'yesterday' ? 'active' : ''}}" bindtap="onDatePresetChange" data-preset="yesterday">
+      <text>昨日</text>
+    </view>
+    <view class="date-tab {{datePreset === 'week' ? 'active' : ''}}" bindtap="onDatePresetChange" data-preset="week">
+      <text>本周</text>
+    </view>
+    <view class="date-tab {{datePreset === 'month' ? 'active' : ''}}" bindtap="onDatePresetChange" data-preset="month">
+      <text>本月</text>
+    </view>
+    <view class="date-tab {{datePreset === 'custom' ? 'active' : ''}}" bindtap="onCustomDate">
+      <text>自定义</text>
+    </view>
+  </view>
+
+  <view class="custom-range" wx:if="{{datePreset === 'custom'}}">
+    <picker mode="date" value="{{customDateFrom}}" bindchange="onCustomFromChange">
+      <view class="custom-item">
+        <text class="custom-label">从</text>
+        <text class="custom-value">{{customDateFrom}}</text>
+      </view>
+    </picker>
+    <text class="custom-sep">至</text>
+    <picker mode="date" value="{{customDateTo}}" bindchange="onCustomToChange">
+      <view class="custom-item">
+        <text class="custom-label">至</text>
+        <text class="custom-value">{{customDateTo}}</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="list">
+    <view class="order-card" wx:for="{{list}}" wx:key="_id">
+      <view class="card-header">
+        <text class="order-no">{{item.order_no}}</text>
+        <text class="badge badge-{{item.statusClassName}}">{{item.status}}</text>
+      </view>
+      <view class="card-meta">目标: {{item.target_type_text}} · {{item.created_at_text}}</view>
+      <view class="card-detail">
+        <view wx:for="{{item.material_details}}" wx:key="index" wx:for-item="m">
+          <text class="m-cat-two">{{m.category_two || '未分类'}}</text>
+          <text class="m-qty"> × {{m.quantity}}{{m.unit || ''}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <view class="empty-icon">📤</view>
+    <view class="empty-text">{{emptyText}}</view>
+  </view>
+
+  <view class="footer-tip" wx:if="{{list.length > 0}}">
+    <text>共 {{list.length}} 单 · 总 {{totalQuantity}} 件</text>
+  </view>
+</view>

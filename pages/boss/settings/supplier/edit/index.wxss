@@ -33,6 +33,14 @@
   box-sizing: border-box;
 }
 
+.form-tip {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--danger-color);
+  line-height: 1.4;
+}
+
 .btn-primary {
   background-color: var(--primary-color);
   color: var(--text-inverse);

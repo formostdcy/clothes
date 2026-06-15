@@ -63,6 +63,7 @@ pageGuard({
       const rows = list.map(item => ({
         学校: item.school || '',
         款式: item.style || '',
+        季节: item.season || '',
         性别: item.gender || '',
         尺码: item.size || '',
         数量: item.quantity || 0

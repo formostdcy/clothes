@@ -1,25 +1,29 @@
+<!-- pages/boss/settings/supplier/index.wxml -->
 <view class="container">
-  <view class="search-bar">
-    <input class="search-input" placeholder="搜索供应商名称" value="{{keyword}}" bindinput="onSearchInput" />
-    <button class="search-btn" bindtap="onSearch">搜索</button>
+  <!-- 顶部搜索区域：第一行 = 搜索框 + 搜索按钮；第二行 = 新增按钮 -->
+  <view class="top-bar">
+    <view class="search-row">
+      <input class="search-input" placeholder="搜索供应商名称" value="{{keyword}}" bindinput="onSearchInput" />
+      <button class="search-btn" bindtap="onSearch">搜索</button>
+    </view>
+    <button class="add-btn" bindtap="onAdd">+ 新增供应商</button>
   </view>
-  
-  <button class="add-btn" bindtap="onAdd">+ 新增供应商</button>
-  
+
+  <!-- 列表卡片：每张供应商卡 = 左侧信息 + 右侧操作 -->
   <view class="list">
     <view class="list-item" wx:for="{{list}}" wx:key="_id">
       <view class="item-info">
         <view class="item-name">{{item.name}}</view>
-        <view class="item-contact">联系人: {{item.contact_name}}</view>
-        <view class="item-phone">电话: {{item.contact_phone}}</view>
+        <view class="item-contact">联系人：{{item.contact_name}}</view>
+        <view class="item-phone">电话：{{item.contact_phone}}</view>
       </view>
       <view class="item-actions">
-        <button class="action-btn edit" bindtap="onEdit" data-id="{{item._id}}">编辑</button>
-        <button class="action-btn delete" bindtap="onDelete" data-id="{{item._id}}">删除</button>
+        <view class="action-btn edit" bindtap="onEdit" data-id="{{item._id}}">编辑</view>
+        <view class="action-btn delete" bindtap="onDelete" data-id="{{item._id}}">删除</view>
       </view>
     </view>
   </view>
-  
+
   <view class="empty" wx:if="{{list.length === 0 && !loading}}">
     <text>暂无供应商数据</text>
   </view>

@@ -87,6 +87,7 @@ function mapWorkshopPending(item) {
     creatorName: item.creator_name || item.source_admin_name || '', // 来源裁剪管理员姓名
     gender: first.gender || item.gender || '',                      // 性别
     style: first.style || item.style || '',                          // 款式
+    season: first.season || item.season || '',                       // 季节
     school: first.school || item.school || '',                      // 学校
     sourceText: item.source_type === 'cutting' ? '裁剪单' : item.source_type === 'workshop' ? '加工单' : (item.source_type || ''),
     createTime: item.created_at || '',
@@ -98,8 +99,13 @@ function mapCuttingOrder(item) {
   const plan = (item.plan_clothes_detail && item.plan_clothes_detail[0]) || {};
   // 汇总总件数
   const totalCount = (item.plan_clothes_detail || []).reduce((s, p) => s + (Number(p.count) || 0), 0);
-  // 尺码汇总（去重）
-  const sizes = Array.from(new Set((item.plan_clothes_detail || []).map(p => p.size).filter(Boolean)));
+  // 尺码明细（按尺码分组的件数），与待加工确认一致
+  const planDetails = item.plan_clothes_detail || [];
+  const planSizes = planDetails
+    .filter(p => p && (p.size || p.count))
+    .map(p => ({ size: p.size || '', count: Number(p.count) || 0 }));
+  // 尺码汇总（去重）保留原 sizeText 兜底
+  const sizes = Array.from(new Set(planDetails.map(p => p.size).filter(Boolean)));
   return {
     ...item,
     id: item._id,
@@ -107,9 +113,11 @@ function mapCuttingOrder(item) {
     materialName: safe(item, 'material_actual_usage.0.category_two', '') || item.category_two || '',
     workshopName: item.target_workshop_name || item.target_workshop || '',
     planCount: totalCount,
+    planSizes,                                  // 尺码明细数组（chip 用）
     sizeText: sizes.join('/') || '—',
     school: plan.school || '',
     style: plan.style || '',
+    season: plan.season || '',
     gender: plan.gender || '',
     remark: item.remark || '',
     statusText: item.status || '',
@@ -154,24 +162,61 @@ function mapFinishedConfirm(item) {
   const actualCount = (item.actual_quantity || []).reduce(
     (s, a) => s + (Number(a.count) || 0), 0
   );
-  // 尺码明细
+  // 计划件数 = plan_quantity[].count 求和
+  const planCount = (item.plan_quantity || []).reduce(
+    (s, a) => s + (Number(a.count) || 0), 0
+  );
+  // 尺码明细（字符串）
   const sizeText = (item.actual_quantity || [])
     .filter(a => a && a.size)
     .map(a => `${a.size}×${Number(a.count) || 0}`)
-    .join(' / ') || '—';
+    .join(' / ') || '';
+  // 尺码明细（数组，用于 wxml 分行展示）
+  const actualSizes = (item.actual_quantity || [])
+    .filter(a => a && a.size)
+    .map(a => ({ size: a.size, count: Number(a.count) || 0 }));
+  // 损耗率明细
+  const lossRate = (item.loss_rate || [])
+    .filter(a => a && (a.size || a.value !== undefined))
+    .map(a => a.size ? `${a.size} ${a.value || 0}%` : `${a.value || 0}%`)
+    .join(' / ') || '';
+  // 辅料使用明细
+  const accessoryText = (item.accessory_usage || [])
+    .filter(a => a && (a.name || a.category_two))
+    .map(a => `${a.name || a.category_two}×${a.value || 0}${a.unit || ''}`)
+    .join(' / ') || '';
   // 物料名：从 actual_quantity 拿不到 category_two（加工单只存 size+count），
-  // 改为拿 gender+style+school 拼接一个"成品概要"
-  const productSummary = [item.gender, item.style, item.school].filter(Boolean).join(' / ') || '—';
+  // 改为拿 gender+style+season+school 拼接一个"成品概要"
+  const productSummary = [item.gender, item.style, item.season].filter(Boolean).join('-') || '';
+  // 状态文案
+  const statusText = ({
+    '待确认': '待确认',
+    '已入库': '已入库',
+    '有问题': '有问题',
+  })[item.status] || item.status || '';
   return {
     ...item,
     id: item._id,
     orderNo: item.order_no || item.processing_order_id || '',
     materialName: productSummary,
     count: actualCount,
+    planCount,
+    lossRate,
     sizeText,
+    actualSizes,
+    accessoryText,
     workshopAdminName: item.workshop_admin_name || '',
+    school: item.school || '',
+    gender: item.gender || '',
+    style: item.style || '',
+    season: item.season || '',
     sourceText: item.source_type === 'cutting' ? '裁剪单' : item.source_type === 'workshop' ? '加工单' : (item.source_type || ''),
     createTime: item.created_at || '',
+    // 新增：状态、问题描述、确认时间（用于"已完成" Tab）
+    status: item.status || '待确认',
+    statusText,
+    problemDesc: item.problem_desc || '',
+    confirmTime: item.confirm_time || '',
   };
 }
 
@@ -192,14 +237,15 @@ function mapFinishedOutbound(item) {
 
 function mapFinishedStock(item) {
   if (!item) return item;
-  // 成品库存按 gender+style+school+size 四维分类
+  // 成品库存按 gender+style+season+school+size 五维分类
   // 拼一个"成品概要"作为主展示
-  const productName = [item.gender, item.style].filter(Boolean).join('-') || '—';
+  const productName = [item.gender, item.style, item.season].filter(Boolean).join('-') || '—';
   return {
     ...item,
     productName,
     schoolName: item.school || '',
     styleName: item.style || '',
+    seasonName: item.season || '',
     genderName: item.gender || '',
     sizeName: item.size || '',
     stock: item.quantity || 0,
@@ -267,6 +313,7 @@ function mapProcessingSource(item) {
     sizeText: sizeDetail.map(s => `${s.size}×${s.count}`).join(' / ') || '—',
     gender: first.gender || item.gender || '',
     style: first.style || item.style || '',
+    season: first.season || item.season || '',
     school: first.school || item.school || '',
   };
 }
@@ -274,7 +321,8 @@ function mapProcessingSource(item) {
 // 成品出库可用的加工单（含 availableCount 兜底）
 function mapAvailableProcessing(item) {
   if (!item) return item;
-  const count = safe(item, 'actual_quantity.0.quantity', 0);
+  // 实际字段是 count（不是 quantity），加工单 actual_quantity[] 元素是 { size, count, category_two }
+  const count = safe(item, 'actual_quantity.0.count', 0);
   return {
     ...item,
     id: item._id,
@@ -283,6 +331,7 @@ function mapAvailableProcessing(item) {
     availableCount: typeof item.availableCount === 'number' ? item.availableCount : count,
     gender: item.gender || '',
     style: item.style || '',
+    season: item.season || '',
     school: item.school || '',
     size: item.size || safe(item, 'actual_quantity.0.size', ''),
   };

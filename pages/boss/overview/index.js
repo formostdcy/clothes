@@ -49,6 +49,27 @@ pageGuard({
     }
   },
 
+  // 关键：4 个老板专用快捷入口
+  // - 今日入库 → 老板专用今日入库列表（不复用原材料列表，避免老板看到操作按钮）
+  goToTodayInbound() {
+    wx.navigateTo({ url: '/pages/boss/inbound-list/index' });
+  },
+
+  // - 今日出库 → 老板专用今日出库列表
+  goToTodayOutbound() {
+    wx.navigateTo({ url: '/pages/boss/outbound-list/index' });
+  },
+
+  // - 原材料总量 → 老板专用原材料库存
+  goToRawStock() {
+    wx.navigateTo({ url: '/pages/boss/raw-stock/index' });
+  },
+
+  // - 成品总量 → 现有成品库存页（老板有 finished_stock 权限）
+  goToFinishedStock() {
+    wx.navigateTo({ url: '/pages/finished/stock/index' });
+  },
+
   goToOrders() {
     wx.navigateTo({ url: '/pages/boss/orders/index' });
   },
@@ -63,10 +84,6 @@ pageGuard({
 
   goToEmployee() {
     wx.navigateTo({ url: '/pages/boss/employee/list/index' });
-  },
-
-  goToNotification() {
-    wx.navigateTo({ url: '/pages/notification/list/index' });
   },
 
   onLogout() {

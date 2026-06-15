@@ -46,6 +46,11 @@
   </view>
 
   <view class="form-item" wx:if="{{selectedOrder}}">
+    <text class="label">季节</text>
+    <view class="readonly-field">{{selectedOrder.season || '—'}}</view>
+  </view>
+
+  <view class="form-item" wx:if="{{selectedOrder}}">
     <text class="label">性别</text>
     <view class="readonly-field">{{selectedOrder.gender || '—'}}</view>
   </view>

@@ -1,33 +1,45 @@
-<view class="container">
-  <view class="menu-list">
-    <view class="menu-item" bindtap="goToEmployee">
-      <text class="menu-icon">👥</text>
-      <text class="menu-text">员工管理</text>
-      <text class="menu-arrow">></text>
+<!-- pages/boss/settings/index.wxml -->
+<!-- 所有 {{}} 绑定、bindtap 交互、class 名均保留；用 ss- 前缀避免与 app.wxss 冲突 -->
+<view class="ss-container">
+  <view class="ss-menu-list">
+    <view class="ss-menu-item" bindtap="goToEmployee">
+      <text class="ss-menu-icon">👥</text>
+      <view class="ss-menu-content">
+        <text class="ss-menu-text">员工管理</text>
+      </view>
+      <text class="ss-menu-arrow">></text>
     </view>
-    
-    <view class="menu-item" bindtap="goToOption">
-      <text class="menu-icon">⚙️</text>
-      <text class="menu-text">选项管理</text>
-      <text class="menu-arrow">></text>
+
+    <view class="ss-menu-item" bindtap="goToOption">
+      <text class="ss-menu-icon">⚙️</text>
+      <view class="ss-menu-content">
+        <text class="ss-menu-text">选项管理</text>
+      </view>
+      <text class="ss-menu-arrow">></text>
     </view>
-    
-    <view class="menu-item" bindtap="goToSupplier">
-      <text class="menu-icon">🏭</text>
-      <text class="menu-text">供应商管理</text>
-      <text class="menu-arrow">></text>
+
+    <view class="ss-menu-item" bindtap="goToSupplier">
+      <text class="ss-menu-icon">🏭</text>
+      <view class="ss-menu-content">
+        <text class="ss-menu-text">供应商管理</text>
+      </view>
+      <text class="ss-menu-arrow">></text>
     </view>
-    
-    <view class="menu-item" bindtap="goToStockInit">
-      <text class="menu-icon">📦</text>
-      <text class="menu-text">库存初始化</text>
-      <text class="menu-arrow">></text>
+
+    <view class="ss-menu-item" bindtap="goToStockInit">
+      <text class="ss-menu-icon">📦</text>
+      <view class="ss-menu-content">
+        <text class="ss-menu-text">库存初始化</text>
+      </view>
+      <text class="ss-menu-arrow">></text>
     </view>
-    
-    <view class="menu-item" bindtap="goToDataExport">
-      <text class="menu-icon">📊</text>
-      <text class="menu-text">数据导出</text>
-      <text class="menu-arrow">></text>
+
+    <view class="ss-menu-item" bindtap="goToDataExport">
+      <text class="ss-menu-icon">📊</text>
+      <view class="ss-menu-content">
+        <text class="ss-menu-text">数据导出</text>
+      </view>
+      <text class="ss-menu-arrow">></text>
     </view>
   </view>
 </view>

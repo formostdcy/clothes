@@ -1,18 +1,149 @@
-<view class="form-container">
-  <view class="form-item">
-    <text class="label">选项名称</text>
-    <input class="input" value="{{name}}" placeholder="请输入选项名称" bindinput="onNameInput" />
+<!-- pages/boss/settings/option-edit/index.wxml -->
+<!--
+  重要：
+  1. 所有 {{}} 数据绑定、wx:for 循环、bindtap/catchtap 交互逻辑完全保留
+  2. 所有 class 名保持与原代码一致
+  3. 为了避开 app.wxss 中同名全局类（.list-item / .action-btn / .form-item / .submit-bar / .btn-primary / .modal-footer）的污染，
+     在 wxss 中用 !important + 更高特异性选择器强制覆盖
+-->
+<view class="oe-container">
+  <!-- ① 顶部 Tab 切换 8 种类型（自动换行 + 横向排列）
+       关键：外层 display:flex + flex-wrap:wrap（自动换行）
+            子元素 flex-shrink:0 保持原始宽度 -->
+  <view class="oe-type-tabs-wrap">
+    <view
+      wx:for="{{typeList}}"
+      wx:key="key"
+      class="oe-type-tab {{activeType === item.key ? 'oe-type-tab--active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onTypeChange"
+    >{{item.label}}</view>
   </view>
-  
-  <view class="form-item">
-    <text class="label">选项值</text>
-    <input class="input" value="{{value}}" placeholder="请输入选项值" bindinput="onValueInput" />
+
+  <!-- ② 搜索行：搜索框 + 数量 两端对齐 -->
+  <view class="oe-toolbar" style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;padding:20rpx 32rpx 16rpx;">
+    <view class="oe-search-wrap" style="flex:1 1 auto;min-width:0;display:flex;flex-direction:row;align-items:center;height:72rpx;box-sizing:border-box;background-color:#FFFFFF;border-radius:16rpx;padding:0 24rpx;border:2rpx solid transparent;">
+      <text class="oe-search-icon" style="flex-shrink:0;font-size:26rpx;margin-right:12rpx;line-height:1;align-self:center;">🔍</text>
+      <input
+        class="oe-search-input"
+        placeholder="搜索选项名称"
+        placeholder-class="oe-search-placeholder"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+        style="flex:1 1 auto;min-width:0;height:72rpx;line-height:72rpx;background-color:transparent;border:none;font-size:28rpx;color:#333333;padding:0;box-sizing:border-box;"
+      />
+    </view>
+    <text class="oe-count-text" style="flex-shrink:0;font-size:24rpx;color:#999999;white-space:nowrap;height:72rpx;line-height:72rpx;margin-left:16rpx;align-self:center;box-sizing:border-box;">共 {{filteredList.length}} 项</text>
   </view>
-  
-  <view class="form-item">
-    <text class="label">排序</text>
-    <input class="input" type="number" value="{{sort}}" placeholder="请输入排序号" bindinput="onSortInput" />
+
+  <!-- ③ 选项列表 -->
+  <view class="oe-list">
+    <view
+      class="oe-list-item"
+      wx:for="{{filteredList}}"
+      wx:key="_id"
+    >
+      <view
+        class="oe-item-info"
+        bindtap="{{activeType === 'workshop' ? '' : 'onEdit'}}"
+        data-id="{{item._id}}"
+      >
+        <view class="oe-item-name">{{item.name}}</view>
+        <view class="oe-item-meta">
+          <text class="oe-meta-tag" wx:if="{{item.value && activeType !== 'workshop'}}">值: {{item.value}}</text>
+          <text class="oe-meta-tag" wx:elif="{{item.category_one}}">一级: {{item.category_one}}</text>
+          <!-- 车间 Tab 特殊：显示账号 -->
+          <text class="oe-meta-tag oe-meta-tag--muted" wx:if="{{activeType === 'workshop' && item.value}}">账号: {{item.value}}</text>
+          <text class="oe-meta-tag oe-meta-tag--muted" wx:if="{{activeType !== 'workshop'}}">排序: {{item.sort || 0}}</text>
+        </view>
+      </view>
+      <!-- 车间 Tab 不允许增删改：账号由管理员创建，不可在此处编辑 -->
+      <view class="oe-item-actions" wx:if="{{activeType !== 'workshop'}}">
+        <view class="oe-action-btn oe-action-btn--edit" catchtap="onEdit" data-id="{{item._id}}">编辑</view>
+        <view class="oe-action-btn oe-action-btn--delete" catchtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</view>
+      </view>
+    </view>
   </view>
-  
-  <button class="btn-primary" bindtap="onSubmit">确认保存</button>
+
+  <view class="oe-empty" wx:if="{{filteredList.length === 0 && !loading}}">
+    <text wx:if="{{activeType === 'workshop'}}">还没有车间管理员账号，请联系总管理员在员工管理中添加</text>
+    <text wx:else>{{activeTypeLabel}} 下还没有选项</text>
+  </view>
+
+  <!-- ④ 底部新增按钮（固定 + 安全区） 车间 Tab 不允许新增 -->
+  <view class="oe-submit-bar" wx:if="{{activeType !== 'workshop'}}">
+    <button class="oe-btn-primary" bindtap="onAdd">+ 新增{{activeTypeLabel}}</button>
+  </view>
+
+  <!-- ⑤ 编辑弹层 -->
+  <view class="oe-modal-mask" wx:if="{{showEditModal}}" bindtap="closeModal">
+    <view class="oe-modal-panel" catchtap="noop">
+      <view class="oe-modal-title">{{editingId ? '编辑' : '新增'}}{{activeTypeLabel}}</view>
+
+      <view class="oe-form-item">
+        <text class="oe-form-label">选项名称 *</text>
+        <input
+          class="oe-form-input"
+          value="{{form.name}}"
+          placeholder="请输入选项名称"
+          placeholder-class="oe-form-placeholder"
+          bindinput="onFormNameInput"
+          maxlength="30"
+        />
+      </view>
+
+      <view class="oe-form-item" wx:if="{{activeType === 'category_two'}}">
+        <text class="oe-form-label">所属一级分类 *</text>
+        <view class="oe-picker-row" bindtap="onPickCategoryOne">
+          <text class="oe-picker-text {{form.category_one ? '' : 'oe-picker-text--placeholder'}}">{{form.category_one || '请选择一级分类'}}</text>
+          <text class="oe-picker-arrow">›</text>
+        </view>
+      </view>
+
+      <view class="oe-form-item">
+        <text class="oe-form-label">选项值（可选）</text>
+        <input
+          class="oe-form-input"
+          value="{{form.value}}"
+          placeholder="用于代码标识，可留空"
+          placeholder-class="oe-form-placeholder"
+          bindinput="onFormValueInput"
+          maxlength="50"
+        />
+      </view>
+
+      <view class="oe-form-item">
+        <text class="oe-form-label">排序（数字小靠前）</text>
+        <input
+          class="oe-form-input"
+          type="number"
+          value="{{form.sort}}"
+          placeholder="0"
+          placeholder-class="oe-form-placeholder"
+          bindinput="onFormSortInput"
+        />
+      </view>
+
+      <view class="oe-modal-footer">
+        <view class="oe-btn-cancel" bindtap="closeModal">取消</view>
+        <view class="oe-btn-confirm" bindtap="onFormSubmit">确认保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ⑥ 一级分类选择器弹层 -->
+  <view class="oe-modal-mask" wx:if="{{showCategoryPicker}}" bindtap="closeCategoryPicker">
+    <view class="oe-picker-panel" catchtap="noop">
+      <view class="oe-picker-title">选择一级分类</view>
+      <view
+        wx:for="{{categoryOneList}}"
+        wx:key="key"
+        class="oe-picker-item {{form.category_one === item.label ? 'oe-picker-item--active' : ''}}"
+        data-label="{{item.label}}"
+        bindtap="onCategoryOneSelect"
+      >{{item.label}}</view>
+      <view class="oe-picker-cancel" bindtap="closeCategoryPicker">取消</view>
+    </view>
+  </view>
 </view>

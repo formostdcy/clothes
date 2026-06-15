@@ -11,7 +11,7 @@ exports.main = async (event, context) => {
 
   if (!type || !name) return { success: false, error: '缁鐎烽崪灞芥倳缁夐绗夐懗鎴掕礋缁�'};
 
-  const validTypes = ['school', 'category_two', 'size', 'style', 'workshop', 'destination', 'gender'];
+  const validTypes = ['school', 'category_two', 'size', 'style', 'workshop', 'destination', 'gender', 'season'];
   if (!validTypes.includes(type)) return { success: false, error: '缁鐎锋稉宥呮値濞�'};
 
   try {

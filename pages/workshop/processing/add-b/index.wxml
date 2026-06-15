@@ -40,6 +40,13 @@
   </view>
 
   <view class="form-item">
+    <text class="label required">季节</text>
+    <picker mode="selector" range="{{seasonList}}" range-key="name" bindchange="onSeasonChange">
+      <view class="picker-value {{selectedSeason ? '' : 'placeholder'}}">{{selectedSeason ? selectedSeason.name : '请选择季节'}}</view>
+    </picker>
+  </view>
+
+  <view class="form-item">
     <text class="label">学校</text>
     <picker mode="selector" range="{{schoolList}}" range-key="name" bindchange="onSchoolChange">
       <view class="picker-value">{{selectedSchool ? selectedSchool.name : '请选择学校'}}</view>

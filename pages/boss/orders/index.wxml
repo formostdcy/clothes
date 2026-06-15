@@ -1,23 +1,120 @@
 <!-- pages/boss/orders/index.wxml -->
 <view class="orders-container">
+  <!-- 顶部筛选 -->
   <view class="filter-bar">
     <picker bindchange="onModuleChange" range="{{modules}}" range-key="name" value="{{moduleIndex}}">
       <view class="filter-picker">{{modules[moduleIndex].name}}</view>
     </picker>
-    <input class="search-input" placeholder="搜索订单号" bindinput="onSearch" />
+    <picker bindchange="onStatusChange" range="{{statusOptions}}" range-key="name" value="{{statusIndex}}">
+      <view class="filter-picker">{{statusOptions[statusIndex].name}}</view>
+    </picker>
+    <picker bindchange="onTimeRangeChange" range="{{timeRangeOptions}}" range-key="name" value="{{timeRangeIndex}}">
+      <view class="filter-picker">{{timeRangeOptions[timeRangeIndex].name}}</view>
+    </picker>
   </view>
 
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索订单号" value="{{keyword}}" bindinput="onSearch" />
+  </view>
+
+  <!-- 订单列表 -->
   <view class="list">
-    <view class="order-card" wx:for="{{list}}" wx:key="_id">
+    <view class="order-card" wx:for="{{list}}" wx:key="_id" bindtap="onOpenTimeline" data-id="{{item._id}}" data-no="{{item.order_no}}" data-mod="{{item.module}}" data-modlabel="{{item.moduleLabel}}">
       <view class="card-header">
-        <text class="order-no">{{item.order_no}}</text>
+        <view class="card-title">
+          <text class="order-no">{{item.order_no}}</text>
+          <text class="module-tag">{{item.moduleLabel}}</text>
+        </view>
         <text class="status-badge {{item.statusClass}}">{{item.status}}</text>
       </view>
-      <view class="card-meta">{{item.created_at}}</view>
+      <view class="card-summary" wx:if="{{item.summary}}">{{item.summary}}</view>
+      <view class="card-footer">
+        <text class="card-meta">{{item.created_at_label}}</text>
+        <text class="card-operator" wx:if="{{item.operator_name}}">操作人：{{item.operator_name}}</text>
+        <text class="card-operator" wx:else>操作人：-</text>
+      </view>
     </view>
   </view>
 
   <view class="empty" wx:if="{{list.length === 0 && !loading}}">
     <text>暂无订单数据</text>
+  </view>
+
+  <!-- 时间轴弹窗 -->
+  <view class="modal-mask" wx:if="{{timelineModal.show}}" bindtap="onCloseTimeline">
+    <view class="modal-panel" catchtap="">
+      <view class="modal-header">
+        <view class="modal-title-wrap">
+          <text class="modal-title">{{timelineModal.orderNo}}</text>
+          <text class="modal-subtitle">{{timelineModal.moduleLabel}}</text>
+        </view>
+        <text class="modal-close" bindtap="onCloseTimeline">×</text>
+      </view>
+      <scroll-view scroll-y class="modal-body">
+        <view wx:if="{{timelineModal.loading}}" class="modal-loading">加载中...</view>
+        <view wx:else>
+          <view wx:if="{{timelineModal.timeline.length === 0}}" class="modal-empty">暂无流转记录</view>
+          <view class="timeline">
+            <view class="timeline-item"
+                  wx:for="{{timelineModal.timeline}}"
+                  wx:key="stage"
+                  wx:for-item="node"
+                  data-idx="{{index}}"
+                  bindtap="onNodeTap">
+              <view class="timeline-dot"></view>
+              <view class="timeline-line" wx:if="{{index !== timelineModal.timeline.length - 1}}"></view>
+              <view class="timeline-content">
+                <view class="timeline-row1">
+                  <text class="timeline-stage">{{node.stageLabel}}</text>
+                  <text class="timeline-time">{{node.timeLabel}}</text>
+                </view>
+                <view class="timeline-row2">
+                  <text class="timeline-operator">操作人：{{node.operatorName || '-'}}</text>
+                  <text class="timeline-status">{{node.status}}</text>
+                </view>
+                <view class="timeline-tap-hint">点击查看详情 ›</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 节点详情弹窗 -->
+  <view class="modal-mask" wx:if="{{nodeModal.show}}" bindtap="onCloseNode">
+    <view class="modal-panel modal-panel-sm" catchtap="">
+      <view class="modal-header">
+        <view class="modal-title-wrap">
+          <text class="modal-title">{{nodeModal.stageLabel}}</text>
+          <text class="modal-subtitle">{{nodeModal.time}}</text>
+        </view>
+        <text class="modal-close" bindtap="onCloseNode">×</text>
+      </view>
+      <scroll-view scroll-y class="modal-body">
+        <view class="node-section">
+          <view class="node-row"><text class="node-label">操作人</text><text class="node-value">{{nodeModal.operatorName || '-'}}</text></view>
+          <view class="node-row" wx:if="{{nodeModal.status}}"><text class="node-label">状态</text><text class="node-value">{{nodeModal.status}}</text></view>
+        </view>
+        <view class="node-data">
+          <view class="node-section-title">详情</view>
+          <view class="node-data-box">
+            <block wx:if="{{nodeModal.fields && nodeModal.fields.length}}">
+              <view class="node-data-row" wx:for="{{nodeModal.fields}}" wx:key="key" wx:for-item="field">
+                <text class="node-data-key">{{field.label}}</text>
+                <text class="node-data-val" style="white-space:pre-line;">{{field.value}}</text>
+              </view>
+            </block>
+            <view class="node-data-row" wx:if="{{nodeModal.photos && nodeModal.photos.length}}">
+              <text class="node-data-key">照片</text>
+              <view class="node-photos">
+                <image wx:for="{{nodeModal.photos}}" wx:key="*this" src="{{item}}" class="node-photo" mode="aspectFill" data-src="{{item}}" bindtap="onPreviewImage"></image>
+              </view>
+            </view>
+            <view wx:if="{{(!nodeModal.fields || !nodeModal.fields.length) && (!nodeModal.photos || !nodeModal.photos.length)}}" class="node-data-empty">无</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
   </view>
 </view>

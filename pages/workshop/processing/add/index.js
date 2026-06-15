@@ -80,7 +80,8 @@ pageGuard({
           planCount,
           planSizes,
           school: res.school || '',
-          style: res.style || '',
+          style:  res.style  || '',
+          season: res.season || '',
           gender: res.gender || '',
         },
         actualBySize,
@@ -104,7 +105,8 @@ pageGuard({
               planCount: planSizes2.reduce((s, p) => s + p.count, 0),
               planSizes: planSizes2,
               school: target.school || '',
-              style: target.style || '',
+              style:  target.style  || '',
+              season: target.season || '',
               gender: target.gender || '',
             },
             actualCount: String((target.actual_quantity || []).reduce((s, a) => s + (Number(a.count) || 0), 0) || ''),
@@ -303,7 +305,8 @@ pageGuard({
       loss_rate: [{ value: Number(this.data.lossRate) || 0 }],
       accessory_usage: accessoryList,
       gender: selectedOrder.gender || '',
-      style: selectedOrder.style || '',
+      style:  selectedOrder.style  || '',
+      season: selectedOrder.season || '',
       school: selectedOrder.school || ''
     }).then(res => {
       // 关键：提交成功后立即本地乐观扣减，让用户在小字库存处看到数字变化

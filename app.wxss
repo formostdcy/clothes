@@ -21,7 +21,7 @@ page {
   --gold-light: #FFF8E1;
 
   /* 中性色 */
-  --bg-color: #F5F7FA;
+  --bg-color: #F4F5F7;
   --bg-section: #FAFBFC;
   --white: #FFFFFF;
   --black: #000000;

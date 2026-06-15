@@ -31,10 +31,11 @@ async function aggregateStock(db, groupBy) {
   // 云数据库单次最多 1000，库存 SKU 不会太多，足够
   const list = all.data || [];
 
-  // 维度映射：库存表的字段直接是 school/style/size/gender
+  // 维度映射：库存表的字段直接是 school/style/season/size/gender
   const fieldMap = {
     school: 'school',
     style: 'style',
+    season: 'season',
   };
   const field = fieldMap[groupBy];
   if (!field) {
@@ -61,6 +62,7 @@ async function aggregateStock(db, groupBy) {
       key: (r[field] || '未分类').toString().trim() || '未分类',
       school: r.school || '',
       style: r.style || '',
+      season: r.season || '',
       gender: r.gender || '',
       size: r.size || '',
       quantity: r.quantity || 0,
@@ -70,13 +72,14 @@ async function aggregateStock(db, groupBy) {
   // 可选下钻维度
   const schools = [...new Set(list.map(r => r.school).filter(Boolean))];
   const styles = [...new Set(list.map(r => r.style).filter(Boolean))];
+  const seasons = [...new Set(list.map(r => r.season).filter(Boolean))];
 
   return {
     supported: true,
     total,
     rows,
     details,
-    filters: { schools, styles },
+    filters: { schools, styles, seasons },
   };
 }
 
@@ -111,8 +114,8 @@ async function aggregateOutbound(db, groupBy) {
         quantity: sum,
       });
     }
-  } else if (groupBy === 'school' || groupBy === 'style') {
-    const field = groupBy; // school / style
+  } else if (groupBy === 'school' || groupBy === 'style' || groupBy === 'season') {
+    const field = groupBy; // school / style / season
     for (const order of orders) {
       (order.outbound_details || []).forEach(d => {
         const k = (d[field] || '未分类').toString().trim() || '未分类';
@@ -124,6 +127,7 @@ async function aggregateOutbound(db, groupBy) {
           orderNo: order.order_no || '',
           school: d.school || '',
           style: d.style || '',
+          season: d.season || '',
           gender: d.gender || '',
           size: d.size || '',
           quantity: v,
@@ -146,12 +150,14 @@ async function aggregateOutbound(db, groupBy) {
   // 可选下钻维度
   const schools = new Set();
   const styles = new Set();
+  const seasons = new Set();
   const destinations = new Set();
   orders.forEach(o => {
     if (o.destination) destinations.add(o.destination);
     (o.outbound_details || []).forEach(d => {
       if (d.school) schools.add(d.school);
       if (d.style) styles.add(d.style);
+      if (d.season) seasons.add(d.season);
     });
   });
 
@@ -163,6 +169,7 @@ async function aggregateOutbound(db, groupBy) {
     filters: {
       schools: [...schools],
       styles: [...styles],
+      seasons: [...seasons],
       destinations: [...destinations],
     },
   };

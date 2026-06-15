@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "成品出库"
+  "component": true,
+  "usingComponents": {}
 }

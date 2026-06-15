@@ -1,0 +1,41 @@
+<!-- pages/boss/raw-stock/index.wxml
+  老板视角的"原材料库存"快捷入口
+  与原材料管理员库存明细页布局保持一致（不带新增按钮）
+-->
+<view class="container">
+  <view class="header">
+    <view class="header-title">原材料库存</view>
+    <view class="header-date">更新时间: {{updateTime}}</view>
+    <view class="header-stats">
+      <view class="stat-item">
+        <text class="stat-label">SKU</text>
+        <text class="stat-value">{{total}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">总数量</text>
+        <text class="stat-value">{{totalQuantity}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="list">
+    <view class="stock-card" wx:for="{{list}}" wx:key="_id">
+      <view class="stock-name">
+        <text class="cat-one">{{item.category_one || '—'}}</text>
+        <text class="cat-sep" wx:if="{{item.category_one && item.category_two}}">·</text>
+        <text class="cat-two">{{item.category_two || '—'}}</text>
+      </view>
+      <view class="stock-info">
+        <text class="stock-qty {{item.total_quantity <= item.warning_threshold && item.warning_threshold > 0 ? 'warning' : ''}}">
+          {{item.total_quantity}}{{item.unit || ''}}
+        </text>
+        <text class="stock-threshold" wx:if="{{item.warning_threshold > 0}}">警戒: {{item.warning_threshold}}{{item.unit || ''}}</text>
+        <text class="stock-threshold" wx:if="{{!item.warning_threshold || item.warning_threshold <= 0}}">未设置警戒</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无原材料库存</text>
+  </view>
+</view>

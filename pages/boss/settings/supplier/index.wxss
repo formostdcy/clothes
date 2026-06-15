@@ -6,15 +6,27 @@
   box-sizing: border-box;
 }
 
-.search-bar {
+/* ============ 顶部搜索区 ============ */
+.top-bar {
+  margin-bottom: 20rpx;
+}
+
+/* 第一行：搜索框 + 搜索按钮 横向并排 */
+.search-row {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: 16rpx;
   margin-bottom: 16rpx;
 }
 
 .search-input {
   flex: 1;
+  /* 关键：min-width: 0 让 flex 子项可以被压缩并配合省略号，
+     防止内部中文在小宽度下被强制逐字换行 */
+  min-width: 0;
   height: 72rpx;
+  line-height: 72rpx;
   background-color: var(--white);
   border: 2rpx solid transparent;
   border-radius: 36rpx;
@@ -23,42 +35,45 @@
   color: var(--text-primary);
   box-sizing: border-box;
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s;
 }
 .search-input:focus { border-color: var(--primary-color); }
 
 .search-btn {
+  flex-shrink: 0;
   width: 140rpx;
   height: 72rpx;
+  line-height: 72rpx;
   background-color: var(--primary-color);
   color: var(--text-inverse);
   font-size: 28rpx;
   border-radius: 36rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
   border: none;
-  line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 .search-btn::after { border: none; }
 
+/* 第二行：新增供应商 单独一行 居中 */
 .add-btn {
-  background-color: var(--success-color);
-  color: var(--text-inverse);
+  display: block;
   width: 100%;
   height: 80rpx;
-  border-radius: 40rpx;
+  line-height: 80rpx;
+  background-color: var(--success-color);
+  color: var(--text-inverse);
   font-size: 30rpx;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 40rpx;
+  text-align: center;
   border: none;
-  margin-bottom: 16rpx;
-  line-height: 1;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 .add-btn::after { border: none; }
 
+/* ============ 列表卡片 ============ */
 .list {
   background-color: var(--white);
   border-radius: 16rpx;
@@ -68,53 +83,83 @@
 
 .list-item {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
   padding: 24rpx;
   border-bottom: 2rpx solid var(--divider);
+  box-sizing: border-box;
 }
 .list-item:last-child { border-bottom: none; }
 
+/* 左侧信息区：关键 min-width: 0 防挤压 */
 .item-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+
+/* 关键：禁止中文在窄列里逐字竖排换行 */
+.item-name,
+.item-contact,
+.item-phone {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  word-wrap: normal;
+}
+
 .item-name {
   font-size: 30rpx;
   color: var(--text-primary);
   font-weight: 600;
+  line-height: 1.4;
   margin-bottom: 8rpx;
 }
-.item-contact, .item-phone {
+
+.item-contact,
+.item-phone {
   font-size: 24rpx;
   color: var(--text-secondary);
-  margin-top: 6rpx;
   line-height: 1.5;
+  margin-top: 4rpx;
 }
 
+/* 右侧操作区：不压缩、与左侧垂直居中 */
 .item-actions {
-  display: flex;
-  gap: 12rpx;
   flex-shrink: 0;
-  margin-left: 16rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  margin-left: 20rpx;
+  height: 56rpx;
 }
 
+/* 关键：用 view 模拟按钮（避免 button 标签自带的 padding/border/line-height 错位） */
 .action-btn {
-  padding: 0 20rpx;
-  height: 56rpx;
-  font-size: 24rpx;
-  border-radius: 28rpx;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  width: 96rpx;
+  height: 56rpx;
   line-height: 1;
+  font-size: 24rpx;
   font-weight: 500;
+  border-radius: 28rpx;
+  border: none;
+  text-align: center;
+  white-space: nowrap;
 }
-.action-btn::after { border: none; }
 .action-btn.edit   { background-color: var(--primary-light); color: var(--primary-color); }
 .action-btn.delete { background-color: var(--danger-light);  color: var(--danger-color); }
 
+/* ============ 空态 ============ */
 .empty {
   display: flex;
   align-items: center;

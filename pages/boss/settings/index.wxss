@@ -1,47 +1,97 @@
-/* pages/boss/settings/index.wxss */
-.container {
+/* pages/boss/settings/index.wxss
+ *
+ * 卡片式悬浮菜单设计：
+ * - 容器：左右 32rpx margin，上下 24rpx margin，24rpx 大圆角，纯白
+ * - 菜单项：min-height 104rpx，左侧图标和文字垂直居中
+ * - 分割线：极细极浅 #F0F2F5，只在右侧内容区，不穿过左侧图标
+ * - 箭头：#CCCCCC 浅灰
+ */
+
+.ss-container {
   min-height: 100vh;
-  background-color: var(--bg-color);
-  padding: 20rpx 24rpx 32rpx;
+  /* 全局浅灰背景，反衬卡片 */
+  background-color: #F4F5F7;
+  padding: 24rpx 0 32rpx;
   box-sizing: border-box;
 }
 
-.menu-list {
-  background-color: var(--white);
-  border-radius: 16rpx;
+/* ① 卡片式悬浮菜单 */
+.ss-menu-list {
+  background-color: #FFFFFF;
+  /* ② 左右 32rpx、上下 24rpx 外边距 */
+  margin: 24rpx 32rpx;
+  /* ③ 24rpx 大圆角 */
+  border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
 }
 
-.menu-item {
+.ss-menu-item {
   display: flex;
+  flex-direction: row;
+  /* ④ 完美垂直居中 */
   align-items: center;
-  padding: 28rpx 24rpx;
-  border-bottom: 2rpx solid var(--divider);
+  /* ⑤ min-height 104rpx */
+  min-height: 104rpx;
+  padding: 20rpx 32rpx;
+  box-sizing: border-box;
   position: relative;
+  transition: background-color 0.15s;
+  /* 关键：item 自身不画底边，分割线由 .ss-menu-content 画 */
+  border-bottom: none;
 }
-.menu-item:last-child { border-bottom: none; }
-.menu-item:active { background-color: var(--bg-section); }
+.ss-menu-item:active { background-color: #F8F9FA; }
 
-.menu-icon {
+/* ⑥ 图标 */
+.ss-menu-icon {
   font-size: 40rpx;
-  margin-right: 20rpx;
+  margin-right: 24rpx;
   line-height: 1;
   width: 48rpx;
   text-align: center;
   flex-shrink: 0;
+  align-self: center;
 }
 
-.menu-text {
+/* ⑦ 中间内容区：仅在这一列上画分割线（不穿过左侧图标） */
+.ss-menu-content {
   flex: 1;
-  font-size: 30rpx;
-  color: var(--text-primary);
-  font-weight: 500;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  align-self: stretch;
+  /* 极细极浅分割线 */
+  border-bottom: 1rpx solid #F0F2F5;
+  padding: 4rpx 0;
+  box-sizing: border-box;
 }
 
-.menu-arrow {
+/* ⑧ 最后一项的分割线去除 */
+.ss-menu-item:last-child .ss-menu-content {
+  border-bottom: none;
+}
+
+.ss-menu-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 30rpx;
+  color: #1A1A1A;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-self: center;
+}
+
+/* ⑨ 箭头 */
+.ss-menu-arrow {
   font-size: 32rpx;
-  color: var(--text-placeholder);
+  color: #CCCCCC;
   line-height: 1;
   font-weight: 300;
+  flex-shrink: 0;
+  margin-left: 12rpx;
+  align-self: center;
 }

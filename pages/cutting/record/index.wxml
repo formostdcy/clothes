@@ -1,25 +1,55 @@
 <!-- pages/cutting/record/index.wxml -->
 <view class="container">
-  <view class="tabs">
-    <view class="tab {{activeTab === 'pending' ? 'active' : ''}}" bindtap="onTabChange" data-status="pending">进行中</view>
-    <view class="tab {{activeTab === 'completed' ? 'active' : ''}}" bindtap="onTabChange" data-status="completed">已完成</view>
-    <view class="tab {{activeTab === 'all' ? 'active' : ''}}" bindtap="onTabChange" data-status="all">全部</view>
-  </view>
-
   <view class="list">
     <view class="list-item" bindtap="onDetail" data-id="{{item.id}}" wx:for="{{list}}" wx:key="id">
-      <view class="item-header">
-        <text class="item-no">单号: {{item.orderNo}}</text>
+      <!-- 1) 单号顶行 + 状态徽章 -->
+      <view class="item-no">
+        <text class="item-label">单号</text>
+        <text class="item-no-value">{{item.orderNo}}</text>
         <text wx:if="{{item.statusText}}" class="item-status status-{{item.statusClass}}">{{item.statusText}}</text>
       </view>
+
+      <!-- 2) 信息区：标签+值 水平布局（与待加工确认风格一致） -->
       <view class="item-info">
-        <text class="info-text">物料: {{item.materialName || '—'}}</text>
-        <text class="info-text">学校/款式: {{item.school || '—'}} / {{item.style || '—'}}</text>
-        <text class="info-text">性别: {{item.gender || '—'}}</text>
-        <text class="info-text">尺码: {{item.sizeText}}</text>
-        <text class="info-text">总件数: {{item.planCount}}</text>
-        <text class="info-text">目标车间: {{item.workshopName}}</text>
-        <text class="info-text">提交时间: {{item.createTime}}</text>
+        <view class="info-row" wx:if="{{item.materialName}}">
+          <text class="item-label">物料</text>
+          <text class="info-value">{{item.materialName}}</text>
+        </view>
+        <!-- 尺码明细：每个尺码一行 chip（与待加工一致） -->
+        <view class="item-sizes" wx:if="{{item.planSizes && item.planSizes.length}}">
+          <text class="item-label">尺码</text>
+          <view class="sizes-list">
+            <text class="size-chip" wx:for="{{item.planSizes}}" wx:for-item="sz" wx:key="size">{{sz.size}} × {{sz.count}}</text>
+          </view>
+        </view>
+        <view class="info-row">
+          <text class="item-label">总件数</text>
+          <text class="info-value">{{item.planCount || 0}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">学校</text>
+          <text class="info-value">{{item.school || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">款式</text>
+          <text class="info-value">{{item.style || '—'}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.season}}">
+          <text class="item-label">季节</text>
+          <text class="info-value">{{item.season}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">性别</text>
+          <text class="info-value">{{item.gender || '—'}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.workshopName}}">
+          <text class="item-label">目标车间</text>
+          <text class="info-value">{{item.workshopName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">提交时间</text>
+          <text class="info-value">{{item.createTime}}</text>
+        </view>
       </view>
     </view>
   </view>

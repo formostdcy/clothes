@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Dev tools and check scripts
+dev-tools/
+check-*.js
+check-*.py
+fix-*.js
+find-*.js
+get-*.js
+list-*.js
+debug.js
+test1.js
+test2.js
+convert-encoding.js
+all-cloud-fns.txt
+uploadCloudFunction.sh
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local env
+.env.local
+.env.*.local
+
+# Mini program local configs
+project.private.config.json

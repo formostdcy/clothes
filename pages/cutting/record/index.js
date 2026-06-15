@@ -7,7 +7,7 @@ const pageGuard = require('../../../utils/page-guard.js');
 pageGuard({
   moduleKey: 'cutting',
   data: {
-    activeTab: 'pending',
+    // 关键：只有一个"全部"视图，去掉 activeTab
     list: [],
     page: 1,
     pageSize: 20,
@@ -31,26 +31,13 @@ pageGuard({
     this.loadList().finally(() => wx.stopPullDownRefresh());
   },
 
-  onTabChange(e) {
-    const status = e.currentTarget.dataset.status;
-    this.setData({ activeTab: status, page: 1, list: [] });
-    this.loadList();
-  },
-
   loadList(concat = false) {
     this.setData({ loading: true });
+    // 关键：去掉 status / excludeStatus 过滤，直接拿全部
     const params = {
       page: this.data.page,
       pageSize: this.data.pageSize
     };
-    if (this.data.activeTab !== 'all') {
-      // 真实状态：'pending' → status != '已完成'，'completed' → status = '已完成'
-      if (this.data.activeTab === 'completed') {
-        params.status = '已完成';
-      } else if (this.data.activeTab === 'pending') {
-        params.excludeStatus = '已完成';
-      }
-    }
     return callCloud('cutting-orderList', params).then(res => {
       const list = (res.list || []).map(item => {
         const mapped = mapCuttingOrder(item);

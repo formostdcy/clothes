@@ -49,10 +49,11 @@ exports.main = async (event, context) => {
       return { success: false, error: `尺码【${p.size}】的计划件数必须大于0` };
     }
   }
-  // 校验学校/款式/性别必填
+  // 校验学校/款式/季节/性别必填
   for (const p of plan_clothes_detail) {
     if (!p.school) return { success: false, error: '请选择学校' };
     if (!p.style)  return { success: false, error: '请选择款式' };
+    if (!p.season) return { success: false, error: '请选择季节' };
     if (!p.gender) return { success: false, error: '请选择性别' };
   }
 
@@ -92,56 +93,89 @@ exports.main = async (event, context) => {
       }
     }
 
-    // 3) 用事务原子扣减（防止并发超扣）
-    const transaction = await db.startTransaction();
-    let txError = null;
+    // 3) 用三阶段事务
+    // 阶段 1：分批扣减 cutting_incoming_confirm 物料剩余
+    // 阶段 2：成功后写 cutting_order
+    // 阶段 3：失败时回滚已扣减的物料剩余
+    const writtenStocks = []; // [{ stockId: 'cutting_incoming_confirm_id', details: [...newDetails], action: 'update' }]
+    let stageError = null;
     let txRes = null;
-    try {
-      // 重新在事务内拉取并校验（防 TOCTOU）
-      const incInTx = await transaction.collection('cutting_incoming_confirm').doc(incoming_confirm_id).get();
-      const curDetails = (incInTx.data && incInTx.data.material_details) || details;
-      const newDetails = curDetails.map(d => {
-        const usage = material_actual_usage.find(m =>
-          (d.category_one || '') === (m.category_one || '') &&
-          (d.category_two || '') === (m.category_two || '') &&
-          (d.spec        || '') === (m.spec        || '') &&
-          (d.unit        || '') === (m.unit        || '')
-        );
-        if (!usage) return d;
-        const current = (d.remaining != null) ? d.remaining : (d.quantity || 0);
-        const newRemain = current - Number(usage.quantity);
-        return { ...d, remaining: newRemain };
-      });
-      // 任意一项 remaining < 0 直接 abort
-      if (newDetails.some(d => d.remaining < 0)) {
-        txError = '物料使用量超过剩余库存（并发冲突，请刷新后重试）';
-        await transaction.abort();
-      } else {
-        await transaction.collection('cutting_incoming_confirm').doc(incoming_confirm_id).update({
-          data: { material_details: newDetails, updated_at: db.serverDate() },
-        });
-        txRes = await transaction.collection('cutting_order').add({
-          data: {
-            order_no: generateOrderNo(),
-            incoming_confirm_id,
-            outbound_order_id: outbound_order_id || null,
-            cutting_admin_id: cutting_admin_id || '',
-            material_actual_usage,
-            plan_clothes_detail,
-            target_workshop,
-            remark: remark || '',
-            status: '已确认',
-            created_at: db.serverDate(),
-            updated_at: db.serverDate(),
-          },
-        });
-        await transaction.commit();
-      }
-    } catch (e) {
-      txError = e.message || '事务失败';
-      try { await transaction.rollback(); } catch (_) {}
+    let failDetails = null;
+
+    const BATCH_SIZE = 5;
+    const stockBatches = [];
+    for (let i = 0; i < material_actual_usage.length; i += BATCH_SIZE) {
+      stockBatches.push(material_actual_usage.slice(i, i + BATCH_SIZE));
     }
-    if (txError) return { success: false, error: txError };
+
+    try {
+      // 阶段 1：分批扣减物料剩余
+      for (const batch of stockBatches) {
+        const batchSubtotal = [];
+        await db.runTransaction(async (transaction) => {
+          const incInTx = await transaction.collection('cutting_incoming_confirm').doc(incoming_confirm_id).get();
+          const curDetails = (incInTx.data && incInTx.data.material_details) || details;
+          const newDetails = curDetails.map(d => {
+            const usage = batch.find(m =>
+              (d.category_one || '') === (m.category_one || '') &&
+              (d.category_two || '') === (m.category_two || '') &&
+              (d.spec        || '') === (m.spec        || '') &&
+              (d.unit        || '') === (m.unit        || '')
+            );
+            if (!usage) return d;
+            const current = (d.remaining != null) ? d.remaining : (d.quantity || 0);
+            const newRemain = current - Number(usage.quantity);
+            return { ...d, remaining: newRemain };
+          });
+          // 任意一项 remaining < 0 直接 throw
+          const negative = newDetails.find(d => d.remaining < 0);
+          if (negative) {
+            failDetails = negative;
+            throw new Error(`物料【${negative.category_two}】使用量超过剩余库存（并发冲突）`);
+          }
+          await transaction.collection('cutting_incoming_confirm').doc(incoming_confirm_id).update({
+            data: { material_details: newDetails, updated_at: db.serverDate() },
+          });
+          batchSubtotal.push({ stockId: incoming_confirm_id, newDetails, action: 'update' });
+        });
+        writtenStocks.push(...batchSubtotal);
+      }
+
+      // 阶段 2：写 cutting_order
+      const addRes = await db.collection('cutting_order').add({
+        data: {
+          order_no: generateOrderNo(),
+          incoming_confirm_id,
+          outbound_order_id: outbound_order_id || null,
+          cutting_admin_id: cutting_admin_id || '',
+          material_actual_usage,
+          plan_clothes_detail,
+          target_workshop,
+          remark: remark || '',
+          status: '已确认',
+          created_at: db.serverDate(),
+          updated_at: db.serverDate(),
+        },
+      });
+      txRes = addRes;
+    } catch (e) {
+      stageError = e;
+    }
+
+    // ============ 阶段 3：失败时回滚 ============
+    if (stageError) {
+      console.error('[cutting-orderAdd] 失败，回滚已扣减的物料剩余');
+      // 重新合并所有批次的 newDetails（用最新的 details 状态）
+      // 简单方案：把所有 batch 改回原始 remaining（用 details 变量）
+      try {
+        await db.collection('cutting_incoming_confirm').doc(incoming_confirm_id).update({
+          data: { material_details: details, updated_at: db.serverDate() },
+        });
+      } catch (rollbackErr) {
+        console.error('[cutting-orderAdd] 回滚物料剩余失败:', rollbackErr);
+      }
+      return { success: false, error: stageError.message || '提交失败' };
+    }
 
     // 给目标车间管理员推送待加工确认通知
     try {
@@ -159,7 +193,6 @@ exports.main = async (event, context) => {
       });
     } catch (notifErr) {
       console.error('推送通知失败:', notifErr);
-      // 通知失败不影响主流程
     }
 
     return { success: true, data: { _id: txRes._id } };

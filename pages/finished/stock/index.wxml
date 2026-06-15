@@ -1,58 +1,119 @@
+<!-- pages/finished/stock/index.wxml
+  成品库存明细 - 全新排版
+  - 顶部：渐变背景 + 标题 + 总件数 + 总 SKU + 导出 Excel 按钮
+  - 筛选：横向滚动 picker（5 个一排）
+  - 卡片：单号行（SKU 编号）+ 信息区（标签:值）+ 库存（右下大数字）
+-->
 <view class="container">
-  <view class="back-bar" bindtap="onBackHome">
-    <text class="back-icon">‹</text>
-    <text class="back-text">首页</text>
+  <!-- ============ 顶部 ============ -->
+  <view class="header">
+    <view class="header-row">
+      <view class="header-left">
+        <view class="header-title">成品库存</view>
+        <view class="header-date">更新时间: {{updateTime}}</view>
+      </view>
+      <view class="header-btn" bindtap="onExport">导出 Excel</view>
+    </view>
+    <view class="header-stats">
+      <view class="stat-item">
+        <text class="stat-label">总件数</text>
+        <text class="stat-value">{{totalQuantity}}</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-label">总 SKU</text>
+        <text class="stat-value">{{list.length}}</text>
+      </view>
+    </view>
   </view>
 
-  <view class="filter-bar">
-    <picker mode="selector" range="{{genderList}}" bindchange="onGenderChange">
-      <view class="filter-item">{{genderList[genderIndex] || '全部性别'}}</view>
-    </picker>
-    <picker mode="selector" range="{{styleList}}" range-key="name" bindchange="onStyleChange">
-      <view class="filter-item">{{selectedStyle ? selectedStyle.name : '全部款式'}}</view>
-    </picker>
-    <picker mode="selector" range="{{schoolList}}" range-key="name" bindchange="onSchoolChange">
-      <view class="filter-item">{{selectedSchool ? selectedSchool.name : '全部学校'}}</view>
-    </picker>
-    <picker mode="selector" range="{{workshopList}}" range-key="name" bindchange="onWorkshopChange">
-      <view class="filter-item">{{selectedWorkshop ? selectedWorkshop.name : '全部车间'}}</view>
-    </picker>
-  </view>
+  <!-- ============ 筛选区（横向滚动） ============ -->
+  <scroll-view class="filter-scroll" scroll-x="true" enable-flex="true">
+    <view class="filter-item {{genderIndex > 0 ? 'active' : ''}}">
+      <picker mode="selector" range="{{genderList}}" bindchange="onGenderChange">
+        <view class="filter-inner">
+          <text class="filter-prefix">性别</text>
+          <text class="filter-value">{{genderList[genderIndex] || '全部'}}</text>
+        </view>
+      </picker>
+    </view>
+    <view class="filter-item {{selectedStyle ? 'active' : ''}}">
+      <picker mode="selector" range="{{styleList}}" range-key="name" bindchange="onStyleChange">
+        <view class="filter-inner">
+          <text class="filter-prefix">款式</text>
+          <text class="filter-value">{{selectedStyle ? selectedStyle.name : '全部'}}</text>
+        </view>
+      </picker>
+    </view>
+    <view class="filter-item {{selectedSeason ? 'active' : ''}}">
+      <picker mode="selector" range="{{seasonList}}" range-key="name" bindchange="onSeasonChange">
+        <view class="filter-inner">
+          <text class="filter-prefix">季节</text>
+          <text class="filter-value">{{selectedSeason ? selectedSeason.name : '全部'}}</text>
+        </view>
+      </picker>
+    </view>
+    <view class="filter-item {{selectedSchool ? 'active' : ''}}">
+      <picker mode="selector" range="{{schoolList}}" range-key="name" bindchange="onSchoolChange">
+        <view class="filter-inner">
+          <text class="filter-prefix">学校</text>
+          <text class="filter-value">{{selectedSchool ? selectedSchool.name : '全部'}}</text>
+        </view>
+      </picker>
+    </view>
+    <view class="filter-item {{selectedWorkshop ? 'active' : ''}}">
+      <picker mode="selector" range="{{workshopList}}" range-key="name" bindchange="onWorkshopChange">
+        <view class="filter-inner">
+          <text class="filter-prefix">车间</text>
+          <text class="filter-value">{{selectedWorkshop ? selectedWorkshop.name : '全部'}}</text>
+        </view>
+      </picker>
+    </view>
+  </scroll-view>
 
-  <view class="action-bar">
-    <button class="btn-export" bindtap="onExport">导出 Excel</button>
-  </view>
-
+  <!-- ============ 列表 ============ -->
   <view class="list">
     <view class="list-item" wx:for="{{list}}" wx:key="_id">
-      <view class="item-info">
-        <view class="item-name">{{item.sizeText}}</view>
-        <view class="item-detail">
-          <text>性别: {{item.gender || '—'}}</text>
-          <text>款式: {{item.style || '—'}}</text>
-          <text>学校: {{item.school || '—'}}</text>
-          <text>尺码: {{item.size || '—'}}</text>
+      <!-- 1) 顶行：尺寸标签 + 库存量 -->
+      <view class="item-top">
+        <view class="item-size">
+          <text class="size-dot"></text>
+          <text class="size-text">{{item.size || '—'}}</text>
         </view>
         <view class="item-stock">
-          <text class="stock-label">库存:</text>
-          <text class="stock-value">{{item.quantity}} 件</text>
+          <text class="stock-num">{{item.quantity || 0}}</text>
+          <text class="stock-unit">件</text>
+        </view>
+      </view>
+
+      <!-- 2) 信息区：标签:值 水平布局 -->
+      <view class="item-info">
+        <view class="info-row">
+          <text class="info-label">性别</text>
+          <text class="info-value">{{item.gender || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">款式</text>
+          <text class="info-value">{{item.style || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">季节</text>
+          <text class="info-value">{{item.season || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">学校</text>
+          <text class="info-value">{{item.school || '—'}}</text>
         </view>
       </view>
     </view>
   </view>
 
-  <view class="summary-bar" wx:if="{{list.length > 0}}">
-    <view class="summary-item">
-      <text class="summary-label">总件数</text>
-      <text class="summary-value">{{totalQuantity}}</text>
-    </view>
-    <view class="summary-item">
-      <text class="summary-label">总SKU</text>
-      <text class="summary-value">{{list.length}}</text>
-    </view>
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <view class="empty-icon">📦</view>
+    <view class="empty-text">暂无库存数据</view>
   </view>
 
-  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
-    <text>暂无库存数据</text>
+  <view class="footer-tip" wx:if="{{list.length > 0}}">
+    <text>共 {{list.length}} 个 SKU · 总 {{totalQuantity}} 件</text>
   </view>
 </view>

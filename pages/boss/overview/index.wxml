@@ -16,15 +16,20 @@
   <view class="section">
     <view class="section-title">今日动态</view>
     <view class="stat-grid">
-      <view class="stat-card">
+      <!-- 关键：今日入库卡片可点击跳转到老板专用今日入库列表 -->
+      <view class="stat-card clickable" bindtap="goToTodayInbound" hover-class="stat-card-hover">
         <view class="stat-value text-primary">{{data.todayInboundCount}}</view>
         <view class="stat-label">今日入库</view>
+        <view class="stat-arrow">›</view>
       </view>
-      <view class="stat-card">
+      <!-- 关键：今日出库卡片可点击跳转到老板专用今日出库列表 -->
+      <view class="stat-card clickable" bindtap="goToTodayOutbound" hover-class="stat-card-hover">
         <view class="stat-value text-warning">{{data.todayOutboundCount}}</view>
         <view class="stat-label">今日出库</view>
+        <view class="stat-arrow">›</view>
       </view>
     </view>
+    <view class="section-tip">点击可查看历史记录（今日/昨日/本周/本月/自定义日期）</view>
   </view>
 
   <!-- 待确认数量 -->
@@ -50,13 +55,17 @@
   <view class="section">
     <view class="section-title">当前库存</view>
     <view class="stat-grid">
-      <view class="stat-card">
+      <!-- 关键：原材料总量卡片可点击跳转到老板专用原材料库存 -->
+      <view class="stat-card clickable" bindtap="goToRawStock" hover-class="stat-card-hover">
         <view class="stat-value">{{data.rawTotal}}</view>
         <view class="stat-label">原材料总量</view>
+        <view class="stat-arrow">›</view>
       </view>
-      <view class="stat-card">
+      <!-- 关键：成品总量卡片可点击跳转到成品库存 -->
+      <view class="stat-card clickable" bindtap="goToFinishedStock" hover-class="stat-card-hover">
         <view class="stat-value">{{data.finishedTotal}}</view>
         <view class="stat-label">成品总量</view>
+        <view class="stat-arrow">›</view>
       </view>
     </view>
   </view>
@@ -87,10 +96,6 @@
     <view class="link-item" bindtap="goToEmployee">
       <view class="link-icon">人</view>
       <view class="link-text">员工管理</view>
-    </view>
-    <view class="link-item" bindtap="goToNotification">
-      <view class="link-icon">铃</view>
-      <view class="link-text">消息通知</view>
     </view>
   </view>
 </view>

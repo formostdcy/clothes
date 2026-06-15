@@ -73,9 +73,21 @@ function isEmpty(value) {
 
 /**
  * 校验手机号
+ * - 11 位手机号：1[3-9]xxxxxxxxx
+ * - 座机：区号(3-4位) - 主号(7-8位)，如 0755-12345678 / 010-12345678
+ * - 400/800 服务号
  */
 function isValidPhone(phone) {
-  return /^1[3-9]\d{9}$/.test(phone);
+  if (!phone) return false;
+  const trimmed = String(phone).trim();
+  // 手机号
+  if (/^1[3-9]\d{9}$/.test(trimmed)) return true;
+  // 座机：0xx-xxxxxxx / 0xx-xxxxxxxx / (0xx) xxxxxxxx
+  if (/^0\d{2,3}-?\d{7,8}$/.test(trimmed)) return true;
+  // 400 / 800 服务号
+  if (/^400-?\d{3}-?\d{4}$/.test(trimmed)) return true;
+  if (/^800-?\d{3}-?\d{4}$/.test(trimmed)) return true;
+  return false;
 }
 
 /**

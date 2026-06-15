@@ -33,6 +33,7 @@
         </view>
         <view class="item-school"><text class="item-label">学校</text><text>{{item.school || '—'}}</text></view>
         <view class="item-style"><text class="item-label">款式</text><text>{{item.style || '—'}}</text></view>
+        <view class="item-season"><text class="item-label">季节</text><text>{{item.season || '—'}}</text></view>
         <view class="item-gender"><text class="item-label">性别</text><text>{{item.gender || '—'}}</text></view>
         <view class="item-time"><text class="item-label">时间</text><text>{{item.createTime}}</text></view>
       </view>

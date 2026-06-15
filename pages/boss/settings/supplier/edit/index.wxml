@@ -11,7 +11,8 @@
 
   <view class="form-item">
     <text class="label">联系电话</text>
-    <input class="input" type="text" value="{{contact_phone}}" placeholder="请输入联系电话" bindinput="onContactPhoneInput" maxlength="20" />
+    <input class="input" type="number" value="{{contact_phone}}" placeholder="请输入手机号或座机" bindinput="onContactPhoneInput" maxlength="20" />
+    <view class="form-tip" wx:if="{{phoneError}}">{{phoneError}}</view>
   </view>
 
   <button class="btn-primary" bindtap="onSubmit">保存</button>

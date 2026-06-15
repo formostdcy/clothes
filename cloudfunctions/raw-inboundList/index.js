@@ -1,19 +1,50 @@
+/**
+ * 原材料 - 入库单列表
+ * 关键：支持 date_from / date_to 区间过滤（用于老板今日入库快捷入口）
+ * 同时支持 status / keyword / page / pageSize
+ */
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
-/**
- * 閸樼喐娼楅弬?- 閸忋儱绨遍崡鏇炲灙鐞�? */
-
 exports.main = async (event, context) => {
   const db = cloud.database();
-  const { page = 1, pageSize = 20, status = '', keyword = '' } = event;
+  const { page = 1, pageSize = 20, status = '', keyword = '', date_from = '', date_to = '', exclude_status = '' } = event;
 
   try {
-    let where = { status: { $ne: -1 } };
-    if (status) where.status = status;
+    // 关键：status 和 exclude_status 互斥
+    // - 优先用 status 精确匹配
+    // - 否则用 exclude_status 排除某状态
+    let where = {};
+    if (status) {
+      where.status = status;
+    } else if (exclude_status) {
+      // 排除某状态
+      where.status = db.command.neq(exclude_status);
+    } else {
+      // 默认排除已删除的（status = -1）
+      where.status = db.command.neq(-1);
+    }
     if (keyword) {
       where.order_no = db.RegExp({ regexp: keyword, options: 'i' });
     }
+    // 关键：日期区间过滤
+    // 用链式 .and 组合 gte + lte，避免后写覆盖前写
+    if (date_from) {
+      where.created_at = db.command.gte(new Date(date_from));
+    }
+    if (date_to) {
+      if (where.created_at && where.created_at.and) {
+        // 已有 gte，链式 .and(lte)
+        where.created_at = where.created_at.and(db.command.lte(new Date(date_to)));
+      } else {
+        where.created_at = db.command.lte(new Date(date_to));
+      }
+    }
+    console.log('[raw-inboundList] where:', JSON.stringify(where, (k, v) => {
+      // 简化输出
+      if (v instanceof Date) return v.toISOString();
+      return v;
+    }));
 
     const res = await db.collection('raw_inbound_order') .where(where)
       .orderBy('created_at', 'desc')
@@ -23,7 +54,6 @@ exports.main = async (event, context) => {
 
     const countRes = await db.collection('raw_inbound_order').where(where).count();
 
-    // 鐞涖儱鍘栨笟娑樼安閸熷棗鎮曠粔?
     const list = await Promise.all(res.data.map(async (item) => {
       if (item.supplier_id) {
         try {
@@ -41,7 +71,7 @@ exports.main = async (event, context) => {
       data: { list, total: countRes.total, page, pageSize },
     };
   } catch (e) {
-    console.error('閸忋儱绨遍崡鏇炲灙鐞涖劍鐓＄拠銏犮亼鐠�?', e);
-    return { success: false, error: '閺屻儴顕楁径杈Е' };
+    console.error('入库单列表查询失败:', e);
+    return { success: false, error: '查询失败' };
   }
 };

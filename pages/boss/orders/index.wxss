@@ -6,27 +6,39 @@
   box-sizing: border-box;
 }
 
+/* ============ 筛选栏 ============ */
 .filter-bar {
   display: flex;
-  gap: 16rpx;
-  margin-bottom: 20rpx;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .filter-picker {
+  flex: 1;
+  min-width: 0;
   height: 72rpx;
   background-color: var(--white);
   border-radius: 36rpx;
-  padding: 0 28rpx;
+  padding: 0 20rpx;
   display: flex;
   align-items: center;
+  justify-content: center;
   font-size: 26rpx;
-  white-space: nowrap;
   color: var(--text-primary);
   box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-bar {
+  margin-bottom: 20rpx;
 }
 
 .search-input {
-  flex: 1;
+  width: 100%;
   height: 72rpx;
   background-color: var(--white);
   border-radius: 36rpx;
@@ -34,8 +46,10 @@
   font-size: 28rpx;
   color: var(--text-primary);
   box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
 }
 
+/* ============ 列表 ============ */
 .list {
   display: flex;
   flex-direction: column;
@@ -56,12 +70,32 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12rpx;
+  gap: 12rpx;
 }
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+}
+
 .order-no {
   font-size: 30rpx;
   font-weight: 600;
   color: var(--text-primary);
 }
+
+.module-tag {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 20rpx;
+  background-color: #e8f0ff;
+  color: #3a6fd8;
+  white-space: nowrap;
+}
+
 .status-badge {
   font-size: 22rpx;
   padding: 4rpx 16rpx;
@@ -73,7 +107,33 @@
   white-space: nowrap;
 }
 
+.status-success { background-color: #d4f8e8; color: #1a9b5b; }
+.status-cancel  { background-color: #f0f0f0; color: #888; }
+.status-warning { background-color: #fff3d6; color: #b8780a; }
+.status-pending { background-color: #fff0e6; color: #d97540; }
+.status-default { background-color: #e8e8e8; color: #666; }
+
+.card-summary {
+  font-size: 26rpx;
+  color: var(--text-primary);
+  margin-bottom: 10rpx;
+  line-height: 1.5;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
 .card-meta {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.card-operator {
   font-size: 24rpx;
   color: var(--text-secondary);
 }
@@ -85,4 +145,239 @@
   padding: 120rpx 0;
   color: var(--text-secondary);
   font-size: 28rpx;
+}
+
+/* ============ 弹窗 ============ */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.modal-panel {
+  width: 100%;
+  max-height: 80vh;
+  background-color: var(--white);
+  border-radius: 24rpx 24rpx 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-panel-sm {
+  max-height: 70vh;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 28rpx;
+  border-bottom: 1rpx solid #eee;
+  flex-shrink: 0;
+}
+
+.modal-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.modal-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-subtitle {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.modal-close {
+  font-size: 48rpx;
+  line-height: 1;
+  color: var(--text-secondary);
+  padding: 0 8rpx;
+  font-weight: 300;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 20rpx 28rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.modal-loading,
+.modal-empty {
+  text-align: center;
+  padding: 80rpx 0;
+  color: var(--text-secondary);
+  font-size: 26rpx;
+}
+
+/* ============ 时间轴 ============ */
+.timeline {
+  padding: 8rpx 0;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  padding: 12rpx 0 24rpx;
+  align-items: stretch;
+}
+
+.timeline-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background-color: #3a6fd8;
+  border: 4rpx solid #cfe0ff;
+  box-sizing: content-box;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+  margin-top: 6rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 8rpx;
+  top: 30rpx;
+  bottom: -10rpx;
+  width: 4rpx;
+  background-color: #e0e8f0;
+}
+
+.timeline-content {
+  flex: 1;
+  background-color: #f7f9fc;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  border: 1rpx solid #eef0f4;
+}
+
+.timeline-row1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.timeline-stage {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.timeline-time {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.timeline-row2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6rpx;
+  font-size: 24rpx;
+}
+
+.timeline-operator { color: var(--text-secondary); }
+.timeline-status   { color: #1a9b5b; font-size: 22rpx; }
+
+.timeline-tap-hint {
+  font-size: 20rpx;
+  color: #3a6fd8;
+  text-align: right;
+  margin-top: 4rpx;
+}
+
+/* ============ 节点详情 ============ */
+.node-section {
+  background-color: #f7f9fc;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.node-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rpx 0;
+  font-size: 26rpx;
+}
+
+.node-label {
+  color: var(--text-secondary);
+}
+
+.node-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.node-section-title {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.node-data-box {
+  background-color: #f7f9fc;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+}
+
+.node-data-row {
+  display: flex;
+  flex-direction: column;
+  padding: 10rpx 0;
+  border-bottom: 1rpx dashed #e0e6ec;
+  font-size: 26rpx;
+}
+
+.node-data-row:last-child {
+  border-bottom: none;
+}
+
+.node-data-key {
+  color: var(--text-secondary);
+  font-size: 22rpx;
+  margin-bottom: 6rpx;
+}
+
+.node-data-val {
+  color: var(--text-primary);
+  word-break: break-all;
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+.node-data-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 24rpx;
+  padding: 20rpx 0;
+}
+
+.node-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 8rpx;
+}
+
+.node-photo {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 8rpx;
+  background-color: #eee;
 }

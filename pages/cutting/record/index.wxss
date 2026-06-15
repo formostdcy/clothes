@@ -1,100 +1,86 @@
-/* pages/cutting/record/index.wxss */
+/* pages/cutting/record/index.wxss
+ * 卡片结构对齐"车间管理员-待加工确认"风格：
+ *  - 浅灰底 + 白色卡片 + 16rpx 圆角 + 柔和阴影
+ *  - 单号顶行（标签 + 单号 + 状态徽章在同一行）
+ *  - 信息区独占整宽，"标签:值"水平布局
+ *  - 尺码明细用 chip 标签展示
+ *  - 卡片整张可点击（点击事件已在 wxml 绑定 onDetail）
+ */
+
 .container {
+  width: 100%;
   min-height: 100vh;
-  background-color: var(--bg-color);
+  background-color: #f5f7fa;
   padding: 20rpx 24rpx 32rpx;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-.tabs {
-  display: flex;
-  background-color: var(--white);
-  border-radius: 16rpx;
-  margin-bottom: 20rpx;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.tab {
-  flex: 1;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  color: var(--text-secondary);
-  position: relative;
-  transition: color 0.2s, background-color 0.2s;
-}
-.tab.active {
-  color: var(--primary-color);
-  font-weight: 600;
-  background-color: var(--primary-lighter);
-}
-.tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 56rpx;
-  height: 4rpx;
-  background-color: var(--primary-color);
-  border-radius: 2rpx;
-}
-
+/* ========== List ========== */
 .list {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 20rpx;
 }
 
+/* ========== 卡片 ========== */
 .list-item {
-  background-color: var(--white);
+  width: 100%;
+  max-width: 100%;
+  background-color: #ffffff;
   border-radius: 16rpx;
-  padding: 24rpx;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+  padding: 24rpx 32rpx;
   box-sizing: border-box;
   overflow: hidden;
-  width: 100%;
-}
-
-/* ========== 关键布局 ==========
-   header: 横向 flex
-   - item-no: flex: 1 1 0; min-width: 0;  (可缩，单行省略)
-   - item-status: flex-shrink: 0          (固定宽)
-   两端对齐，垂直居中
-*/
-.item-header {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 16rpx;
-  gap: 12rpx;
-  box-sizing: border-box;
-  /* 关键：允许换行 — 单号长时可换到下一行，状态标签不会被挤没 */
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
+/* ========== 单号行 ========== */
 .item-no {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 700;
   line-height: 1.4;
-  /* 关键：单号完整显示，不截断
-     - 去掉 white-space: nowrap
-     - 允许换行
-     - 配合 flex-wrap: wrap 让单号 + 状态标签能换行
-  */
-  overflow: visible;
-  text-overflow: clip;
-  word-break: break-all;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #EEF0F3;
 }
 
+.item-label {
+  flex: 0 0 auto;
+  color: #999999;
+  font-weight: 500;
+  font-size: 26rpx;
+}
+
+.item-no-value {
+  flex: 1 1 0;
+  min-width: 0;
+  font-family: "SF Mono", "Monaco", "Consolas", "Courier New", monospace;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #333333;
+  letter-spacing: -1rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  max-width: 100%;
+}
+
+/* 状态徽章：单号行右侧 */
 .item-status {
   flex: 0 0 auto;
   flex-shrink: 0;
@@ -102,8 +88,8 @@
   padding: 4rpx 14rpx;
   border-radius: 24rpx;
   line-height: 1.5;
-  background-color: var(--bg-section);
-  color: var(--text-secondary);
+  background-color: #f0f1f3;
+  color: #666666;
   white-space: nowrap;
   max-width: 200rpx;
   overflow: hidden;
@@ -111,39 +97,97 @@
   box-sizing: border-box;
 }
 .status-pending,
-.status-pending-confirm { background-color: var(--warning-light); color: var(--warning-color); }
+.status-pending-confirm { background-color: #fff7e6; color: #ff9500; }
 .status-completed,
-.status-done { background-color: var(--success-light); color: var(--success-color); }
-.status-all { background-color: var(--bg-section); color: var(--text-secondary); }
+.status-done { background-color: #e6f9ed; color: #07c160; }
+.status-all { background-color: #f0f1f3; color: #666666; }
 .status-confirmed,
-.status-cut { background-color: var(--primary-light); color: var(--primary-color); }
+.status-cut { background-color: #E8F0FE; color: #1A73E8; }
 .status-returned,
-.status-issue { background-color: var(--danger-light); color: var(--danger-color); }
+.status-issue { background-color: #fde7e7; color: #EA4335; }
 
-/* 详情信息区：行间距均匀，宽度受控 */
+/* ========== 信息区 ========== */
 .item-info {
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8rpx;
-  width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
-.info-text {
-  display: block;
+
+.info-row {
   font-size: 24rpx;
-  color: var(--text-secondary);
-  line-height: 1.6;
+  color: #999999;
+  line-height: 1.55;
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
+}
+.info-row .item-label {
+  font-size: 24rpx;
+}
+.info-value {
+  flex: 1 1 0;
+  min-width: 0;
+  color: #333333;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* ========== 尺码明细行 ========== */
+.item-sizes {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  width: 100%;
+  max-width: 100%;
+  font-size: 24rpx;
+  line-height: 1.5;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.item-sizes .item-label {
+  color: #999999;
+  font-weight: 500;
+  font-size: 24rpx;
+  padding-top: 6rpx;
+  flex: 0 0 auto;
+}
+.sizes-list {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.size-chip {
+  display: inline-block;
+  padding: 4rpx 14rpx;
+  background-color: #E8F0FE;
+  color: #1A73E8;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+}
+
+/* ========== 空数据 ========== */
 .empty {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 120rpx 0;
-  color: var(--text-secondary);
+  color: #999999;
   font-size: 28rpx;
 }

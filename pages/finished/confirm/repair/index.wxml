@@ -1,0 +1,79 @@
+<!-- pages/finished/confirm/repair/index.wxml -->
+<view class="container">
+  <view class="back-bar" bindtap="onBackHome">
+    <text class="back-icon">‹</text>
+    <text class="back-text">首页</text>
+  </view>
+
+  <view class="form-container">
+    <view class="title">应急重建库存</view>
+    <view class="subtitle">当"确认入库"后库存没存进去时，使用此工具</view>
+
+    <!-- 状态展示 -->
+    <view class="status-box">
+      <view wx:if="{{step === 0 || step === 1}}">
+        <text class="status-text">正在预览...</text>
+      </view>
+      <view wx:elif="{{step === 2}}">
+        <text class="status-text">预览完成</text>
+      </view>
+      <view wx:elif="{{step === 3}}">
+        <text class="status-text">正在重建...</text>
+      </view>
+      <view wx:elif="{{step === 4}}">
+        <text class="status-text">完成</text>
+      </view>
+    </view>
+
+    <!-- 结果摘要 -->
+    <view class="summary-box" wx:if="{{summary}}">
+      <view class="summary-row">
+        <text class="summary-key">扫描总数</text>
+        <text class="summary-val">{{summary.scanned || 0}}</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-key">已重建</text>
+        <text class="summary-val summary-val--success">{{summary.rebuilt || 0}}</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-key">已跳过（已处理）</text>
+        <text class="summary-val summary-val--gray">{{summary.skipped || 0}}</text>
+      </view>
+      <view class="summary-row" wx:if="{{summary.failed > 0}}">
+        <text class="summary-key">失败</text>
+        <text class="summary-val summary-val--danger">{{summary.failed || 0}}</text>
+      </view>
+
+      <!-- 详细列表 -->
+      <view class="details" wx:if="{{summary.details && summary.details.length}}">
+        <view class="detail-item" wx:for="{{summary.details}}" wx:key="_id">
+          <text class="detail-no">{{item.order_no}}</text>
+          <text class="detail-action action-{{item.action}}">{{item.action}}</text>
+          <view class="detail-items" wx:if="{{item.items}}">
+            <text wx:for="{{item.items}}" wx:for-item="sz" wx:key="size" class="detail-size">{{sz.size}}×{{sz.count}}</text>
+          </view>
+          <view class="detail-err" wx:if="{{item.reason}}">原因：{{item.reason}}</view>
+          <view class="detail-err" wx:if="{{item.errors}}">
+            <text wx:for="{{item.errors}}" wx:for-item="err" wx:key="where">{{err.where.size}}×{{err.qty}}: {{err.err}}\n</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 单订单重建 -->
+    <view class="form-item">
+      <text class="label">指定订单 ID（可选，留空 = 全部）</text>
+      <input class="input" value="{{onlyId}}" bindinput="onOnlyIdInput" placeholder="订单 _id（7f0aa9ea6a2ff66e0029348a515f478a）" />
+    </view>
+
+    <!-- 操作按钮 -->
+    <button class="btn-secondary" bindtap="onDryRun" loading="{{step === 1}}">仅预览</button>
+    <button class="btn-primary" bindtap="onRebuild" loading="{{step === 3}}">实际重建</button>
+    <button class="btn-danger" bindtap="onResetAndRebuild">重置标记+重建（高危）</button>
+
+    <view class="warning">
+      <text>「重置标记+重建」会把所有已入库订单的幂等标记清空，然后重新累加。</text>
+      <text>如果之前入库已经成功，会导致库存数量翻倍！</text>
+    </view>
+  </view>
+</view>

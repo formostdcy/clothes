@@ -26,6 +26,7 @@ pageGuard({
     // 字典
     schoolList: [],
     styleList: [],
+    seasonList: [],
     sizeList: [],
     genderList: [],
     workshopList: [],
@@ -40,6 +41,7 @@ pageGuard({
     // 计划衣服信息
     selectedSchool: null,
     selectedStyle: null,
+    selectedSeason: null,
     selectedGender: null,
     selectedSizes: [],   // 已选的尺码 name 数组
     planRows: [],        // [{ size, count }]
@@ -74,15 +76,17 @@ pageGuard({
   // ============ 加载 ============
   async loadDictionaries() {
     try {
-      const [school, style, size, gender] = await Promise.all([
+      const [school, style, season, size, gender] = await Promise.all([
         callCloud('option-list', { type: 'school' }, { silent: true }),
         callCloud('option-list', { type: 'style' }, { silent: true }),
+        callCloud('option-list', { type: 'season' }, { silent: true }),
         callCloud('option-list', { type: 'size' }, { silent: true }),
         callCloud('option-list', { type: 'gender' }, { silent: true }),
       ]);
       this.setData({
         schoolList: school || [],
         styleList: style || [],
+        seasonList: season || [],
         sizeList: size || [],
         genderList: gender || [],
       });
@@ -105,7 +109,45 @@ pageGuard({
 
   loadIncomingList() {
     callCloud('cutting-confirmedIncomingList', {}, { silent: true }).then(res => {
-      const list = (res || []).map(item => mapCuttingIncoming(item));
+      const rawList = (res || []).map(item => mapCuttingIncoming(item));
+
+      // 关键：过滤掉"所有物料库存都为 0"的来料
+      // 规则：material_details 中每条 stock > 0 才算"还有可用库存"
+      //      如果一条都没有（老结构空数组 / 单物料 stock=0），整条剔除
+      // 同时计算总剩余量用于展示："来料号 / 学校 / 剩余 12.5米"
+      const list = rawList.filter(item => {
+        if (Array.isArray(item.material_details) && item.material_details.length > 0) {
+          // 多物料：只要有任意一条 stock > 0 就保留
+          return item.material_details.some(m => parseFloat(m.stock) > 0);
+        }
+        // 兜底：老结构用顶层 stock
+        return parseFloat(item.stock) > 0;
+      }).map(item => {
+        // 算展示用的"总剩余量"（多物料用 min 防止误判：所有物料都能裁才有用）
+        let totalStock = 0;
+        let stockUnit = '';
+        if (Array.isArray(item.material_details) && item.material_details.length > 0) {
+          // 多物料：取每个物料的 stock（如果是 0 会让该物料无法裁，但来料整体可能还能用）
+          // 这里展示用"主物料"的 stock 即可（取第一条）
+          const main = item.material_details[0] || {};
+          totalStock = parseFloat(main.stock) || 0;
+          stockUnit = main.unit || '';
+        } else {
+          totalStock = parseFloat(item.stock) || 0;
+          stockUnit = item.unit || '';
+        }
+        // 关键：拼到 incomingNo 后面，让 picker 下拉里能直接看到剩余量
+        // 格式："来料号 | 剩余 12.5米"
+        const stockLabel = `剩 ${totalStock}${stockUnit}`;
+        return {
+          ...item,
+          _totalStock: totalStock,
+          _stockUnit: stockUnit,
+          // 用一个独立字段，避免破坏原有的 incomingNo
+          _displayLabel: `${item.incomingNo || '(无单号)'}  |  ${stockLabel}`,
+        };
+      });
+
       this.setData({ incomingList: list });
     });
   },
@@ -137,17 +179,20 @@ pageGuard({
       const firstPlan = planRows[0] || {};
 
       // 3. 匹配字典
-      const selectedSchool = (this.data.schoolList || []).find(s => s.name === firstPlan.school) || null;
-      const selectedStyle  = (this.data.styleList  || []).find(s => s.name === firstPlan.style)  || null;
-      const selectedGender = (this.data.genderList || []).find(s => s.name === firstPlan.gender) || null;
+      const selectedSchool  = (this.data.schoolList  || []).find(s => s.name === firstPlan.school)  || null;
+      const selectedStyle   = (this.data.styleList   || []).find(s => s.name === firstPlan.style)   || null;
+      const selectedSeason  = (this.data.seasonList  || []).find(s => s.name === firstPlan.season)  || null;
+      const selectedGender  = (this.data.genderList  || []).find(s => s.name === firstPlan.gender)  || null;
 
       // 4. 车间
       const selectedWorkshop = (this.data.workshopList || []).find(w => w._id === res.target_workshop) || null;
 
       // 5. 来料（用 incomingNo 模拟一个 selectedIncoming）
+      // 关键：补一个 _displayLabel，picker 详情模式显示用
       const selectedIncoming = res.outbound_order_id ? {
         id: res.incoming_confirm_id || '',
         incomingNo: res.outbound_order_id || '',
+        _displayLabel: res.outbound_order_id || '',
       } : null;
 
       this.setData({
@@ -158,6 +203,7 @@ pageGuard({
         selectedSizes,
         selectedSchool,
         selectedStyle,
+        selectedSeason,
         selectedGender,
         selectedWorkshop,
         selectedIncoming,
@@ -201,6 +247,7 @@ pageGuard({
       // 重置计划信息
       selectedSchool: null,
       selectedStyle: null,
+      selectedSeason: null,
       selectedGender: null,
       selectedSizes: [],
       planRows: [],
@@ -245,6 +292,11 @@ pageGuard({
     if (this.data.viewMode) return;
     const i = e.detail.value;
     this.setData({ selectedStyle: this.data.styleList[i] || null });
+  },
+  onSeasonChange(e) {
+    if (this.data.viewMode) return;
+    const i = e.detail.value;
+    this.setData({ selectedSeason: this.data.seasonList[i] || null });
   },
   onGenderChange(e) {
     if (this.data.viewMode) return;
@@ -304,7 +356,7 @@ pageGuard({
     }
     const {
       selectedIncoming, materialList,
-      selectedSchool, selectedStyle, selectedGender, planRows,
+      selectedSchool, selectedStyle, selectedSeason, selectedGender, planRows,
       selectedWorkshop, remark,
     } = this.data;
 
@@ -325,9 +377,10 @@ pageGuard({
         return wx.showToast({ title: `【${m.category_two}】使用量不能超过库存 ${m.stock}${m.unit}`, icon: 'none' });
       }
     }
-    // 学校/款式/性别
+    // 学校/款式/季节/性别
     if (!selectedSchool) return wx.showToast({ title: '请选择学校', icon: 'none' });
     if (!selectedStyle)  return wx.showToast({ title: '请选择款式', icon: 'none' });
+    if (!selectedSeason) return wx.showToast({ title: '请选择季节', icon: 'none' });
     if (!selectedGender) return wx.showToast({ title: '请选择性别', icon: 'none' });
     // 尺码+件数
     if (!planRows || planRows.length === 0) {
@@ -356,6 +409,7 @@ pageGuard({
       count: parseInt(r.count, 10) || 0,
       school: selectedSchool.name,
       style:  selectedStyle.name,
+      season: selectedSeason.name,
       gender: selectedGender.name,
     }));
 

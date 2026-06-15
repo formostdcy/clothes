@@ -10,11 +10,13 @@
   </view>
 
   <!-- ========== 1. 选择来料确认单 ========== -->
+  <!-- 关键：库存为 0 的来料已被过滤掉
+       picker 用 _displayLabel 显示"单号 | 剩 12.5米" -->
   <view class="form-item">
-    <text class="label required">选择来料确认单（仅显示已确认）</text>
-    <picker mode="selector" range="{{incomingList}}" range-key="incomingNo" bindchange="onIncomingChange" disabled="{{viewMode}}">
+    <text class="label required">选择来料确认单（已过滤库存为 0 的）</text>
+    <picker mode="selector" range="{{incomingList}}" range-key="_displayLabel" bindchange="onIncomingChange" disabled="{{viewMode}}">
       <view class="picker-value {{selectedIncoming ? '' : 'placeholder'}}">
-        {{selectedIncoming ? selectedIncoming.incomingNo : (viewMode ? '—' : '请选择来料确认单')}}
+        {{selectedIncoming ? selectedIncoming._displayLabel : (viewMode ? '—' : '请选择来料确认单')}}
       </view>
     </picker>
   </view>
@@ -52,7 +54,7 @@
   <view class="form-item" wx:if="{{selectedIncoming}}">
     <text class="label required">计划衣服信息</text>
 
-    <!-- 学校/款式/性别 -->
+    <!-- 学校/款式/季节/性别（4 维） -->
     <view class="clothes-meta">
       <view class="meta-item">
         <text class="meta-label required">学校</text>
@@ -67,6 +69,14 @@
         <picker mode="selector" range="{{styleList}}" range-key="name" bindchange="onStyleChange" disabled="{{viewMode}}">
           <view class="picker-value-sm {{selectedStyle ? '' : 'placeholder'}}">
             {{selectedStyle ? selectedStyle.name : (viewMode ? '—' : '请选择')}}
+          </view>
+        </picker>
+      </view>
+      <view class="meta-item">
+        <text class="meta-label required">季节</text>
+        <picker mode="selector" range="{{seasonList}}" range-key="name" bindchange="onSeasonChange" disabled="{{viewMode}}">
+          <view class="picker-value-sm {{selectedSeason ? '' : 'placeholder'}}">
+            {{selectedSeason ? selectedSeason.name : (viewMode ? '—' : '请选择')}}
           </view>
         </picker>
       </view>
