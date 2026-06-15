@@ -1,30 +1,18 @@
 <view class="ft-tabs">
-  <view
-    class="ft-tab {{active === 'confirm' ? 'ft-tab--active' : ''}}"
-    data-key="confirm"
-    bindtap="onTap"
-  >
-    <text>确认入库</text>
+  <view class="ft-back" bindtap="onBack">
+    <text class="ft-back-icon">‹</text>
+    <text class="ft-back-text">首页</text>
   </view>
-  <view
-    class="ft-tab {{active === 'stock' ? 'ft-tab--active' : ''}}"
-    data-key="stock"
-    bindtap="onTap"
-  >
+  <view class="ft-tab {{active === 'confirm' ? 'ft-tab--active' : ''}}" data-key="confirm" bindtap="onTap">
+    <text>成品入库</text>
+  </view>
+  <view class="ft-tab {{active === 'stock' ? 'ft-tab--active' : ''}}" data-key="stock" bindtap="onTap">
     <text>库存明细</text>
   </view>
-  <view
-    class="ft-tab {{active === 'outbound' ? 'ft-tab--active' : ''}}"
-    data-key="outbound"
-    bindtap="onTap"
-  >
+  <view class="ft-tab {{active === 'outbound' ? 'ft-tab--active' : ''}}" data-key="outbound" bindtap="onTap">
     <text>出库</text>
   </view>
-  <view
-    class="ft-tab {{active === 'record' ? 'ft-tab--active' : ''}}"
-    data-key="record"
-    bindtap="onTap"
-  >
+  <view class="ft-tab {{active === 'record' ? 'ft-tab--active' : ''}}" data-key="record" bindtap="onTap">
     <text>出库记录</text>
   </view>
 </view>

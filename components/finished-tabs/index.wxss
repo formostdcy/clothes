@@ -6,6 +6,24 @@
   top: 0;
   z-index: 10;
 }
+.ft-back {
+  display: flex;
+  align-items: center;
+  padding: 0 16rpx;
+  font-size: 26rpx;
+  color: #1A73E8;
+  border-right: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+.ft-back-icon {
+  font-size: 36rpx;
+  line-height: 1;
+  margin-right: 4rpx;
+  font-weight: 600;
+}
+.ft-back-text {
+  line-height: 1;
+}
 .ft-tab {
   flex: 1;
   text-align: center;

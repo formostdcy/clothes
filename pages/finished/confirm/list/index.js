@@ -5,7 +5,7 @@ const { formatDate } = require('../../../../utils/util.js');
 const pageGuard = require('../../../../utils/page-guard.js');
 
 pageGuard({
-  moduleKey: 'finished',
+  moduleKey: 'finished_inbound',
   data: {
     list: [],
     page: 1,

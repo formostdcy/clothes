@@ -81,8 +81,12 @@ Page({
       workshop_pending:   '/pages/workshop/pending/list/index',
       workshop_processing:'/pages/workshop/processing/add/index',
       workshop_record:    '/pages/workshop/record/index',
-      finished:           '/pages/finished/confirm/list/index',
-      boss:               '/pages/boss/overview/index',
+      finished_inbound:  '/pages/finished/confirm/list/index',
+      finished_stock:    '/pages/finished/stock/index',
+      finished_outbound: '/pages/finished/outbound/add/index',
+      finished_record:   '/pages/finished/outbound/record/index',
+      finished:          '/pages/finished/confirm/list/index',
+      boss:              '/pages/boss/overview/index',
     };
 
     if (routes[moduleKey]) {

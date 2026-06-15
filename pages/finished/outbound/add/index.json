@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "新增出库",
+  "navigationBarTitleText": "成品出库",
   "usingComponents": {
     "finished-tabs": "/components/finished-tabs/index"
   }

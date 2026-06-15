@@ -29,5 +29,9 @@ Component({
       // 用 redirectTo 避免回退栈混乱
       wx.redirectTo({ url });
     },
+
+    onBack() {
+      wx.reLaunch({ url: '/pages/index/index' });
+    },
   },
 });

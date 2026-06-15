@@ -288,6 +288,11 @@
 .cutting-icon  { background: linear-gradient(135deg, #FB8C00 0%, #E65100 100%); }
 .workshop-icon { background: linear-gradient(135deg, #34A853 0%, #1B5E20 100%); }
 .finished-icon { background: linear-gradient(135deg, #7B1FA2 0%, #4A148C 100%); }
+/* 成品 4 个子模块：同紫色系 + 深浅区分 */
+.finished-inbound-icon  { background: linear-gradient(135deg, #BA68C8 0%, #8E24AA 100%); }
+.finished-stock-icon    { background: linear-gradient(135deg, #9C27B0 0%, #6A1B9A 100%); }
+.finished-outbound-icon { background: linear-gradient(135deg, #7B1FA2 0%, #4A148C 100%); }
+.finished-record-icon   { background: linear-gradient(135deg, #AB47BC 0%, #6A1B9A 100%); }
 .boss-icon     { background: linear-gradient(135deg, #455A64 0%, #263238 100%); }
 
 /* 裁剪加工/裁剪记录：与裁剪同色系但稍有区分（深/浅橙色） */

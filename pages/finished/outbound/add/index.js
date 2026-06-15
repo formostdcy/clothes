@@ -5,7 +5,7 @@ const pageGuard = require('../../../../utils/page-guard.js');
 const app = getApp();
 
 pageGuard({
-  moduleKey: 'finished',
+  moduleKey: 'finished_outbound',
   data: {
     orderList: [],
     destinationList: [],

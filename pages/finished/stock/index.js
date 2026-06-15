@@ -3,7 +3,7 @@ const { callCloud } = require('../../../utils/request.js');
 const pageGuard = require('../../../utils/page-guard.js');
 
 pageGuard({
-  moduleKey: 'finished',
+  moduleKey: 'finished_stock',
   data: {
     list: [],
     schoolList: [],
