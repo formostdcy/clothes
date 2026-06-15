@@ -1,0 +1,78 @@
+<!-- pages/workshop/pending/list/index.wxml -->
+<!--
+  ============================================================
+  彻底重构：信息区不再被挤压
+  ------------------------------------------------------------
+  原结构：单号顶行 + 左右分栏（信息左 + 按钮右，固定宽度争用空间）
+  新结构：单号顶行 + 信息区独占整宽 + 底部双按钮横排铺满
+  这样按钮不再是"右侧 168rpx 的小柱子"，而是底部 50:50 平分整宽，
+  信息区拿到完整 638rpx，不再有任何挤压可能。
+  ============================================================
+  {{}} 数据绑定与 bindtap 事件完全保持原样
+-->
+<view class="container">
+  <view class="list">
+    <view class="list-item" wx:for="{{list}}" wx:key="id">
+      <!-- 1) 单号顶行：跨整张卡片宽度 -->
+      <view class="item-no">
+        <text class="item-label">单号</text>
+        <text class="item-no-value">{{item.orderNo}}</text>
+      </view>
+
+      <!-- 2) 信息区：独占整张卡片宽度（不与按钮争用空间） -->
+      <view class="item-info">
+        <view class="item-source"><text class="item-label">来源</text><text>{{item.creatorName || '裁剪管理员'}}</text></view>
+        <view class="item-material"><text class="item-label">物料</text><text>{{item.materialName || '—'}}</text></view>
+        <view class="item-plan"><text class="item-label">计划件数</text><text>{{item.planCount || 0}}</text></view>
+        <!-- 尺码明细：每个尺码一行（如 S×50 / M×60），按实际明细展示 -->
+        <view class="item-sizes" wx:if="{{item.planSizes && item.planSizes.length}}">
+          <text class="item-label">尺码</text>
+          <view class="sizes-list">
+            <text class="size-chip" wx:for="{{item.planSizes}}" wx:for-item="sz" wx:key="size">{{sz.size}} × {{sz.count}}</text>
+          </view>
+        </view>
+        <view class="item-school"><text class="item-label">学校</text><text>{{item.school || '—'}}</text></view>
+        <view class="item-style"><text class="item-label">款式</text><text>{{item.style || '—'}}</text></view>
+        <view class="item-gender"><text class="item-label">性别</text><text>{{item.gender || '—'}}</text></view>
+        <view class="item-time"><text class="item-label">时间</text><text>{{item.createTime}}</text></view>
+      </view>
+
+      <!-- 3) 底部操作区：双按钮横排 50:50 平分整宽 -->
+      <view class="item-actions">
+        <button class="action-btn return" bindtap="onReturnTap" data-id="{{item.id}}">
+          <text class="action-icon">←</text>
+          <text class="action-text">退回</text>
+        </button>
+        <button class="action-btn confirm" bindtap="onConfirm" data-id="{{item.id}}">
+          <text class="action-icon">✓</text>
+          <text class="action-text">确认接单</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无待加工订单</text>
+  </view>
+
+  <!-- 退回原因弹层（必填） -->
+  <view class="modal-mask" wx:if="{{returnModal.visible}}" bindtap="onReturnCancel">
+    <view class="modal-card" catchtap="">
+      <view class="modal-title">退回订单</view>
+      <view class="modal-desc">请填写退回原因（必填），原因将通知对应裁剪管理员</view>
+      <textarea
+        class="modal-textarea"
+        value="{{returnModal.reason}}"
+        bindinput="onReturnReasonInput"
+        placeholder="例如：尺码数量与计划不符；请补充实际数据..."
+        maxlength="200"
+        auto-height
+      />
+      <view class="modal-counter">{{returnModal.reason.length}}/200</view>
+      <view class="modal-actions">
+        <button class="modal-btn cancel" bindtap="onReturnCancel">取消</button>
+        <button class="modal-btn confirm" bindtap="onReturnSubmit">确认退回</button>
+      </view>
+    </view>
+  </view>
+</view>

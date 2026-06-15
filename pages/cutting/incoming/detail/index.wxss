@@ -1,0 +1,55 @@
+/* pages/cutting/incoming/detail/index.wxss */
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.section {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  padding: 24rpx;
+  border-bottom: 2rpx solid var(--divider);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 6rpx;
+  height: 24rpx;
+  background: var(--primary-color);
+  border-radius: 3rpx;
+  margin-right: 12rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22rpx 24rpx;
+  border-bottom: 2rpx solid var(--divider);
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { color: var(--text-secondary); }
+.info-value { color: var(--text-primary); font-weight: 500; }
+.status { color: var(--primary-color); }
+
+.remark-content {
+  padding: 24rpx;
+  font-size: 28rpx;
+  color: var(--text-regular);
+  line-height: 1.6;
+}

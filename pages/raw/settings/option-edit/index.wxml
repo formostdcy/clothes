@@ -1,0 +1,32 @@
+<!-- pages/raw/settings/option-edit/index.wxml -->
+<view class="page page--with-submit">
+  <view class="form-section">
+    <view class="form-section-title"><text class="form-section-title-text">分类信息</text></view>
+
+    <view class="form-item">
+      <view class="form-label required">所属一级分类</view>
+      <picker class="form-picker {{category_one ? '' : 'form-picker--placeholder'}}" mode="selector" range="{{cat1List}}" value="{{cat1Index}}" bindchange="onCat1Change">
+        {{category_one || '请选择'}}
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label required">分类名称</view>
+      <input class="form-input" placeholder="例如：涤纶布 / 纽扣 / 拉链" value="{{name}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">英文 value</view>
+      <input class="form-input" placeholder="可选，字母数字" value="{{value}}" bindinput="onValueInput" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">排序</view>
+      <input class="form-input" type="number" placeholder="数字小在前" value="{{sort}}" bindinput="onSortInput" />
+    </view>
+  </view>
+
+  <view class="submit-bar safe-bottom">
+    <button class="btn btn-primary btn-block" bindtap="onSave" disabled="{{saving}}">保存</button>
+  </view>
+</view>

@@ -1,0 +1,78 @@
+<!-- pages/workshop/incoming/list/index.wxml -->
+<!--
+  ============================================================
+  彻底重构：与 pages/workshop/pending/list 完全一致
+  ------------------------------------------------------------
+  原结构：左右分栏（信息左 + 按钮右，固定宽度争用空间）
+  新结构：单号顶行 + 信息区独占整宽 + 底部双按钮横排
+  与"待加工确认"卡片结构完全对齐，彻底解决挤压问题。
+  ============================================================
+  {{}} 数据绑定与 bindtap 事件完全保持原样
+-->
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="onTabChange" data-index="0">待确认</view>
+    <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="onTabChange" data-index="1">已确认</view>
+  </view>
+
+  <view class="list">
+    <view class="list-item" wx:for="{{list}}" wx:key="id">
+      <!-- 1) 单号顶行：跨整张卡片宽度 -->
+      <view class="item-no">
+        <text class="item-no-label">单号</text>
+        <text class="item-no-value">{{item.incomingNo}}</text>
+      </view>
+
+      <!-- 2) 信息区：独占整张卡片宽度（不与按钮争用空间） -->
+      <view class="item-info">
+        <view class="item-creator" wx:if="{{item.creatorName}}">出库人: {{item.creatorName}}</view>
+        <view class="item-material">物料: {{item.materialName}}</view>
+        <view class="item-quantity">数量: {{item.quantity}}{{item.unit}}</view>
+        <view class="item-time">时间: {{item.createTime}}</view>
+
+        <view class="item-photos" wx:if="{{item.photos && item.photos.length > 0}}">
+          <view class="photo-label">照片 ({{item.photos.length}})</view>
+          <scroll-view class="photo-scroll" scroll-x="true">
+            <view class="photo-list">
+              <image
+                wx:for="{{item.photos}}"
+                wx:for-item="photo"
+                wx:key="*this"
+                class="photo-thumb"
+                src="{{photo}}"
+                mode="aspectFill"
+                data-urls="{{item.photos}}"
+                data-current="{{photo}}"
+                bindtap="onPreviewPhoto"
+              ></image>
+            </view>
+          </scroll-view>
+        </view>
+
+        <view class="item-remark" wx:if="{{item.remark}}">
+          <text class="remark-label">备注：</text>
+          <text class="remark-text">{{item.remark}}</text>
+        </view>
+      </view>
+
+      <!-- 3) 底部操作区：双按钮横排 50:50 平分整宽 -->
+      <view class="item-actions" wx:if="{{activeTab === 0}}">
+        <button class="action-btn problem" bindtap="onProblem" data-id="{{item.id}}">
+          <text class="action-icon">!</text>
+          <text class="action-text">有问题</text>
+        </button>
+        <button class="action-btn confirm" bindtap="onConfirm" data-id="{{item.id}}">
+          <text class="action-icon">✓</text>
+          <text class="action-text">确认</text>
+        </button>
+      </view>
+      <view class="item-status" wx:if="{{activeTab === 1}}">
+        <text class="status-text success">已确认</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无数据</text>
+  </view>
+</view>

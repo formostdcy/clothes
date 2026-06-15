@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "acorn": "^8.17.0",
+    "iconv-lite": "^0.7.2"
+  }
+}

@@ -1,0 +1,27 @@
+<!-- pages/notification/list/index.wxml -->
+<view class="notification-container">
+  <view class="list">
+    <view
+      class="notification-item {{item.is_read ? 'read' : ''}}"
+      wx:for="{{list}}"
+      wx:key="_id"
+      bindtap="onItemTap"
+      data-item="{{item}}"
+    >
+      <view class="item-dot" wx:if="{{!item.is_read}}"></view>
+      <view class="item-content">
+        <view class="item-header">
+          <text class="item-title">{{item.title}}</text>
+          <text class="item-time">{{item.time}}</text>
+        </view>
+        <view class="item-body">{{item.content}}</view>
+        <view class="item-type badge badge-{{item.type}}">{{typeMap[item.type] || item.type || '消息'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <view class="empty-icon">铃</view>
+    <view class="empty-text">暂无消息通知</view>
+  </view>
+</view>

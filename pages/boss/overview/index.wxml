@@ -1,0 +1,96 @@
+<!-- pages/boss/overview/index.wxml -->
+<view class="overview-container">
+  <!-- 顶部欢迎 -->
+  <view class="welcome-bar">
+    <view class="welcome-left">
+      <view class="welcome-title">数据总览</view>
+      <view class="welcome-date">{{today}}</view>
+    </view>
+    <view class="welcome-right">
+      <view class="welcome-role">老板</view>
+      <view class="welcome-logout" bindtap="onLogout" hover-class="welcome-logout-hover">退出</view>
+    </view>
+  </view>
+
+  <!-- 今日数据 -->
+  <view class="section">
+    <view class="section-title">今日动态</view>
+    <view class="stat-grid">
+      <view class="stat-card">
+        <view class="stat-value text-primary">{{data.todayInboundCount}}</view>
+        <view class="stat-label">今日入库</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value text-warning">{{data.todayOutboundCount}}</view>
+        <view class="stat-label">今日出库</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 待确认数量 -->
+  <view class="section">
+    <view class="section-title">待确认</view>
+    <view class="stat-grid">
+      <view class="stat-card warning" bindtap="goToModule" data-module="cutting">
+        <view class="stat-value">{{data.cuttingPendingCount}}</view>
+        <view class="stat-label">待确认裁剪单</view>
+      </view>
+      <view class="stat-card warning" bindtap="goToModule" data-module="workshop">
+        <view class="stat-value">{{data.workshopPendingCount}}</view>
+        <view class="stat-label">待确认加工单</view>
+      </view>
+      <view class="stat-card warning" bindtap="goToModule" data-module="finished">
+        <view class="stat-value">{{data.finishedPendingCount}}</view>
+        <view class="stat-label">待确认成品单</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 库存数据 -->
+  <view class="section">
+    <view class="section-title">当前库存</view>
+    <view class="stat-grid">
+      <view class="stat-card">
+        <view class="stat-value">{{data.rawTotal}}</view>
+        <view class="stat-label">原材料总量</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{data.finishedTotal}}</view>
+        <view class="stat-label">成品总量</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 本月出库 -->
+  <view class="section">
+    <view class="section-title">本月出库</view>
+    <view class="big-stat-card">
+      <view class="big-value">{{data.monthOutboundTotal}}</view>
+      <view class="big-label">件</view>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-links">
+    <view class="link-item" bindtap="goToStats">
+      <view class="link-icon link-icon-stats">统</view>
+      <view class="link-text">成品统计</view>
+    </view>
+    <view class="link-item" bindtap="goToOrders">
+      <view class="link-icon">单</view>
+      <view class="link-text">订单记录</view>
+    </view>
+    <view class="link-item" bindtap="goToSettings">
+      <view class="link-icon">设</view>
+      <view class="link-text">系统设置</view>
+    </view>
+    <view class="link-item" bindtap="goToEmployee">
+      <view class="link-icon">人</view>
+      <view class="link-text">员工管理</view>
+    </view>
+    <view class="link-item" bindtap="goToNotification">
+      <view class="link-icon">铃</view>
+      <view class="link-text">消息通知</view>
+    </view>
+  </view>
+</view>

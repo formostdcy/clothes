@@ -1,0 +1,32 @@
+<!-- pages/boss/employee/add/index.wxml -->
+<view class="form-container">
+  <view class="form-card">
+    <view class="form-item">
+      <view class="form-label required">姓名</view>
+      <input class="form-input" placeholder="请输入员工姓名" bindinput="onInput" data-field="name" value="{{form.name}}" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label required">账号</view>
+      <input class="form-input" placeholder="请输入登录账号" bindinput="onInput" data-field="account" value="{{form.account}}" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label required">密码</view>
+      <input class="form-input" password placeholder="请输入登录密码" bindinput="onInput" data-field="password" value="{{form.password}}" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label required">角色</view>
+      <picker bindchange="onRoleChange" value="{{roleIndex}}" range="{{roles}}">
+        <view class="picker-display">
+          {{form.role || '请选择角色'}}
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="submit-bar safe-bottom">
+    <button class="btn btn-primary btn-block" bindtap="onSubmit" loading="{{loading}}">确认添加</button>
+  </view>
+</view>

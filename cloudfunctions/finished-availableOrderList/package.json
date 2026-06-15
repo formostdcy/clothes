@@ -1,0 +1,11 @@
+{
+  "name": "finished-availableOrderList",
+  "version": "1.0.0",
+  "description": "成品-可出库列表",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "author": "",
+  "license": "ISC"
+}

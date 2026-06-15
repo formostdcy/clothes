@@ -1,0 +1,61 @@
+/* pages/raw/settings/index.wxss */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 16rpx;
+  padding: 0 8rpx;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 8rpx 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.card-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 0;
+}
+
+.card-item-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
+}
+
+.card-item-content { flex: 1; min-width: 0; }
+.card-item-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 6rpx;
+}
+.card-item-desc {
+  font-size: 24rpx;
+  color: #6B7280;
+}
+
+.card-item-arrow {
+  font-size: 36rpx;
+  color: #9CA3AF;
+  line-height: 1;
+  margin-left: 12rpx;
+}
+
+.card-divider {
+  height: 2rpx;
+  background: #F3F4F6;
+}

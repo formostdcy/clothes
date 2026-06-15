@@ -1,0 +1,23 @@
+<!-- pages/raw/settings/index.wxml -->
+<view class="page">
+  <view class="section-title">物料管理</view>
+  <view class="card">
+    <view class="card-item" bindtap="goToSupplier">
+      <view class="card-item-icon" style="background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);">供</view>
+      <view class="card-item-content">
+        <view class="card-item-title">供应商管理</view>
+        <view class="card-item-desc">添加/编辑/删除供应商</view>
+      </view>
+      <view class="card-item-arrow">›</view>
+    </view>
+    <view class="card-divider"></view>
+    <view class="card-item" bindtap="goToOption">
+      <view class="card-item-icon" style="background: linear-gradient(135deg, #FB8C00 0%, #E65100 100%);">料</view>
+      <view class="card-item-content">
+        <view class="card-item-title">物料二级分类</view>
+        <view class="card-item-desc">布料/辅料 的子分类（米/扣子/拉链等）</view>
+      </view>
+      <view class="card-item-arrow">›</view>
+    </view>
+  </view>
+</view>

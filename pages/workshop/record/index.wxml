@@ -1,0 +1,76 @@
+<!-- pages/workshop/record/index.wxml -->
+<!--
+  卡片结构与 pages/workshop/pending/list 一致：
+  - 单号顶行（单号 + 状态徽章）
+  - 信息区独占整宽（label + value 横向）
+  - 整卡可点进入详情（无底部按钮）
+  字段差异（相对 pending）：
+  - 多了：来源、来源单号、目标工厂、实际件数、损耗率（带颜色）
+  - 没了：底部双按钮
+-->
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{activeTab === 'processing' ? 'active' : ''}}" bindtap="onTabChange" data-status="processing">加工中</view>
+    <view class="tab {{activeTab === 'completed' ? 'active' : ''}}" bindtap="onTabChange" data-status="completed">已完成</view>
+    <view class="tab {{activeTab === 'all' ? 'active' : ''}}" bindtap="onTabChange" data-status="all">全部</view>
+  </view>
+
+  <view class="list">
+    <view class="list-item" bindtap="onDetail" data-id="{{item.id}}" wx:for="{{list}}" wx:key="id">
+      <!-- 1) 单号顶行：单号 + 状态徽章 -->
+      <view class="item-no">
+        <text class="item-label">单号</text>
+        <text class="item-no-value">{{item.orderNo}}</text>
+        <text wx:if="{{item.statusText}}" class="item-status status-{{item.statusClass}}">{{item.statusText}}</text>
+      </view>
+
+      <!-- 2) 信息区：独占整张卡片宽度 -->
+      <view class="item-info">
+        <view class="info-row">
+          <text class="item-label">来源</text>
+          <text>{{item.sourceText || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">来源单号</text>
+          <text>{{item.sourceOrderNo || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">目标工厂</text>
+          <text>{{item.targetWorkshopName || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">物料</text>
+          <text>{{item.materialName || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">计划件数</text>
+          <text>{{item.planCount || 0}}</text>
+        </view>
+        <view class="info-row">
+          <text class="item-label">实际件数</text>
+          <text class="value-emphasis">{{item.actualCount || 0}}</text>
+        </view>
+        <!-- 损耗率：保留颜色高亮（>5 橙、<0 红、其余绿） -->
+        <view class="info-row">
+          <text class="item-label">损耗率</text>
+          <text class="loss-rate {{item.lossRate > 5 ? 'warn' : (item.lossRate < 0 ? 'bad' : 'good')}}">{{item.lossRateText || '0.00%'}}</text>
+        </view>
+        <!-- 尺码明细：每个尺码一行（按 planSizes 数组逐个 chip 渲染） -->
+        <view class="item-sizes" wx:if="{{item.planSizes && item.planSizes.length}}">
+          <text class="item-label">尺码明细</text>
+          <view class="sizes-list">
+            <text class="size-chip" wx:for="{{item.planSizes}}" wx:for-item="sz" wx:key="size">{{sz.size}} × {{sz.count}}</text>
+          </view>
+        </view>
+        <view class="info-row">
+          <text class="item-label">提交时间</text>
+          <text>{{item.createTime}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无加工记录</text>
+  </view>
+</view>

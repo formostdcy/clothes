@@ -1,0 +1,139 @@
+/* pages/boss/employee/list/index.wxss */
+.list-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.search-bar {
+  flex: 1;
+  background-color: var(--white);
+  border-radius: 36rpx;
+  padding: 0 28rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+.search-input {
+  width: 100%;
+  font-size: 28rpx;
+  color: var(--text-primary);
+}
+
+.add-btn {
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  padding: 0 24rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4rpx 12rpx rgba(26, 115, 232, 0.28);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.employee-card {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);
+  color: var(--text-inverse);
+  font-size: 32rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+.info .name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6rpx;
+  line-height: 1.3;
+}
+.info .meta {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.status {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 24rpx;
+  line-height: 1.5;
+}
+.status.active   { background-color: var(--success-light); color: var(--success-color); }
+.status.disabled { background-color: var(--bg-section); color: var(--text-secondary); }
+
+.actions {
+  display: flex;
+  gap: 20rpx;
+}
+.action-btn {
+  font-size: 26rpx;
+  color: var(--primary-color);
+}
+.action-btn.danger { color: var(--danger-color); }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+.empty-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}

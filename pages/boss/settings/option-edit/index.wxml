@@ -1,0 +1,18 @@
+<view class="form-container">
+  <view class="form-item">
+    <text class="label">选项名称</text>
+    <input class="input" value="{{name}}" placeholder="请输入选项名称" bindinput="onNameInput" />
+  </view>
+  
+  <view class="form-item">
+    <text class="label">选项值</text>
+    <input class="input" value="{{value}}" placeholder="请输入选项值" bindinput="onValueInput" />
+  </view>
+  
+  <view class="form-item">
+    <text class="label">排序</text>
+    <input class="input" type="number" value="{{sort}}" placeholder="请输入排序号" bindinput="onSortInput" />
+  </view>
+  
+  <button class="btn-primary" bindtap="onSubmit">确认保存</button>
+</view>

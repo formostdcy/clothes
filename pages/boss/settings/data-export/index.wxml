@@ -1,0 +1,36 @@
+<view class="container">
+  <view class="notice-box">
+    <text class="notice-title">📊 数据导出</text>
+    <text class="notice-content">支持导出原材料库存、成品库存、订单记录。点击对应模块的"导出"按钮即可。</text>
+  </view>
+
+  <view class="menu-list">
+    <view class="menu-item">
+      <view class="menu-info">
+        <text class="menu-text">原材料库存</text>
+        <text class="menu-desc">所有原材料当前库存数量与分类</text>
+      </view>
+      <button class="export-btn" bindtap="onExportRaw">导出</button>
+    </view>
+
+    <view class="menu-item">
+      <view class="menu-info">
+        <text class="menu-text">成品库存</text>
+        <text class="menu-desc">所有成品（按学校/款式/尺码）当前库存</text>
+      </view>
+      <button class="export-btn" bindtap="onExportFinished">导出</button>
+    </view>
+
+    <view class="menu-item">
+      <view class="menu-info">
+        <text class="menu-text">订单记录</text>
+        <text class="menu-desc">所有订单流水（裁剪/车间/出库）</text>
+      </view>
+      <button class="export-btn" bindtap="onExportOrders">导出</button>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{exported}}">
+    <text class="empty-tip">已复制到剪贴板，请粘贴到表格软件保存</text>
+  </view>
+</view>

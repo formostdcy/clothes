@@ -1,0 +1,254 @@
+/* pages/workshop/processing/add/index.wxss */
+.form-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.form-item {
+  margin-bottom: 16rpx;
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: var(--shadow-md);
+}
+
+.info-header {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-regular);
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.input,
+.picker-value {
+  width: 100%;
+  height: 80rpx;
+  background-color: var(--bg-section);
+  border: 2rpx solid transparent;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  line-height: 80rpx;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.input:focus,
+.picker-value:focus { border-color: var(--primary-color); background-color: var(--white); }
+
+/* 不可编辑字段（自动填充）：浅灰底 + 锁定图标 + 不允许聚焦 */
+.readonly-field {
+  width: 100%;
+  min-height: 80rpx;
+  background-color: #f5f7fa;
+  border: 2rpx dashed #d9dde3;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  line-height: 80rpx;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+.readonly-field.highlight {
+  background-color: var(--primary-lighter);
+  border-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* 只读列表（尺码明细、辅料详情） */
+.readonly-list {
+  background-color: var(--bg-section);
+  border-radius: 12rpx;
+  padding: 4rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.readonly-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  font-size: 26rpx;
+  border-bottom: 2rpx solid var(--divider);
+}
+.readonly-row:last-child { border-bottom: none; }
+.readonly-key { color: var(--text-secondary); font-weight: 500; }
+.readonly-val { color: var(--text-primary); font-weight: 500; }
+
+/* 多尺码实际件数输入 */
+.size-input-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.size-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background-color: var(--bg-section);
+  border-radius: 12rpx;
+  padding: 12rpx 20rpx;
+}
+.size-input-row.total {
+  background-color: var(--primary-lighter);
+  border: 2rpx solid var(--primary-light);
+}
+.size-input-label {
+  flex: 0 0 140rpx;
+  font-size: 26rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.size-input {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 64rpx;
+  background-color: var(--white);
+  border: 2rpx solid transparent;
+  border-radius: 8rpx;
+  padding: 0 16rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  text-align: center;
+  font-weight: 500;
+}
+.size-input:focus { border-color: var(--primary-color); }
+.size-input-unit,
+.size-input-total {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.size-input-total {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 30rpx;
+}
+
+/* 损耗率彩色显示 */
+.loss-rate {
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+.loss-rate.good { color: var(--success-color, #07c160); }
+.loss-rate.warn { color: var(--warning-color, #ff9500); }
+.loss-rate.bad  { color: var(--danger-color,  #ff4d4f); }
+
+/* 辅料使用量 */
+.accessory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.accessory-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background-color: var(--bg-section);
+  border-radius: 12rpx;
+  padding: 14rpx 20rpx;
+  border: 2rpx solid transparent;
+  transition: border-color 0.2s, background-color 0.2s;
+  flex-wrap: wrap;        /* 警示换行 */
+}
+.accessory-row.over {
+  background-color: #fff1f0;
+  border-color: #ff4d4f;
+}
+.accessory-name-block {
+  flex: 0 0 180rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.accessory-name {
+  font-size: 26rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.accessory-stock {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  font-weight: 500;
+}
+.accessory-stock.no-stock {
+  color: #ff9500;
+  font-style: italic;
+}
+.accessory-input {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 64rpx;
+  background-color: var(--white);
+  border: 2rpx solid transparent;
+  border-radius: 8rpx;
+  padding: 0 16rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  text-align: center;
+  font-weight: 500;
+  transition: border-color 0.2s, color 0.2s;
+}
+.accessory-input:focus { border-color: var(--primary-color); }
+.accessory-input.over {
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+  background-color: #fff1f0;
+}
+.accessory-unit {
+  flex: 0 0 40rpx;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  text-align: left;
+}
+.accessory-warn-tip {
+  flex: 1 0 100%;        /* 强制换行独占一行 */
+  font-size: 22rpx;
+  color: #ff4d4f;
+  font-weight: 600;
+  text-align: right;
+  padding-top: 4rpx;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin-top: 24rpx;
+}
+.btn-primary::after { border: none; }
+.btn-primary:active { opacity: 0.85; }

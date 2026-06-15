@@ -1,0 +1,137 @@
+<!-- pages/index/index.wxml -->
+<view class="index-container">
+  <!-- 顶部用户信息卡 -->
+  <view class="user-card">
+    <view class="user-avatar">{{userInfo.name ? userInfo.name[0] : 'U'}}</view>
+    <view class="user-info">
+      <view class="user-name">{{userInfo.name || '用户'}}</view>
+      <view class="user-role-tag">{{userInfo.role || '员工'}}</view>
+    </view>
+    <view class="user-actions">
+      <view class="user-action-btn" bindtap="goToNotification">
+        <view class="user-action-icon">铃</view>
+        <view class="user-action-badge" wx:if="{{unreadCount > 0}}">{{unreadCount}}</view>
+      </view>
+      <view class="user-action-btn" bindtap="onLogout">
+        <view class="user-action-icon logout-icon">退</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我的工作台（主模块） -->
+  <view class="section" wx:if="{{moduleList.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">我的工作台</text>
+    </view>
+    <view class="module-grid {{moduleList.length === 1 ? 'single' : ''}}">
+      <view
+        class="module-card"
+        wx:for="{{moduleList}}"
+        wx:key="key"
+        bindtap="goToModule"
+        data-module="{{item.key}}"
+      >
+        <view class="module-icon-wrap {{item.color}}">
+          <view class="module-icon-text">{{item.icon}}</view>
+        </view>
+        <view class="module-info">
+          <view class="module-name">{{item.name}}</view>
+          <view class="module-desc">{{item.desc || '点击进入'}}</view>
+        </view>
+        <view class="module-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 相关操作（扩展模块，如裁剪/车间也能进原材料库领料） -->
+  <view class="section" wx:if="{{extraModuleList.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">相关操作</text>
+      <text class="section-sub">领料等</text>
+    </view>
+    <view class="card-list">
+      <view
+        class="card-item"
+        wx:for="{{extraModuleList}}"
+        wx:key="key"
+        bindtap="goToModule"
+        data-module="{{item.key}}"
+      >
+        <view class="card-icon {{item.color}}">{{item.icon}}</view>
+        <view class="card-content">
+          <view class="card-title">{{item.name}}</view>
+          <view class="card-desc">{{item.desc || '点击进入'}}</view>
+        </view>
+        <view class="card-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 老板专属快捷入口 -->
+  <view class="section" wx:if="{{isBoss}}">
+    <view class="section-header">
+      <text class="section-title">管理后台</text>
+    </view>
+    <view class="card-list">
+      <view class="card-item" bindtap="goToEmployee">
+        <view class="card-icon boss-icon">员</view>
+        <view class="card-content">
+          <view class="card-title">员工管理</view>
+          <view class="card-desc">添加/编辑/删除员工</view>
+        </view>
+        <view class="card-arrow">›</view>
+      </view>
+      <view class="card-item" bindtap="goToOrders">
+        <view class="card-icon boss-icon">单</view>
+        <view class="card-content">
+          <view class="card-title">订单查询</view>
+          <view class="card-desc">全流程订单跟踪</view>
+        </view>
+        <view class="card-arrow">›</view>
+      </view>
+      <view class="card-item" bindtap="goToStats">
+        <view class="card-icon boss-icon">统</view>
+        <view class="card-content">
+          <view class="card-title">成品统计</view>
+          <view class="card-desc">库存/出库量</view>
+        </view>
+        <view class="card-arrow">›</view>
+      </view>
+      <view class="card-item" bindtap="goToSettings">
+        <view class="card-icon boss-icon">设</view>
+        <view class="card-content">
+          <view class="card-title">系统设置</view>
+          <view class="card-desc">字典/供应商/初始化</view>
+        </view>
+        <view class="card-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 待办提醒 -->
+  <view class="section" wx:if="{{todoList.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">待办提醒</text>
+      <text class="section-badge" wx:if="{{todoList.length > 0}}">{{todoList.length}}</text>
+    </view>
+    <view class="card-list">
+      <view
+        class="card-item"
+        wx:for="{{todoList}}"
+        wx:key="_id"
+        bindtap="goToTodo"
+        data-item="{{item}}"
+      >
+        <view class="card-dot {{item.type}}"></view>
+        <view class="card-content">
+          <view class="card-title">{{item.title}}</view>
+          <view class="card-desc">{{item.timeText}}</view>
+        </view>
+        <view class="card-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全区 -->
+  <view class="safe-bottom"></view>
+</view>

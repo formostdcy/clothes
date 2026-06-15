@@ -1,0 +1,50 @@
+<!-- pages/workshop/processing/add-b/index.wxml -->
+<view class="form-container">
+  <view class="form-item">
+    <text class="label">选择车间来料确认单</text>
+    <picker mode="selector" range="{{incomingList}}" range-key="incomingNo" bindchange="onIncomingChange">
+      <view class="picker-value">{{selectedIncoming ? selectedIncoming.incomingNo : '请选择来料确认单'}}</view>
+    </picker>
+  </view>
+
+  <view class="form-item" wx:if="{{selectedIncoming}}">
+    <text class="label">来料信息</text>
+    <view class="info-box">
+      <text>物料: {{selectedIncoming.materialName}}</text>
+      <text>数量: {{selectedIncoming.quantity}}{{selectedIncoming.unit}}</text>
+    </view>
+  </view>
+
+  <view class="form-item">
+    <text class="label">计划件数</text>
+    <input class="input" type="number" value="{{planCount}}" placeholder="请输入计划件数" bindinput="onPlanCountInput" />
+  </view>
+
+  <view class="form-item">
+    <text class="label">实际件数</text>
+    <input class="input" type="number" value="{{actualCount}}" placeholder="请输入实际件数" bindinput="onActualCountInput" />
+  </view>
+
+  <view class="form-item">
+    <text class="label">性别</text>
+    <picker mode="selector" range="{{genderList}}" bindchange="onGenderChange">
+      <view class="picker-value">{{genderList[genderIndex] || '请选择性别'}}</view>
+    </picker>
+  </view>
+
+  <view class="form-item">
+    <text class="label">款式</text>
+    <picker mode="selector" range="{{styleList}}" range-key="name" bindchange="onStyleChange">
+      <view class="picker-value">{{selectedStyle ? selectedStyle.name : '请选择款式'}}</view>
+    </picker>
+  </view>
+
+  <view class="form-item">
+    <text class="label">学校</text>
+    <picker mode="selector" range="{{schoolList}}" range-key="name" bindchange="onSchoolChange">
+      <view class="picker-value">{{selectedSchool ? selectedSchool.name : '请选择学校'}}</view>
+    </picker>
+  </view>
+
+  <button class="btn-primary" bindtap="onSubmit">确认提交</button>
+</view>

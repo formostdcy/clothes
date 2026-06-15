@@ -1,0 +1,308 @@
+/* pages/cutting/incoming/list/index.wxss */
+
+/* ====== 根容器 ======
+   修：补全 width: 100% + overflow-x: hidden 兜底 */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow-x: hidden;       /* 关键：禁止横向滚动 */
+}
+
+/* ================== Tabs ================== */
+.tabs {
+  display: flex;
+  background-color: var(--white);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.tab {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  position: relative;
+  transition: color 0.2s, background-color 0.2s;
+}
+.tab.active {
+  color: var(--primary-color);
+  font-weight: 600;
+  background-color: var(--primary-lighter);
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56rpx;
+  height: 4rpx;
+  background-color: var(--primary-color);
+  border-radius: 2rpx;
+}
+
+/* ================== List ==================
+   修：width: 100% 兜底 */
+.list {
+  width: 100%;
+  max-width: 100%;
+  background-color: var(--white);
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+
+/* ================== 卡片 =====
+   修：补全 width: 100% + box-sizing: border-box */
+.list-item {
+  width: 100%;
+  max-width: 100%;
+  padding: 20rpx 24rpx;
+  border-bottom: 2rpx solid var(--divider);
+  box-sizing: border-box;
+  overflow: hidden;        /* 关键：内部溢出裁切 */
+}
+.list-item:last-child { border-bottom: none; }
+
+/* ========== 关键布局 ==========
+   修：补全 max-width: 100% + overflow: hidden 兜底 */
+.item-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;        /* 关键 */
+  gap: 16rpx;
+}
+
+.item-info {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  box-sizing: border-box;
+}
+
+/* 单号：单行 + 省略号 */
+.item-no {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 其它信息行：单行 + 省略 */
+.item-supplier, .item-creator, .item-material, .item-quantity, .item-time {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============ 照片缩略图区 ============ */
+.item-photos {
+  margin-top: 10rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.photo-label {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+.photo-scroll {
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.photo-list {
+  display: inline-flex;
+  gap: 10rpx;
+  padding: 4rpx 0;
+}
+.photo-thumb {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 8rpx;
+  background-color: #f5f5f5;
+  border: 2rpx solid var(--divider);
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ============ 备注预览 ============ */
+.item-remark {
+  margin-top: 10rpx;
+  padding: 10rpx 14rpx;
+  background-color: #fffbe6;
+  border-left: 6rpx solid #ffc53d;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #614700;
+  word-break: break-all;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.remark-label {
+  font-weight: 600;
+  color: #d48806;
+  margin-right: 4rpx;
+}
+.remark-text {
+  color: #614700;
+}
+
+/* ============ 右侧操作区 ============
+   修：四件套防溢出（和 workshop\pending\list 对齐）
+   1) flex: 0 0 160rpx    → 固定 160rpx
+   2) flex-shrink: 0      → 禁止被压缩
+   3) box-sizing: border-box
+   4) overflow: hidden    → 兜底 */
+.item-actions {
+  flex: 0 0 160rpx;
+  flex-shrink: 0;
+  flex-grow: 0;
+  min-width: 0;
+  width: 160rpx;
+  max-width: 160rpx;
+  margin-left: auto;
+  box-sizing: border-box;    /* 关键 */
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  align-self: center;
+  overflow: hidden;          /* 关键：兜底 */
+}
+
+/* 改用 view 不用 button 避免 button 默认样式
+   高度统一 64rpx，宽度 100%（在 160rpx 容器内）
+   problem 按钮用 box-shadow 模拟边框，和 confirm 高度完全一致
+*/
+.action-btn {
+  width: 100%;
+  height: 64rpx;
+  min-height: 64rpx;
+  line-height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 500;
+  border-radius: 10rpx;
+  line-height: 1;
+  transition: opacity 0.2s, transform 0.1s;
+  padding: 0 4rpx;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+.action-btn::after { border: none; }
+
+.action-btn:active {
+  opacity: 0.75;
+  transform: scale(0.98);
+}
+.action-btn.confirm {
+  background: linear-gradient(135deg, #07c160 0%, #06a050 100%);
+  color: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.25);
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+}
+.action-btn.problem {
+  background-color: #fff5f5;
+  color: #fa5151;
+  border: 2rpx solid #fadbd9;     /* 修：和 confirm 同 border 宽度 */
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 8rpx rgba(250, 81, 81, 0.08);
+}
+.action-btn.problem:active {
+  background-color: #ffe9e9;
+}
+.action-icon {
+  font-size: 24rpx;
+  font-weight: 700;
+  margin-right: 4rpx;
+  line-height: 1;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.action-text {
+  font-size: 24rpx;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  max-width: 100%;
+  display: inline-block;
+}
+
+.item-status {
+  flex: 0 0 100rpx;
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100rpx;
+  margin-left: auto;
+  text-align: center;
+  align-self: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.status-text {
+  font-size: 24rpx;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.status-text.success { color: var(--success-color); }
+
+/* ================== Empty ================== */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}

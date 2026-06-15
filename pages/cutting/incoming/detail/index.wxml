@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="section">
+    <view class="section-title">基本信息</view>
+    <view class="info-row">
+      <text class="info-label">来料单号</text>
+      <text class="info-value">{{incomingNo}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">供应商</text>
+      <text class="info-value">{{supplierName}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">物料名称</text>
+      <text class="info-value">{{materialName}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">规格</text>
+      <text class="info-value">{{spec}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">数量</text>
+      <text class="info-value">{{quantity}} {{unit}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">来料时间</text>
+      <text class="info-value">{{incomingTime}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">状态</text>
+      <text class="info-value status">{{statusText}}</text>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{remark}}">
+    <view class="section-title">备注</view>
+    <view class="remark-content">{{remark}}</view>
+  </view>
+</view>

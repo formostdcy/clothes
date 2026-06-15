@@ -1,0 +1,47 @@
+/* pages/boss/settings/index.wxss */
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.menu-list {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  border-bottom: 2rpx solid var(--divider);
+  position: relative;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:active { background-color: var(--bg-section); }
+
+.menu-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+  line-height: 1;
+  width: 48rpx;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: var(--text-placeholder);
+  line-height: 1;
+  font-weight: 300;
+}

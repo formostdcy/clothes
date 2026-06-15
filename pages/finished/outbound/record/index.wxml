@@ -1,0 +1,43 @@
+<!-- pages/finished/outbound/record/index.wxml -->
+<view class="container">
+  <finished-tabs active="record" />
+
+  <view class="filter-bar">
+    <picker mode="selector" range="{{destinationList}}" range-key="name" bindchange="onDestinationChange">
+      <view class="filter-item">{{selectedDestination ? selectedDestination.name : '全部目的地'}}</view>
+    </picker>
+    <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+      <view class="filter-item">{{startDate || '开始日期'}}</view>
+    </picker>
+    <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
+      <view class="filter-item">{{endDate || '结束日期'}}</view>
+    </picker>
+    <view class="filter-item filter-item--reset" bindtap="onReset">重置</view>
+  </view>
+
+  <view class="list">
+    <view
+      class="list-item"
+      wx:for="{{list}}"
+      wx:key="id"
+      bindtap="onDetail"
+      data-id="{{item.id}}"
+      data-item="{{item}}"
+    >
+      <view class="item-header">
+        <text class="item-no">{{item.outboundNo || '—'}}</text>
+        <text wx:if="{{item.statusText}}" class="item-status status-{{item.statusClass}}">{{item.statusText}}</text>
+      </view>
+      <view class="item-info">
+        <text class="info-text">产品: {{item.productName || '—'}}</text>
+        <text class="info-text">目的地: {{item.destinationName || '—'}}</text>
+        <text class="info-text">数量: {{item.count || 0}}</text>
+        <text class="info-text">出库时间: {{item.outboundTime || '—'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无出库记录</text>
+  </view>
+</view>

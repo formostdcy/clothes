@@ -1,0 +1,52 @@
+<!-- pages/login/login.wxml -->
+<view class="login-container">
+  <view class="login-header">
+    <view class="logo-text">校服生产管理</view>
+    <view class="sub-text">小程序</view>
+  </view>
+
+  <!-- 已登录时的切换提示 -->
+  <view class="cached-tip" wx:if="{{cachedAccount}}">
+    <view class="cached-tip-text">当前已登录：{{cachedAccount}}</view>
+    <view class="cached-tip-btns">
+      <button class="btn btn-secondary btn-block" bindtap="onUseCached">直接进入</button>
+      <button class="btn btn-link" bindtap="onSwitchAccount">切换账号</button>
+    </view>
+  </view>
+
+  <view class="login-form">
+    <view class="form-item">
+      <input
+        class="form-input"
+        type="text"
+        placeholder="请输入账号"
+        placeholder-class="placeholder"
+        value="{{account}}"
+        bindinput="onAccountInput"
+        confirm-type="next"
+      />
+    </view>
+
+    <view class="form-item">
+      <input
+        class="form-input"
+        password
+        placeholder="请输入密码"
+        placeholder-class="placeholder"
+        value="{{password}}"
+        bindinput="onPasswordInput"
+        confirm-type="done"
+        bindconfirm="onLogin"
+      />
+    </view>
+
+    <button
+      class="btn btn-primary btn-block mt-30"
+      bindtap="onLogin"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >
+      登录
+    </button>
+  </view>
+</view>

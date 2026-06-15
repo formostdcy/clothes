@@ -1,0 +1,32 @@
+<view class="form-container">
+  <view class="form-item">
+    <text class="label">姓名</text>
+    <input class="input" value="{{name}}" placeholder="请输入姓名" bindinput="onNameInput" />
+  </view>
+  
+  <view class="form-item">
+    <text class="label">账号</text>
+    <input class="input" value="{{account}}" placeholder="请输入账号" bindinput="onAccountInput" />
+  </view>
+  
+  <view class="form-item">
+    <text class="label">密码</text>
+    <input class="input" type="text" value="{{password}}" placeholder="留空表示不修改；如需重置请直接输入新密码" bindinput="onPasswordInput" />
+    <text class="hint" wx:if="{{password}}">⚠ 即将更新密码为：{{password}}</text>
+  </view>
+  
+  <view class="form-item">
+    <text class="label">角色</text>
+    <picker mode="selector" range="{{roleList}}" range-key="name" bindchange="onRoleChange">
+      <view class="picker-value">{{roleName || '请选择角色'}}</view>
+    </picker>
+  </view>
+  
+  <view class="form-item">
+    <text class="label">状态</text>
+    <switch checked="{{status === 1}}" bindchange="onStatusChange" />
+  </view>
+  
+  <button class="btn-primary save-btn" bindtap="onSubmit">保存修改</button>
+  <button class="btn-danger delete-btn" bindtap="onDelete">删除员工</button>
+</view>

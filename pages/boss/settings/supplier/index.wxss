@@ -1,0 +1,125 @@
+/* pages/boss/settings/supplier/index.wxss */
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.search-bar {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 72rpx;
+  background-color: var(--white);
+  border: 2rpx solid transparent;
+  border-radius: 36rpx;
+  padding: 0 28rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--primary-color); }
+
+.search-btn {
+  width: 140rpx;
+  height: 72rpx;
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  font-size: 28rpx;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  line-height: 1;
+}
+.search-btn::after { border: none; }
+
+.add-btn {
+  background-color: var(--success-color);
+  color: var(--text-inverse);
+  width: 100%;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  margin-bottom: 16rpx;
+  line-height: 1;
+}
+.add-btn::after { border: none; }
+
+.list {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 2rpx solid var(--divider);
+}
+.list-item:last-child { border-bottom: none; }
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+.item-name {
+  font-size: 30rpx;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+.item-contact, .item-phone {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-top: 6rpx;
+  line-height: 1.5;
+}
+
+.item-actions {
+  display: flex;
+  gap: 12rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.action-btn {
+  padding: 0 20rpx;
+  height: 56rpx;
+  font-size: 24rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  line-height: 1;
+  font-weight: 500;
+}
+.action-btn::after { border: none; }
+.action-btn.edit   { background-color: var(--primary-light); color: var(--primary-color); }
+.action-btn.delete { background-color: var(--danger-light);  color: var(--danger-color); }
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}

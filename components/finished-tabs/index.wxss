@@ -1,0 +1,31 @@
+.ft-tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1rpx solid #e5e5e5;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.ft-tab {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+.ft-tab--active {
+  color: #1A73E8;
+  font-weight: 600;
+}
+.ft-tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #1A73E8;
+  border-radius: 2rpx;
+}

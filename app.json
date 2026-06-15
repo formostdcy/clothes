@@ -1,0 +1,68 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/index/index",
+    "pages/raw/inbound/add/index",
+    "pages/raw/outbound/add/index",
+    "pages/raw/list/index",
+    "pages/raw/settings/index",
+    "pages/raw/settings/supplier/index",
+    "pages/raw/settings/supplier-edit/index",
+    "pages/raw/settings/option/index",
+    "pages/raw/settings/option-edit/index",
+    "pages/cutting/incoming/list/index",
+    "pages/cutting/incoming/detail/index",
+    "pages/cutting/cutting/add/index",
+    "pages/cutting/record/index",
+    "pages/workshop/incoming/list/index",
+    "pages/workshop/pending/list/index",
+    "pages/workshop/processing/add/index",
+    "pages/workshop/record/index",
+    "pages/workshop/processing/add-b/index",
+    "pages/finished/confirm/list/index",
+    "pages/finished/stock/index",
+    "pages/finished/outbound/add/index",
+    "pages/finished/outbound/record/index",
+    "pages/boss/overview/index",
+    "pages/boss/employee/list/index",
+    "pages/boss/employee/add/index",
+    "pages/boss/employee/edit/index",
+    "pages/boss/orders/index",
+    "pages/boss/orders/detail/index",
+    "pages/boss/finished-stats/index",
+    "pages/boss/settings/index",
+    "pages/boss/settings/option-edit/index",
+    "pages/boss/settings/supplier/index",
+    "pages/boss/settings/supplier/edit/index",
+    "pages/boss/settings/stock-init/index",
+    "pages/boss/settings/data-export/index",
+    "pages/notification/list/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1A73E8",
+    "navigationBarTitleText": "校服生产管理",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F5F5",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1A73E8",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/notification/list/index", "text": "消息" }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于系统功能"
+    }
+  },
+  "requiredPrivateInfos": [],
+  "usingComponents": {},
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

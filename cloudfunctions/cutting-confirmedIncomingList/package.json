@@ -1,0 +1,11 @@
+{
+  "name": "cutting-confirmedIncomingList",
+  "version": "1.0.0",
+  "description": "裁剪已确认原料列表",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "author": "",
+  "license": "ISC"
+}

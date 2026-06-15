@@ -1,0 +1,23 @@
+<!-- pages/boss/orders/index.wxml -->
+<view class="orders-container">
+  <view class="filter-bar">
+    <picker bindchange="onModuleChange" range="{{modules}}" range-key="name" value="{{moduleIndex}}">
+      <view class="filter-picker">{{modules[moduleIndex].name}}</view>
+    </picker>
+    <input class="search-input" placeholder="搜索订单号" bindinput="onSearch" />
+  </view>
+
+  <view class="list">
+    <view class="order-card" wx:for="{{list}}" wx:key="_id">
+      <view class="card-header">
+        <text class="order-no">{{item.order_no}}</text>
+        <text class="status-badge {{item.statusClass}}">{{item.status}}</text>
+      </view>
+      <view class="card-meta">{{item.created_at}}</view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无订单数据</text>
+  </view>
+</view>

@@ -1,0 +1,78 @@
+<!-- pages/boss/finished-stats/index.wxml -->
+<view class="stats-container">
+  <!-- 类型切换：库存 / 出库量 -->
+  <view class="type-tabs">
+    <view
+      wx:for="{{types}}"
+      wx:key="value"
+      class="type-tab {{typeIndex === index ? 'active' : ''}}"
+      bindtap="onTypeChange"
+      data-index="{{index}}"
+    >{{item.name}}</view>
+  </view>
+
+  <!-- 维度切换：学校 / 款式 / 去向 -->
+  <view class="group-bar">
+    <picker
+      bindchange="onGroupByChange"
+      value="{{groupByIndex}}"
+      range="{{groupByList}}"
+      range-key="name"
+    >
+      <view class="group-picker">
+        <text>{{groupByList[groupByIndex].name}}</text>
+        <text class="arrow">▾</text>
+      </view>
+    </picker>
+    <view class="total-pill">合计 <text class="total-value">{{total}}</text> 件</view>
+  </view>
+
+  <!-- TOP 排名 -->
+  <view class="section">
+    <view class="section-title">排名</view>
+    <view wx:if="{{rows.length === 0 && !loading}}" class="empty-tip">暂无数据</view>
+    <view class="rank-card" wx:for="{{rows}}" wx:key="key">
+      <view
+        class="rank-row {{selectedKey === item.key ? 'selected' : ''}}"
+        bindtap="onRowTap"
+        data-key="{{item.key}}"
+      >
+        <view class="rank-no">{{index + 1}}</view>
+        <view class="rank-name">{{item.key || '未分类'}}</view>
+        <view class="rank-value">{{item.value}}</view>
+        <view class="rank-percent">{{item.percent}}%</view>
+      </view>
+      <view class="rank-bar">
+        <view class="rank-bar-fill" style="width: {{item.percent}}%;"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 明细 -->
+  <view class="section" wx:if="{{selectedKey}}">
+    <view class="section-title">
+      <text>{{selectedKey}} · 明细</text>
+      <text class="section-action" bindtap="onRowTap" data-key="{{selectedKey}}">收起</text>
+    </view>
+    <view wx:if="{{filteredDetails.length === 0}}" class="empty-tip">该维度暂无明细</view>
+    <view class="detail-card" wx:for="{{filteredDetails}}" wx:key="index" wx:for-item="d">
+      <view class="detail-row detail-header">
+        <text class="detail-no">{{d.orderNo || '—'}}</text>
+        <text class="detail-qty">{{d.quantity}} 件</text>
+      </view>
+      <view class="detail-row detail-meta" wx:if="{{d.destination}}">
+        <text>去向: {{d.destination}}</text>
+      </view>
+      <view class="detail-row detail-meta" wx:if="{{d.school}}">
+        <text>学校: {{d.school}}</text>
+      </view>
+      <view class="detail-row detail-meta" wx:if="{{d.style}}">
+        <text>款式: {{d.style}}</text>
+      </view>
+      <view class="detail-row detail-meta" wx:if="{{d.gender || d.size}}">
+        <text wx:if="{{d.gender}}">性别: {{d.gender}}</text>
+        <text wx:if="{{d.size}}">  尺码: {{d.size}}</text>
+      </view>
+    </view>
+  </view>
+</view>

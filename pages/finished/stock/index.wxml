@@ -1,0 +1,55 @@
+<view class="container">
+  <finished-tabs active="stock" />
+
+  <view class="filter-bar">
+    <picker mode="selector" range="{{genderList}}" bindchange="onGenderChange">
+      <view class="filter-item">{{genderList[genderIndex] || '全部性别'}}</view>
+    </picker>
+    <picker mode="selector" range="{{styleList}}" range-key="name" bindchange="onStyleChange">
+      <view class="filter-item">{{selectedStyle ? selectedStyle.name : '全部款式'}}</view>
+    </picker>
+    <picker mode="selector" range="{{schoolList}}" range-key="name" bindchange="onSchoolChange">
+      <view class="filter-item">{{selectedSchool ? selectedSchool.name : '全部学校'}}</view>
+    </picker>
+    <picker mode="selector" range="{{workshopList}}" range-key="name" bindchange="onWorkshopChange">
+      <view class="filter-item">{{selectedWorkshop ? selectedWorkshop.name : '全部车间'}}</view>
+    </picker>
+  </view>
+
+  <view class="action-bar">
+    <button class="btn-export" bindtap="onExport">导出 Excel</button>
+  </view>
+
+  <view class="list">
+    <view class="list-item" wx:for="{{list}}" wx:key="_id">
+      <view class="item-info">
+        <view class="item-name">{{item.sizeText}}</view>
+        <view class="item-detail">
+          <text>性别: {{item.gender || '—'}}</text>
+          <text>款式: {{item.style || '—'}}</text>
+          <text>学校: {{item.school || '—'}}</text>
+          <text>尺码: {{item.size || '—'}}</text>
+        </view>
+        <view class="item-stock">
+          <text class="stock-label">库存:</text>
+          <text class="stock-value">{{item.quantity}} 件</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="summary-bar" wx:if="{{list.length > 0}}">
+    <view class="summary-item">
+      <text class="summary-label">总件数</text>
+      <text class="summary-value">{{totalQuantity}}</text>
+    </view>
+    <view class="summary-item">
+      <text class="summary-label">总SKU</text>
+      <text class="summary-value">{{list.length}}</text>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无库存数据</text>
+  </view>
+</view>

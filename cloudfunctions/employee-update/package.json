@@ -1,0 +1,9 @@
+{
+    "name":  "employee-update",
+    "version":  "1.0.0",
+    "description":  "缂栬緫鍛樺伐",
+    "main":  "index.js",
+    "dependencies":  {
+                         "wx-server-sdk":  "~2.6.3"
+                     }
+}

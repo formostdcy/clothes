@@ -1,0 +1,36 @@
+<view class="container">
+  <view class="section">
+    <view class="section-title">基本信息</view>
+    <view class="info-row">
+      <text class="info-label">订单编号</text>
+      <text class="info-value">{{orderNo || '—'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">产品名称</text>
+      <text class="info-value">{{(materialName || (items[0] && items[0].name) || '—')}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">计划件数</text>
+      <text class="info-value">{{planCount || '—'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">下单时间</text>
+      <text class="info-value">{{createTime || '—'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">订单状态</text>
+      <text class="info-value status">{{statusText || '—'}}</text>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{items && items.length > 0}}">
+    <view class="section-title">订单明细</view>
+    <view class="item-list">
+      <view class="item" wx:for="{{items}}" wx:key="index">
+        <view class="item-name">{{item.name || '—'}}</view>
+        <view class="item-spec" wx:if="{{item.spec}}">规格: {{item.spec}}</view>
+        <view class="item-count">数量: {{item.count || 0}}</view>
+      </view>
+    </view>
+  </view>
+</view>

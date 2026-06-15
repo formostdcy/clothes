@@ -1,0 +1,84 @@
+<!-- pages/raw/list/index.wxml -->
+<view class="raw-container">
+  <!-- Tab切换 -->
+  <view class="tab-header">
+    <view class="tab-item {{tabIndex === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">入库记录</view>
+    <view class="tab-item {{tabIndex === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">出库记录</view>
+    <view class="tab-item {{tabIndex === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">库存明细</view>
+  </view>
+
+  <!-- 入库记录 -->
+  <view wx:if="{{tabIndex === 0}}">
+    <view class="add-bar">
+      <button class="btn-add" bindtap="goToInbound">+ 新增入库</button>
+    </view>
+    <view class="list">
+      <view class="order-card" wx:for="{{inboundList}}" wx:key="_id">
+        <view class="card-header">
+          <text class="order-no">{{item.order_no}}</text>
+          <text class="badge {{item.statusClass}}">{{item.status}}</text>
+        </view>
+        <view class="card-meta">供应商: {{item.supplier_name || '未知'}} · {{item.created_at}}</view>
+        <view class="card-detail">
+          <view wx:for="{{item.material_details}}" wx:key="index" wx:for-item="m">
+            {{m.category_two}} × {{m.quantity}}{{m.unit}}
+          </view>
+        </view>
+        <view class="card-footer" wx:if="{{item.status === '已完成'}}">
+          <button class="btn-cancel" bindtap="onCancelInbound" data-id="{{item._id}}">取消入库</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 出库记录 -->
+  <view wx:if="{{tabIndex === 1}}">
+    <view class="add-bar">
+      <button class="btn-add" bindtap="goToOutbound">+ 新增出库</button>
+    </view>
+    <view class="list">
+      <view class="order-card" wx:for="{{outboundList}}" wx:key="_id">
+        <view class="card-header">
+          <text class="order-no">{{item.order_no}}</text>
+          <text class="badge {{item.statusClass}}">{{item.status}}</text>
+        </view>
+        <view class="card-meta">目标: {{item.target_type === 'cutting' ? '裁剪' : '车间'}} · {{item.created_at}}</view>
+        <view class="card-detail">
+          <view wx:for="{{item.material_details}}" wx:key="index" wx:for-item="m">
+            {{m.category_two}} × {{m.quantity}}{{m.unit}}
+          </view>
+        </view>
+        <view class="card-footer" wx:if="{{item.status === '待确认'}}">
+          <button class="btn-cancel" bindtap="onCancelOutbound" data-id="{{item._id}}">取消出库</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 库存明细 -->
+  <view wx:if="{{tabIndex === 2}}">
+    <view class="list">
+      <view class="stock-card" wx:for="{{stockList}}" wx:key="_id">
+        <view class="stock-name">{{item.category_one}} - {{item.category_two}}</view>
+        <view class="stock-info">
+          <text class="stock-qty {{item.total_quantity <= item.warning_threshold && item.warning_threshold > 0 ? 'warning' : ''}}">
+            {{item.total_quantity}}{{item.unit}}
+          </text>
+          <text class="stock-threshold" wx:if="{{item.warning_threshold > 0}}">警戒: {{item.warning_threshold}}{{item.unit}}</text>
+          <text class="stock-threshold" wx:if="{{!item.warning_threshold || item.warning_threshold <= 0}}">未设置警戒</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{((tabIndex === 0 && inboundList.length === 0) || (tabIndex === 1 && outboundList.length === 0) || (tabIndex === 2 && stockList.length === 0)) && !loading}}">
+    <text>暂无数据</text>
+  </view>
+
+  <!-- 系统设置入口（只老板/原材料管理员可见） -->
+  <view class="settings-entry" bindtap="goToSettings" wx:if="{{canManageSettings}}">
+    <view class="settings-icon">⚙</view>
+    <view class="settings-text">供应商与分类管理</view>
+    <view class="settings-arrow">›</view>
+  </view>
+</view>

@@ -1,0 +1,376 @@
+/* pages/cutting/cutting/add/index.wxss */
+.form-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.form-item {
+  margin-bottom: 16rpx;
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: var(--shadow-md);
+}
+
+.info-header {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.form-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12rpx;
+  padding-top: 12rpx;
+  border-top: 2rpx dashed var(--divider);
+}
+.meta-no {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+.meta-status {
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 24rpx;
+  background-color: var(--bg-section);
+  color: var(--text-secondary);
+}
+.status-pending { background: var(--warning-light); color: var(--warning-color); }
+.status-confirmed { background: var(--primary-light); color: var(--primary-color); }
+.status-done { background: var(--success-light); color: var(--success-color); }
+.status-issue { background: var(--danger-light); color: var(--danger-color); }
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-regular);
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+.label.required::before {
+  content: '*';
+  color: var(--danger-color);
+  margin-right: 6rpx;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.label-row .label { margin-bottom: 0; }
+.label-tip {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+
+.input,
+.picker-value,
+.textarea {
+  width: 100%;
+  min-height: 80rpx;
+  background-color: var(--bg-section);
+  border: 2rpx solid transparent;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  line-height: 1.5;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.textarea {
+  padding: 20rpx;
+  min-height: 120rpx;
+  line-height: 1.5;
+}
+.picker-value {
+  display: flex;
+  align-items: center;
+  height: 80rpx;
+  line-height: 80rpx;
+}
+.picker-value.placeholder { color: var(--text-placeholder); }
+.input:focus,
+.picker-value:focus { border-color: var(--primary-color); background-color: var(--white); }
+.input[disabled],
+.picker-value[disabled],
+.textarea[disabled] {
+  color: var(--text-regular);
+  background-color: var(--bg-section);
+}
+
+.picker-value-sm {
+  width: 100%;
+  min-height: 64rpx;
+  background-color: var(--bg-section);
+  border: 2rpx solid transparent;
+  border-radius: 8rpx;
+  padding: 0 16rpx;
+  font-size: 26rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  line-height: 64rpx;
+}
+.picker-value-sm.placeholder { color: var(--text-placeholder); }
+
+.info-box {
+  background-color: var(--bg-section);
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: var(--text-regular);
+  line-height: 1.6;
+}
+
+/* ============ 物料行（多物料） ============ */
+.material-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-top: 2rpx solid var(--divider);
+  gap: 16rpx;
+}
+.material-row:first-of-type { border-top: none; padding-top: 0; }
+.material-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+.cat-one {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+.cat-two {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.mat-spec {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+/* 关键：物料现有库存提示（用户在填使用量时能看到上限） */
+.mat-stock {
+  display: inline-block;
+  margin-top: 6rpx;
+  padding: 4rpx 12rpx;
+  font-size: 22rpx;
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+  border-radius: 6rpx;
+  align-self: flex-start;
+}
+.material-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  width: 220rpx;
+  flex-shrink: 0;
+}
+.material-input {
+  flex: 1;
+  min-width: 0;
+  height: 64rpx;
+  background-color: var(--bg-section);
+  border: 2rpx solid transparent;
+  border-radius: 8rpx;
+  padding: 0 12rpx;
+  font-size: 26rpx;
+  text-align: right;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  line-height: 64rpx;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+.material-input.over-stock {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+  background-color: var(--danger-light);
+}
+.material-unit {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  width: 36rpx;
+  flex-shrink: 0;
+}
+
+/* ============ 学校/款式/性别 三列 ============ */
+.clothes-meta {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+.meta-item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.meta-label {
+  font-size: 24rpx;
+  color: var(--text-regular);
+}
+.meta-label.required::before {
+  content: '*';
+  color: var(--danger-color);
+  margin-right: 4rpx;
+}
+
+/* ============ 尺码多选网格 ============ */
+.size-section { margin-bottom: 16rpx; }
+.size-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.size-chip {
+  min-width: 88rpx;
+  height: 64rpx;
+  padding: 0 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-section);
+  color: var(--text-regular);
+  border: 2rpx solid transparent;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+.size-chip.active {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  font-weight: 600;
+}
+.size-tags { display: flex; flex-wrap: wrap; gap: 8rpx; }
+.size-tag {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  font-size: 24rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+}
+
+/* ============ 各尺码件数 ============ */
+.plan-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-top: 8rpx;
+}
+.plan-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 16rpx;
+  background-color: var(--bg-section);
+  border-radius: 12rpx;
+  box-sizing: border-box;
+}
+.plan-size { width: 80rpx; flex-shrink: 0; }
+.size-badge {
+  display: inline-block;
+  background: var(--primary-color);
+  color: var(--text-inverse);
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  text-align: center;
+  min-width: 56rpx;
+  box-sizing: border-box;
+}
+.plan-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  min-width: 0;
+}
+.plan-input {
+  flex: 1;
+  min-width: 0;
+  height: 60rpx;
+  background-color: var(--white);
+  border: 2rpx solid var(--divider);
+  border-radius: 8rpx;
+  padding: 0 12rpx;
+  font-size: 26rpx;
+  text-align: right;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  line-height: 60rpx;
+}
+.plan-input:focus { border-color: var(--primary-color); }
+.plan-unit { font-size: 24rpx; color: var(--text-secondary); }
+.plan-total { width: 100rpx; flex-shrink: 0; text-align: right; }
+.total-text { font-size: 22rpx; color: var(--text-secondary); }
+.plan-summary {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 6rpx;
+  padding-top: 12rpx;
+  border-top: 2rpx solid var(--divider);
+  margin-top: 4rpx;
+}
+.summary-text { font-size: 24rpx; color: var(--text-secondary); }
+.summary-num { font-size: 36rpx; font-weight: 700; color: var(--primary-color); }
+
+/* ============ 照片（详情模式） ============ */
+.photo-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+.photo-list {
+  display: inline-flex;
+  gap: 12rpx;
+  padding: 4rpx 0;
+}
+.photo-thumb {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  background-color: #f5f5f5;
+  border: 2rpx solid var(--divider);
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ============ 提交按钮 ============ */
+.btn-primary {
+  background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);
+  color: var(--text-inverse);
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin-top: 32rpx;
+  box-shadow: 0 6rpx 16rpx rgba(26, 115, 232, 0.25);
+}
+.btn-primary::after { border: none; }
+.btn-primary:active { opacity: 0.88; transform: scale(0.99); }

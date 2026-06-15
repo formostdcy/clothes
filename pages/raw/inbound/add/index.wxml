@@ -1,0 +1,66 @@
+<!-- pages/raw/inbound/add/index.wxml -->
+<view class="form-container">
+  <!-- 供应商 -->
+  <view class="form-section">
+    <view class="section-title">供应商信息</view>
+    <view class="form-item">
+      <view class="form-label required">供应商</view>
+      <picker mode="selector" bindchange="onSupplierChange" range="{{suppliers}}" range-key="name" value="{{supplierIndex}}">
+        <view class="picker-display {{form.supplier_id ? '' : 'placeholder'}}">
+          {{(supplierIndex >= 0 && suppliers[supplierIndex]) ? suppliers[supplierIndex].name : '请选择供应商'}}
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 物料明细 -->
+  <view class="form-section">
+    <view class="section-title">物料明细</view>
+    <view class="material-list">
+      <view class="material-item" wx:for="{{form.material_details}}" wx:key="index">
+        <view class="material-row">
+          <picker bindchange="onCat1Change" data-index="{{index}}" range="{{cat1Options}}" value="{{item.cat1Index}}">
+            <view class="picker-inline">{{item.category_one || '一级分类'}}</view>
+          </picker>
+          <picker bindchange="onCat2Change" data-index="{{index}}" range="{{item.cat2Options || []}}" range-key="name" value="{{item.cat2Index}}">
+            <view class="picker-inline">{{(item.cat2Options && item.cat2Index >= 0 && item.cat2Options[item.cat2Index]) ? item.cat2Options[item.cat2Index].name : '二级分类'}}</view>
+          </picker>
+        </view>
+        <!-- 库存显示（仅作参考）-->
+        <view class="stock-hint" wx:if="{{item.category_one && item.category_two}}">
+          <text wx:if="{{item.stockQty === null}}">该物料暂无库存记录</text>
+          <text wx:elif="{{item.stockQty === 0}}">当前库存：0 {{item.stockUnit}}</text>
+          <text wx:else>当前库存：{{item.stockQty}} {{item.stockUnit}}（本次将入库）</text>
+        </view>
+        <view class="material-row">
+          <input class="input-inline" type="number" placeholder="数量" data-index="{{index}}" data-field="quantity" bindinput="onMaterialInput" value="{{item.quantity}}" />
+          <text class="unit-text">{{item.unit}}</text>
+          <view class="remove-btn" bindtap="onRemoveMaterial" data-index="{{index}}">删除</view>
+        </view>
+      </view>
+    </view>
+    <button class="btn-add-material" bindtap="onAddMaterial">+ 添加物料</button>
+  </view>
+
+  <!-- 照片 -->
+  <view class="form-section">
+    <view class="section-title">照片（选填）</view>
+    <view class="photo-list">
+      <view class="photo-item" wx:for="{{form.photos}}" wx:key="index">
+        <image src="{{item}}" mode="aspectFill" />
+        <view class="photo-remove" bindtap="onRemovePhoto" data-index="{{index}}">×</view>
+      </view>
+      <view class="photo-add" bindtap="onAddPhoto" wx:if="{{form.photos.length < 9}}">+</view>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="form-section">
+    <view class="section-title">备注（选填）</view>
+    <textarea class="remark-input" placeholder="请输入备注" bindinput="onRemarkInput" value="{{form.remark}}" maxlength="200" />
+  </view>
+
+  <view class="submit-bar safe-bottom">
+    <button class="btn btn-primary btn-block" bindtap="onSubmit" loading="{{loading}}">提交入库</button>
+  </view>
+</view>

@@ -1,0 +1,18 @@
+<view class="form-container">
+  <view class="form-item">
+    <text class="label">供应商名称</text>
+    <input class="input" value="{{name}}" placeholder="请输入供应商名称" bindinput="onNameInput" />
+  </view>
+
+  <view class="form-item">
+    <text class="label">联系人</text>
+    <input class="input" value="{{contact_name}}" placeholder="请输入联系人姓名" bindinput="onContactNameInput" />
+  </view>
+
+  <view class="form-item">
+    <text class="label">联系电话</text>
+    <input class="input" type="text" value="{{contact_phone}}" placeholder="请输入联系电话" bindinput="onContactPhoneInput" maxlength="20" />
+  </view>
+
+  <button class="btn-primary" bindtap="onSubmit">保存</button>
+</view>

@@ -1,0 +1,365 @@
+/* pages/workshop/pending/list/index.wxss
+ * ============================================================
+ *  彻底重构：底部双按钮横排 + 信息区全宽
+ *  - 单号顶行
+ *  - 信息区独占整张卡片宽度（彻底解决挤压问题）
+ *  - 底部双按钮 50:50 平分整宽（不可能溢出）
+ *  视觉：浅灰底 + 白色卡片 + 16rpx 圆角 + 柔和阴影 + 24rpx 32rpx padding
+ *  按钮：胶囊形（border-radius: 999rpx），内文字+图标水平垂直居中
+ * ============================================================
+ */
+
+/* ================== 根容器（page 风格） ================== */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow-x: hidden;             /* 关键：禁止横向滚动 */
+}
+
+/* ================== List ================== */
+.list {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;                    /* 卡片之间间距 */
+}
+
+/* ================== 卡片 ==================
+   关键变化：信息区 + 按钮上下分布，不再有左右争用空间 */
+.list-item {
+  width: 100%;
+  max-width: 100%;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;                    /* 单号 / 信息 / 按钮 三段之间留 20rpx */
+}
+
+/* ================== 单号行 ================== */
+.item-no {
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 700;
+  line-height: 1.4;
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #EEF0F3;
+}
+
+.item-label {
+  flex: 0 0 auto;
+  color: #999999;
+  font-weight: 500;
+  font-size: 26rpx;
+}
+
+.item-no-value {
+  flex: 1 1 0;
+  min-width: 0;
+  font-family: "SF Mono", "Monaco", "Consolas", "Courier New", monospace;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #333333;
+  letter-spacing: -1rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  max-width: 100%;
+}
+
+/* ================== 信息区（核心：独占整宽） ==================
+   关键变化：不再是 flex:1 + min-width:0 与按钮争用空间，
+   而是独立占一整行，宽度 100% 不会撑爆，永远不挤压 */
+.item-info {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.item-source,
+.item-material,
+.item-plan,
+.item-school,
+.item-style,
+.item-gender,
+.item-time {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.55;
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-source text:last-child,
+.item-material text:last-child,
+.item-plan text:last-child,
+.item-school text:last-child,
+.item-style text:last-child,
+.item-gender text:last-child,
+.item-time text:last-child {
+  color: #333333;
+  font-weight: 500;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ================== 尺码明细行 ================== */
+.item-sizes {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  width: 100%;
+  max-width: 100%;
+  font-size: 24rpx;
+  line-height: 1.5;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.item-sizes .item-label {
+  color: #999999;
+  font-weight: 500;
+  font-size: 24rpx;
+  padding-top: 6rpx;
+  flex: 0 0 auto;
+}
+.sizes-list {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.size-chip {
+  display: inline-block;
+  padding: 4rpx 14rpx;
+  background-color: #E8F0FE;
+  color: #1A73E8;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+}
+
+/* ================== 底部操作区：双按钮横排 50:50 ==================
+   关键变化：从"右侧 168rpx 垂直列"改为"底部横排 50:50 平分整宽"
+   这下按钮不可能溢出，文字"退回"/"确认接单"完整显示 */
+.item-actions {
+  display: flex;
+  flex-direction: row;           /* 横排 */
+  justify-content: space-between;/* 两端对齐 */
+  align-items: stretch;          /* 两按钮高度一致 */
+  gap: 20rpx;                    /* 按钮间 20rpx 呼吸 */
+  width: 100%;
+  max-width: 100%;
+  margin-top: 8rpx;              /* 与信息区稍微分开 */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ================== 按钮（胶囊形） ==================
+   关键变化：flex: 1（等分剩余空间），不再固定宽度
+   配合外层 .item-actions 的 justify-content: space-between
+   两个按钮平分整卡宽度，文字永远不会被截断 */
+.action-btn {
+  flex: 1 1 0;                   /* 等分剩余空间 */
+  min-width: 0;                  /* 关键：让 ellipsis 生效 */
+  flex-shrink: 1;
+  flex-grow: 1;
+  height: 72rpx;
+  min-height: 72rpx;
+  line-height: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  border-radius: 999rpx;          /* 胶囊形 */
+  padding: 0 12rpx;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  letter-spacing: 0;
+  text-align: center;
+  border: 2rpx solid transparent;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.action-btn::after {
+  border: none;
+  content: '';
+  width: auto;
+  height: auto;
+}
+.action-btn:active {
+  opacity: 0.75;
+  transform: scale(0.98);
+}
+
+.action-btn.confirm {
+  background: linear-gradient(135deg, #07c160 0%, #06a050 100%);
+  color: #ffffff;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.25);
+}
+.action-btn.return {
+  background-color: #fff7e6;
+  color: #ff9500;
+  border: 2rpx solid #ffe0a8;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 8rpx rgba(255, 149, 0, 0.08);
+}
+.action-btn.return:active {
+  background-color: #ffeac2;
+}
+
+.action-icon {
+  font-size: 26rpx;
+  font-weight: 700;
+  margin-right: 8rpx;
+  line-height: 1;
+  display: inline-block;
+  flex-shrink: 0;
+  align-self: center;
+}
+.action-text {
+  font-size: 28rpx;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: inline-block;
+  align-self: center;
+}
+
+/* ================== 空数据 ================== */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: #999999;
+  font-size: 28rpx;
+}
+
+/* ============================================================ */
+/* 退回原因弹层                                                  */
+/* ============================================================ */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+}
+.modal-card {
+  width: 100%;
+  max-width: 640rpx;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 32rpx 28rpx 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.18);
+}
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #333333;
+  text-align: center;
+}
+.modal-desc {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.5;
+}
+.modal-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  background-color: #FAFBFC;
+  border: 2rpx solid transparent;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: #333333;
+  box-sizing: border-box;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.modal-textarea:focus { border-color: #1A73E8; }
+.modal-counter {
+  font-size: 22rpx;
+  color: #999999;
+  text-align: right;
+  line-height: 1.4;
+}
+.modal-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+.modal-btn {
+  flex: 1;
+  height: 84rpx;
+  line-height: 84rpx;
+  border-radius: 42rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  text-align: center;
+  border: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.modal-btn::after { border: none; }
+.modal-btn.cancel {
+  background-color: #FAFBFC;
+  color: #374151;
+}
+.modal-btn.cancel:active { opacity: 0.7; }
+.modal-btn.confirm {
+  background: linear-gradient(135deg, #ff9500 0%, #ff6a00 100%);
+  color: #ffffff;
+}
+.modal-btn.confirm:active { opacity: 0.85; }

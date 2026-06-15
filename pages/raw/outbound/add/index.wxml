@@ -1,0 +1,54 @@
+<!-- pages/raw/outbound/add/index.wxml -->
+<view class="form-container">
+  <view class="form-section">
+    <view class="section-title">物料明细</view>
+    <view class="material-list">
+      <view class="material-item" wx:for="{{form.material_details}}" wx:key="index">
+        <view class="material-row">
+          <picker bindchange="onCat1Change" data-index="{{index}}" range="{{cat1Options}}">
+            <view class="picker-inline">{{item.category_one || '一级分类'}}</view>
+          </picker>
+          <picker bindchange="onCat2Change" data-index="{{index}}" range="{{item.cat2Options || []}}" range-key="name">
+            <view class="picker-inline">{{(item.cat2Options && item.cat2Index >= 0 && item.cat2Options[item.cat2Index]) ? item.cat2Options[item.cat2Index].name : '二级分类'}}</view>
+          </picker>
+        </view>
+        <!-- 库存显示 -->
+        <view class="stock-hint" wx:if="{{item.category_one && item.category_two}}">
+          <text wx:if="{{item.stockQty === null}}">该物料暂无库存</text>
+          <text wx:elif="{{item.stockQty <= 0}}" class="stock-zero">⚠ 库存为 0，无法出库</text>
+          <text wx:elif="{{item.stockQty <= (item.warning || 0) && item.warning > 0}}" class="stock-low">⚠ 库存紧张：{{item.stockQty}} {{item.stockUnit}}（警戒 {{item.warning}}）</text>
+          <text wx:else>当前库存：{{item.stockQty}} {{item.stockUnit}}</text>
+        </view>
+        <view class="material-row">
+          <input class="input-inline" type="number" placeholder="出库数量" data-index="{{index}}" data-field="quantity" bindinput="onMaterialInput" value="{{item.quantity}}" />
+          <text class="unit-text">{{item.unit}}</text>
+          <view class="remove-btn" bindtap="onRemoveMaterial" data-index="{{index}}">删除</view>
+        </view>
+      </view>
+    </view>
+    <button class="btn-add-material" bindtap="onAddMaterial">+ 添加物料</button>
+  </view>
+
+  <view class="form-section">
+    <view class="section-title">目标角色</view>
+    <view class="form-item">
+      <view class="form-label required">指派给</view>
+      <picker bindchange="onTargetChange" range="{{targetOptions}}" range-key="name" value="{{targetIndex}}">
+        <view class="picker-display {{form.target_admin_id ? '' : 'placeholder'}}">
+          {{(targetIndex >= 0 && targetOptions[targetIndex]) ? targetOptions[targetIndex].name : '请选择目标角色'}}
+        </view>
+      </picker>
+    </view>
+    <view class="form-item">
+      <view class="form-label required">目标类型</view>
+      <view class="radio-group">
+        <view class="radio-item {{form.target_type === 'cutting' ? 'active' : ''}}" bindtap="onTargetTypeChange" data-type="cutting">裁剪管理员</view>
+        <view class="radio-item {{form.target_type === 'workshop' ? 'active' : ''}}" bindtap="onTargetTypeChange" data-type="workshop">车间管理员</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="submit-bar safe-bottom">
+    <button class="btn btn-primary btn-block" bindtap="onSubmit" loading="{{loading}}">提交出库</button>
+  </view>
+</view>

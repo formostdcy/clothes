@@ -1,0 +1,217 @@
+/* pages/boss/finished-stats/index.wxss */
+.stats-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.type-tabs {
+  display: flex;
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+}
+.type-tab {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  border-radius: 12rpx;
+  transition: background-color 0.2s, color 0.2s;
+}
+.type-tab.active {
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  font-weight: 600;
+}
+
+.group-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 16rpx 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-sm);
+}
+.group-picker {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.group-picker .arrow {
+  margin-left: 8rpx;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+.total-pill {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  background-color: var(--bg-section);
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+.total-value {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0 4rpx;
+  font-variant-numeric: tabular-nums;
+}
+
+.section {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16rpx;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 6rpx;
+  height: 24rpx;
+  background: var(--primary-color);
+  border-radius: 3rpx;
+  margin-right: 8rpx;
+}
+.section-action {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.empty-tip {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 26rpx;
+  padding: 40rpx 0;
+}
+
+.rank-card {
+  margin-bottom: 16rpx;
+}
+.rank-card:last-child {
+  margin-bottom: 0;
+}
+.rank-row {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 8rpx;
+  border-radius: 12rpx;
+  transition: background-color 0.2s;
+}
+.rank-row.selected {
+  background-color: var(--primary-lighter);
+}
+.rank-no {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background-color: var(--bg-section);
+  color: var(--text-secondary);
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-right: 16rpx;
+}
+.rank-row.selected .rank-no {
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+}
+.rank-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16rpx;
+}
+.rank-value {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  margin-right: 12rpx;
+}
+.rank-percent {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 80rpx;
+  text-align: right;
+}
+.rank-bar {
+  height: 6rpx;
+  background-color: var(--bg-section);
+  border-radius: 3rpx;
+  margin: 4rpx 8rpx 0 64rpx;
+  overflow: hidden;
+}
+.rank-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  border-radius: 3rpx;
+  transition: width 0.3s;
+}
+
+.detail-card {
+  background-color: var(--bg-color);
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  margin-bottom: 12rpx;
+}
+.detail-card:last-child {
+  margin-bottom: 0;
+}
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 26rpx;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+.detail-header {
+  font-weight: 600;
+  margin-bottom: 6rpx;
+}
+.detail-no {
+  font-variant-numeric: tabular-nums;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 12rpx;
+}
+.detail-qty {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.detail-meta {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  font-weight: 400;
+}

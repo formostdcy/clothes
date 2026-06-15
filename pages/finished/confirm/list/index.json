@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "车间订单确认",
+  "usingComponents": {
+    "finished-tabs": "/components/finished-tabs/index"
+  }
+}

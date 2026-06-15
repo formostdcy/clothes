@@ -1,0 +1,9 @@
+{
+  "name": "debug-check-cuttingStatus",
+  "version": "1.0.0",
+  "description": "诊断：查看 cutting_order 状态分布",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -1,0 +1,30 @@
+<!-- pages/cutting/record/index.wxml -->
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{activeTab === 'pending' ? 'active' : ''}}" bindtap="onTabChange" data-status="pending">进行中</view>
+    <view class="tab {{activeTab === 'completed' ? 'active' : ''}}" bindtap="onTabChange" data-status="completed">已完成</view>
+    <view class="tab {{activeTab === 'all' ? 'active' : ''}}" bindtap="onTabChange" data-status="all">全部</view>
+  </view>
+
+  <view class="list">
+    <view class="list-item" bindtap="onDetail" data-id="{{item.id}}" wx:for="{{list}}" wx:key="id">
+      <view class="item-header">
+        <text class="item-no">单号: {{item.orderNo}}</text>
+        <text wx:if="{{item.statusText}}" class="item-status status-{{item.statusClass}}">{{item.statusText}}</text>
+      </view>
+      <view class="item-info">
+        <text class="info-text">物料: {{item.materialName || '—'}}</text>
+        <text class="info-text">学校/款式: {{item.school || '—'}} / {{item.style || '—'}}</text>
+        <text class="info-text">性别: {{item.gender || '—'}}</text>
+        <text class="info-text">尺码: {{item.sizeText}}</text>
+        <text class="info-text">总件数: {{item.planCount}}</text>
+        <text class="info-text">目标车间: {{item.workshopName}}</text>
+        <text class="info-text">提交时间: {{item.createTime}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无裁剪记录</text>
+  </view>
+</view>

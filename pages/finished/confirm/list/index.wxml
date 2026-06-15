@@ -1,0 +1,26 @@
+<!-- pages/finished/confirm/list/index.wxml -->
+<view class="container">
+  <finished-tabs active="confirm" />
+
+  <view class="list">
+    <view class="list-item list-item--todo" wx:for="{{list}}" wx:key="id">
+      <view class="item-info">
+        <view class="item-no">单号: {{item.orderNo || '—'}}</view>
+        <view class="item-source" wx:if="{{item.sourceText}}">来源: {{item.sourceText}}</view>
+        <view class="item-source" wx:if="{{item.workshopAdminName}}">车间: {{item.workshopAdminName}}</view>
+        <view class="item-material">成品: {{item.materialName || '—'}}</view>
+        <view class="item-count">件数: {{item.count || 0}} 件</view>
+        <view class="item-count" wx:if="{{item.sizeText}}">尺码: {{item.sizeText}}</view>
+        <view class="item-time">时间: {{item.createTime || '—'}}</view>
+      </view>
+      <view class="item-actions">
+        <button class="action-btn confirm" bindtap="onConfirm" data-id="{{item.id}}">确认入库</button>
+        <button class="action-btn problem" bindtap="onProblem" data-id="{{item.id}}">有问题</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text>暂无待确认订单</text>
+  </view>
+</view>

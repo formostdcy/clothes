@@ -1,0 +1,11 @@
+{
+  "name": "workshop-confirmedList",
+  "version": "1.0.0",
+  "description": "车间-裁剪已确认订单列表",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "author": "",
+  "license": "ISC"
+}

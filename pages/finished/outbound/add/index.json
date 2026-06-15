@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "新增出库",
+  "usingComponents": {
+    "finished-tabs": "/components/finished-tabs/index"
+  }
+}

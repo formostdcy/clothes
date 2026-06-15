@@ -1,0 +1,88 @@
+/* pages/boss/orders/index.wxss */
+.orders-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.filter-picker {
+  height: 72rpx;
+  background-color: var(--white);
+  border-radius: 36rpx;
+  padding: 0 28rpx;
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  white-space: nowrap;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-input {
+  flex: 1;
+  height: 72rpx;
+  background-color: var(--white);
+  border-radius: 36rpx;
+  padding: 0 28rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.order-card {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+.order-no {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.status-badge {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 24rpx;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.card-meta {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}

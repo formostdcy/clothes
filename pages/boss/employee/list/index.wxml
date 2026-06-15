@@ -1,0 +1,45 @@
+<!-- pages/boss/employee/list/index.wxml -->
+<view class="list-container">
+  <view class="header-bar">
+    <view class="search-bar">
+      <input
+        class="search-input"
+        placeholder="搜索姓名或账号"
+        bindinput="onSearch"
+        value="{{keyword}}"
+      />
+    </view>
+    <view class="add-btn" bindtap="goToAdd">
+      <text>+ 新增员工</text>
+    </view>
+  </view>
+
+  <view class="list">
+    <view
+      class="employee-card"
+      wx:for="{{list}}"
+      wx:key="_id"
+    >
+      <view class="card-left">
+        <view class="avatar">{{item.name ? item.name.charAt(0) : '员'}}</view>
+        <view class="info">
+          <view class="name">{{item.name}}</view>
+          <view class="meta">{{item.account}} · {{item.role}}</view>
+        </view>
+      </view>
+      <view class="card-right">
+        <view class="status {{item.status === 1 ? 'active' : 'disabled'}}">
+          {{item.status === 1 ? '正常' : '已禁用'}}
+        </view>
+        <view class="actions">
+          <text class="action-btn" bindtap="goToEdit" data-id="{{item._id}}">编辑</text>
+          <text class="action-btn danger" bindtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{list.length === 0 && !loading}}">
+    <text class="empty-text">暂无员工数据</text>
+  </view>
+</view>

@@ -1,0 +1,11 @@
+{
+    "name":  "auth-getUserInfo",
+    "version":  "1.0.0",
+    "description":  "鑾峰彇鐢ㄦ埛淇℃伅",
+    "main":  "index.js",
+    "dependencies":  {
+                         "wx-server-sdk":  "~2.6.3"
+                     },
+    "author":  "",
+    "license":  "ISC"
+}

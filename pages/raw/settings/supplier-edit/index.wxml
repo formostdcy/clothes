@@ -1,0 +1,25 @@
+<!-- pages/raw/settings/supplier-edit/index.wxml -->
+<view class="page page--with-submit">
+  <view class="form-section">
+    <view class="form-section-title"><text class="form-section-title-text">基本信息</text></view>
+
+    <view class="form-item">
+      <view class="form-label required">供应商名称</view>
+      <input class="form-input" placeholder="例如：xx布行" value="{{name}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">联系人</view>
+      <input class="form-input" placeholder="联系人姓名" value="{{contact_name}}" bindinput="onContactNameInput" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">联系电话</view>
+      <input class="form-input" type="number" maxlength="11" placeholder="手机号" value="{{contact_phone}}" bindinput="onContactPhoneInput" />
+    </view>
+  </view>
+
+  <view class="submit-bar safe-bottom">
+    <button class="btn btn-primary btn-block" bindtap="onSave" disabled="{{saving}}">保存</button>
+  </view>
+</view>

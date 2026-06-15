@@ -1,0 +1,17 @@
+<view class="container">
+  <view class="notice-box">
+    <text class="notice-title">⚠️ 重要提示</text>
+    <text class="notice-content">
+      库存初始化将会把当前所有原材料库存数量重置为0。此操作不可逆，请在确认已完成当前库存盘点后再进行操作。
+    </text>
+    <text class="notice-content">
+      建议操作前先导出当前库存数据作为备份。
+    </text>
+  </view>
+  
+  <view class="warning-box">
+    <text class="warning-text">此操作将清空所有原材料库存记录！</text>
+  </view>
+  
+  <button class="btn-danger" bindtap="onSubmit">确认初始化库存</button>
+</view>

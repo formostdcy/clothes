@@ -1,0 +1,51 @@
+/* pages/boss/settings/supplier/edit/index.wxss */
+.form-container {
+  padding: 24rpx;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.form-item {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+
+.label {
+  display: block;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+}
+
+.input {
+  width: 100%;
+  height: 72rpx;
+  font-size: 30rpx;
+  color: var(--text-primary);
+  border: 2rpx solid var(--divider);
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  width: 100%;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  margin-top: 32rpx;
+  line-height: 1;
+}
+.btn-primary::after { border: none; }

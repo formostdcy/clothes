@@ -1,0 +1,245 @@
+/* pages/workshop/record/index.wxss
+ * ============================================================
+ *  卡片结构与 pages/workshop/pending/list 一致：
+ *  - 单号顶行（跨整张卡片宽度）
+ *  - 信息区独占整宽（不会被挤压）
+ *  - 整卡可点进入详情（无底部按钮、无弹窗）
+ *  视觉：浅灰底 + 白色卡片 + 16rpx 圆角 + 柔和阴影 + 24rpx 32rpx padding
+ * ============================================================
+ */
+
+/* ================== 根容器 ================== */
+.container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* ================== Tabs ================== */
+.tabs {
+  display: flex;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+}
+.tab {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #999999;
+  position: relative;
+  transition: color 0.2s, background-color 0.2s;
+}
+.tab.active {
+  color: #1A73E8;
+  font-weight: 600;
+  background-color: #E8F0FE;
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56rpx;
+  height: 4rpx;
+  background-color: #1A73E8;
+  border-radius: 2rpx;
+}
+
+/* ================== List ================== */
+.list {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* ================== 卡片 ================== */
+.list-item {
+  width: 100%;
+  max-width: 100%;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.list-item:active { background-color: #f7f8fa; }
+
+/* ================== 单号顶行 ================== */
+.item-no {
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 700;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #EEF0F3;
+}
+
+.item-label {
+  flex: 0 0 auto;
+  color: #999999;
+  font-weight: 500;
+  font-size: 26rpx;
+}
+
+.item-no-value {
+  flex: 1 1 0;
+  min-width: 0;
+  font-family: "SF Mono", "Monaco", "Consolas", "Courier New", monospace;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #333333;
+  letter-spacing: -1rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  max-width: 100%;
+}
+
+/* 状态徽章：复用 pending 的 status 配色（加工中橙、已完成绿、问题红） */
+.item-status {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 24rpx;
+  line-height: 1.5;
+  background-color: #f5f7fa;
+  color: #999999;
+  flex: 0 0 auto;
+}
+.item-status.status-processing,
+.item-status.status-pending-confirm { background-color: #fff7e6; color: #ff9500; }
+.item-status.status-completed,
+.item-status.status-done { background-color: #e8f8ee; color: #07c160; }
+.item-status.status-returned,
+.item-status.status-issue { background-color: #ffeaea; color: #ff4d4f; }
+.item-status.status-confirmed,
+.item-status.status-in,
+.item-status.status-out,
+.item-status.status-cut { background-color: #E8F0FE; color: #1A73E8; }
+
+/* ================== 信息区（核心：独占整宽） ================== */
+.item-info {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.info-row {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.55;
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.info-row .item-label {
+  flex: 0 0 auto;
+  color: #999999;
+  font-weight: 500;
+  font-size: 24rpx;
+}
+.info-row text:last-child {
+  color: #333333;
+  font-weight: 500;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 实际件数：黑色加粗，略带强调 */
+.value-emphasis {
+  font-weight: 700 !important;
+  color: #333333 !important;
+}
+
+/* 损耗率：颜色高亮（>5 橙、<0 红、其余绿）+ 等宽字体 */
+.loss-rate {
+  font-family: "SF Mono", "Monaco", "Consolas", "Courier New", monospace;
+  font-weight: 700;
+  font-size: 26rpx;
+}
+.loss-rate.good { color: #07c160; }
+.loss-rate.warn { color: #ff9500; }
+.loss-rate.bad  { color: #ff4d4f; }
+
+/* ================== 尺码明细 ================== */
+.item-sizes {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  width: 100%;
+  max-width: 100%;
+  font-size: 24rpx;
+  line-height: 1.5;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.item-sizes .item-label {
+  color: #999999;
+  font-weight: 500;
+  font-size: 24rpx;
+  padding-top: 6rpx;
+  flex: 0 0 auto;
+}
+.sizes-list {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.size-chip {
+  display: inline-block;
+  padding: 4rpx 14rpx;
+  background-color: #E8F0FE;
+  color: #1A73E8;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+}
+
+/* ================== 空数据 ================== */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: #999999;
+  font-size: 28rpx;
+}

@@ -1,0 +1,109 @@
+/* pages/notification/list/index.wxss */
+.notification-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.notification-item {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  align-items: flex-start;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+
+.notification-item.read { opacity: 0.6; }
+
+.item-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background-color: var(--danger-color);
+  margin-right: 16rpx;
+  margin-top: 12rpx;
+  flex-shrink: 0;
+}
+
+.item-content { flex: 1; min-width: 0; }
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+  gap: 12rpx;
+}
+
+.item-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-time {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.item-body {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12rpx;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 24rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.badge-cutting_problem    { background-color: var(--danger-light);  color: var(--danger-color); }
+.badge-workshop_problem   { background-color: var(--warning-light); color: var(--warning-color); }
+.badge-cutting_return     { background-color: var(--primary-light); color: var(--primary-color); }
+.badge-processing_submit  { background-color: var(--primary-light); color: var(--primary-color); }
+.badge-product_problem    { background-color: #F3E5F5;             color: #7B1FA2; }
+.badge-inventory_warning  { background-color: var(--warning-light); color: var(--warning-color); }
+
+.item-type {
+  display: inline-block;
+  margin-top: 4rpx;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  font-size: 96rpx;
+  color: var(--text-disabled);
+  margin-bottom: 16rpx;
+  line-height: 1;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}

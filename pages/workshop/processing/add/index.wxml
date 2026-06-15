@@ -1,0 +1,142 @@
+<!-- pages/workshop/processing/add/index.wxml -->
+<view class="form-container">
+  <!-- 详情模式标题 -->
+  <view class="form-item" wx:if="{{viewMode}}">
+    <view class="info-header">查看加工详情</view>
+  </view>
+
+  <!-- 1. 选择裁剪单（仅编辑模式可见） -->
+  <view class="form-item" wx:if="{{!viewMode}}">
+    <text class="label">选择裁剪单（仅已确认且未登记）</text>
+    <picker mode="selector" range="{{confirmedList}}" range-key="orderNo" bindchange="onOrderChange">
+      <view class="picker-value">{{selectedOrder ? selectedOrder.orderNo : '请选择裁剪单'}}</view>
+    </picker>
+  </view>
+
+  <!-- 2. 选中后展示：单号、计划件数、尺码明细、性别/款式/学校（不可编辑） -->
+  <view class="form-item" wx:if="{{selectedOrder}}">
+    <text class="label">单号</text>
+    <view class="readonly-field">{{selectedOrder.orderNo}}</view>
+  </view>
+
+  <view class="form-item" wx:if="{{selectedOrder}}">
+    <text class="label">计划件数（合计）</text>
+    <view class="readonly-field highlight">{{selectedOrder.planCount || 0}} 件</view>
+  </view>
+
+  <!-- 尺码明细：每个尺码一行计划件数 -->
+  <view class="form-item" wx:if="{{selectedOrder && selectedOrder.planSizes && selectedOrder.planSizes.length}}">
+    <text class="label">尺码明细（参考）</text>
+    <view class="readonly-list">
+      <view class="readonly-row" wx:for="{{selectedOrder.planSizes}}" wx:for-item="sz" wx:key="size">
+        <text class="readonly-key">尺码 {{sz.size}}</text>
+        <text class="readonly-val">计划 {{sz.count}} 件</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="form-item" wx:if="{{selectedOrder}}">
+    <text class="label">学校</text>
+    <view class="readonly-field">{{selectedOrder.school || '—'}}</view>
+  </view>
+
+  <view class="form-item" wx:if="{{selectedOrder}}">
+    <text class="label">款式</text>
+    <view class="readonly-field">{{selectedOrder.style || '—'}}</view>
+  </view>
+
+  <view class="form-item" wx:if="{{selectedOrder}}">
+    <text class="label">性别</text>
+    <view class="readonly-field">{{selectedOrder.gender || '—'}}</view>
+  </view>
+
+  <!-- 3. 多尺码实际件数填写（按各尺码分别填整数） -->
+  <view class="form-item" wx:if="{{!viewMode && selectedOrder && selectedOrder.planSizes && selectedOrder.planSizes.length}}">
+    <text class="label">实际件数（按尺码填写整数）</text>
+    <view class="size-input-list">
+      <view class="size-input-row" wx:for="{{selectedOrder.planSizes}}" wx:for-item="sz" wx:key="size">
+        <text class="size-input-label">尺码 {{sz.size}}</text>
+        <input
+          class="size-input"
+          type="number"
+          value="{{actualBySize[sz.size] || ''}}"
+          placeholder="实际件数"
+          data-size="{{sz.size}}"
+          bindinput="onActualBySizeInput"
+        />
+        <text class="size-input-unit">件</text>
+      </view>
+      <view class="size-input-row total">
+        <text class="size-input-label">合计</text>
+        <text class="size-input-total">{{actualCount || 0}} 件</text>
+        <text class="size-input-unit">/ 计划 {{selectedOrder.planCount || 0}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 单尺码兼容：planSizes 为空时让用户填一个总件数 -->
+  <view class="form-item" wx:if="{{!viewMode && selectedOrder && (!selectedOrder.planSizes || !selectedOrder.planSizes.length)}}">
+    <text class="label">实际完成件数</text>
+    <input class="input" type="number" value="{{actualCount}}" placeholder="请输入实际完成件数" bindinput="onActualCountInput" />
+  </view>
+
+  <!-- 详情模式：直接展示实际件数 -->
+  <view class="form-item" wx:if="{{viewMode && selectedOrder}}">
+    <text class="label">实际完成件数</text>
+    <view class="readonly-field highlight">{{actualCount || 0}} 件</view>
+  </view>
+
+  <!-- 4. 自动计算损耗率 -->
+  <view class="form-item" wx:if="{{selectedOrder}}">
+    <text class="label">损耗率（自动计算，保留 2 位小数）</text>
+    <view class="readonly-field">
+      <text class="loss-rate {{lossRateClass}}">{{lossRateText}}</text>
+    </view>
+  </view>
+
+  <!-- 5. 辅料使用量（按辅料二级分类分别填写，显示库存并禁止超额） -->
+  <view class="form-item" wx:if="{{!viewMode}}">
+    <text class="label">辅料使用量（按二级分类，不超过库存）</text>
+    <view class="accessory-list" wx:if="{{accessoryOptions.length}}">
+      <view class="accessory-row {{accessoryWarn[item.name] ? 'over' : ''}}" wx:for="{{accessoryOptions}}" wx:for-item="opt" wx:key="_id">
+        <view class="accessory-name-block">
+          <text class="accessory-name">{{opt.name}}</text>
+          <text class="accessory-stock" wx:if="{{accessoryStockMap[opt.name]}}">库存: {{accessoryStockMap[opt.name].stock}}{{accessoryStockMap[opt.name].unit || opt.unit || ''}}</text>
+          <text class="accessory-stock no-stock" wx:else>无库存记录</text>
+        </view>
+        <input
+          class="accessory-input {{accessoryWarn[opt.name] ? 'over' : ''}}"
+          type="digit"
+          value="{{accessoryUsage[opt.name] || ''}}"
+          placeholder="{{accessoryStockMap[opt.name] ? '≤ ' + accessoryStockMap[opt.name].stock + (accessoryStockMap[opt.name].unit || opt.unit || '') : '用量'}}"
+          data-name="{{opt.name}}"
+          bindinput="onAccessoryInput"
+        />
+        <text class="accessory-unit">{{opt.unit || (accessoryStockMap[opt.name] ? accessoryStockMap[opt.name].unit : '') || ''}}</text>
+        <text class="accessory-warn-tip" wx:if="{{accessoryWarn[opt.name]}}">超出库存</text>
+      </view>
+    </view>
+    <view class="readonly-field" wx:else>暂无可选辅料分类</view>
+  </view>
+
+  <!-- 详情模式：展示辅料使用量 -->
+  <view class="form-item" wx:if="{{viewMode}}">
+    <text class="label">辅料使用量</text>
+    <view class="readonly-list">
+      <view class="readonly-row" wx:for="{{accessoryDetailList}}" wx:for-item="a" wx:key="name">
+        <text class="readonly-key">{{a.name}}</text>
+        <text class="readonly-val">{{a.value}} {{a.unit || ''}}</text>
+      </view>
+      <view class="readonly-row" wx:if="{{!accessoryDetailList.length}}">
+        <text class="readonly-val">—</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="form-item" wx:if="{{viewMode}}">
+    <text class="label">来源裁剪单号</text>
+    <view class="readonly-field">{{detail && (detail.workshop_confirm_id || detail.source_order_no) || '—'}}</view>
+  </view>
+
+  <button class="btn-primary" bindtap="onSubmit">{{viewMode ? '返回' : '确认提交'}}</button>
+</view>

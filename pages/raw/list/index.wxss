@@ -1,0 +1,222 @@
+/* pages/raw/list/index.wxss */
+.raw-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-bottom: 32rpx;
+}
+
+.tab-header {
+  display: flex;
+  background-color: var(--white);
+  border-bottom: 2rpx solid var(--divider);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab-item {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  position: relative;
+  transition: color 0.2s;
+}
+.tab-item.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56rpx;
+  height: 4rpx;
+  background: var(--primary-color);
+  border-radius: 2rpx;
+}
+
+.add-bar {
+  padding: 20rpx 24rpx;
+}
+
+.btn-add {
+  width: 100%;
+  height: 80rpx;
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  line-height: 1;
+  box-shadow: 0 4rpx 12rpx rgba(26, 115, 232, 0.25);
+}
+.btn-add::after { border: none; }
+.btn-add:active { opacity: 0.85; }
+
+.list {
+  padding: 0 24rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.order-card {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.order-no {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.badge {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 24rpx;
+  line-height: 1.5;
+}
+.badge-success { background-color: var(--success-light); color: var(--success-color); }
+.badge-warning { background-color: var(--warning-light); color: var(--warning-color); }
+.badge-grey    { background-color: var(--bg-section); color: var(--text-secondary); }
+
+.card-meta {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+  line-height: 1.5;
+}
+
+.card-detail {
+  font-size: 26rpx;
+  color: var(--text-regular);
+  line-height: 1.8;
+  background-color: var(--bg-section);
+  padding: 16rpx 20rpx;
+  border-radius: 12rpx;
+  margin-top: 4rpx;
+}
+
+.card-footer {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid var(--divider);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  font-size: 26rpx;
+  color: var(--danger-color);
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1.4;
+}
+.btn-cancel::after { border: none; }
+
+.stock-card {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+
+.stock-name {
+  font-size: 30rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.stock-qty {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.stock-qty.warning { color: var(--danger-color); }
+
+.stock-threshold {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}
+
+.settings-entry {
+  display: flex;
+  align-items: center;
+  margin: 32rpx 24rpx 24rpx;
+  padding: 24rpx 28rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  box-shadow: var(--shadow-md);
+}
+.settings-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 14rpx;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+.settings-text {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.settings-arrow {
+  font-size: 36rpx;
+  color: var(--text-placeholder);
+  line-height: 1;
+}

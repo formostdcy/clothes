@@ -1,0 +1,46 @@
+<!-- pages/finished/outbound/add/index.wxml -->
+<view class="container">
+  <finished-tabs active="outbound" />
+
+  <view class="form-container">
+    <view class="form-item">
+      <text class="label">选择加工单</text>
+      <picker mode="selector" range="{{orderList}}" range-key="orderNo" bindchange="onOrderChange">
+        <view class="picker-value {{!selectedOrder ? 'placeholder' : ''}}">{{selectedOrder ? selectedOrder.orderNo : (orderList.length ? '请选择加工单' : '暂无可用加工单')}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item" wx:if="{{selectedOrder}}">
+      <text class="label">产品信息（不可编辑）</text>
+      <view class="info-box">
+        <text>性别: {{selectedOrder.gender || '—'}}</text>
+        <text>款式: {{selectedOrder.style || '—'}}</text>
+        <text>学校: {{selectedOrder.school || '—'}}</text>
+        <text>尺码: {{selectedOrder.size || '—'}}</text>
+        <text class="info-stock">当前库存: {{selectedOrder.availableCount}} 件</text>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">出库数量</text>
+      <input class="input" type="number" value="{{count}}" placeholder="请输入出库数量" bindinput="onCountInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">目的地</text>
+      <view class="dest-row">
+        <picker mode="selector" range="{{destinationList}}" range-key="name" bindchange="onDestinationChange" class="dest-picker">
+          <view class="picker-value">{{selectedDestination ? selectedDestination.name : '请选择目的地'}}</view>
+        </picker>
+        <button class="btn-add-dest" bindtap="onAddDestination">+ 新增目的地</button>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">备注</text>
+      <textarea class="textarea" value="{{remark}}" placeholder="请输入备注（可选）" bindinput="onRemarkInput" maxlength="200" />
+    </view>
+
+    <button class="btn-primary" bindtap="onSubmit">确认出库</button>
+  </view>
+</view>

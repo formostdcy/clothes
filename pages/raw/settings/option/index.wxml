@@ -1,0 +1,37 @@
+<!-- pages/raw/settings/option/index.wxml -->
+<view class="page page--tight page--with-submit">
+  <!-- 一级分类切换 -->
+  <view class="tab-segment">
+    <view
+      wx:for="{{cat1List}}"
+      wx:key="key"
+      class="tab-item {{cat1Index === index ? 'active' : ''}}"
+      data-index="{{index}}"
+      bindtap="switchCat1"
+    >{{item.label}}</view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="list">
+    <view class="list-item list-item--clickable" wx:for="{{list}}" wx:key="_id" data-item="{{item}}" bindtap="onEdit">
+      <view class="list-item-info">
+        <view class="list-item-no">{{item.name}}</view>
+        <view class="list-item-meta">value: {{item.value || '-'}} · 排序: {{item.sort || 0}}</view>
+      </view>
+      <view class="list-item-right">
+        <view class="action-btn action-btn-danger" catchtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{list.length === 0 && !loading}}">
+    <view class="empty-state-icon">📦</view>
+    <view class="empty-state-text">"{{cat1}}" 下还没有分类<br/>点右下角"+"添加</view>
+  </view>
+
+  <!-- 底部新增按钮 -->
+  <view class="submit-bar safe-bottom">
+    <button class="btn btn-primary btn-block" bindtap="onAdd">+ 新增"{{cat1}}"分类</button>
+  </view>
+</view>

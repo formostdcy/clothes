@@ -1,0 +1,149 @@
+/* pages/cutting/record/index.wxss */
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 20rpx 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.tabs {
+  display: flex;
+  background-color: var(--white);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  position: relative;
+  transition: color 0.2s, background-color 0.2s;
+}
+.tab.active {
+  color: var(--primary-color);
+  font-weight: 600;
+  background-color: var(--primary-lighter);
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56rpx;
+  height: 4rpx;
+  background-color: var(--primary-color);
+  border-radius: 2rpx;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.list-item {
+  background-color: var(--white);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ========== 关键布局 ==========
+   header: 横向 flex
+   - item-no: flex: 1 1 0; min-width: 0;  (可缩，单行省略)
+   - item-status: flex-shrink: 0          (固定宽)
+   两端对齐，垂直居中
+*/
+.item-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 16rpx;
+  gap: 12rpx;
+  box-sizing: border-box;
+  /* 关键：允许换行 — 单号长时可换到下一行，状态标签不会被挤没 */
+  flex-wrap: wrap;
+}
+
+.item-no {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  /* 关键：单号完整显示，不截断
+     - 去掉 white-space: nowrap
+     - 允许换行
+     - 配合 flex-wrap: wrap 让单号 + 状态标签能换行
+  */
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-all;
+}
+
+.item-status {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 24rpx;
+  line-height: 1.5;
+  background-color: var(--bg-section);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  max-width: 200rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+.status-pending,
+.status-pending-confirm { background-color: var(--warning-light); color: var(--warning-color); }
+.status-completed,
+.status-done { background-color: var(--success-light); color: var(--success-color); }
+.status-all { background-color: var(--bg-section); color: var(--text-secondary); }
+.status-confirmed,
+.status-cut { background-color: var(--primary-light); color: var(--primary-color); }
+.status-returned,
+.status-issue { background-color: var(--danger-light); color: var(--danger-color); }
+
+/* 详情信息区：行间距均匀，宽度受控 */
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.info-text {
+  display: block;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}

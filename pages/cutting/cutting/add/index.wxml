@@ -1,0 +1,182 @@
+<!-- pages/cutting/cutting/add/index.wxml -->
+<view class="form-container">
+  <!-- 查看模式标题 -->
+  <view class="form-item" wx:if="{{viewMode}}">
+    <view class="info-header">查看裁剪详情</view>
+    <view class="form-meta" wx:if="{{detail}}">
+      <text class="meta-no">单号: {{detail.order_no}}</text>
+      <text class="meta-status status-{{statusClass}}">{{detail.status || ''}}</text>
+    </view>
+  </view>
+
+  <!-- ========== 1. 选择来料确认单 ========== -->
+  <view class="form-item">
+    <text class="label required">选择来料确认单（仅显示已确认）</text>
+    <picker mode="selector" range="{{incomingList}}" range-key="incomingNo" bindchange="onIncomingChange" disabled="{{viewMode}}">
+      <view class="picker-value {{selectedIncoming ? '' : 'placeholder'}}">
+        {{selectedIncoming ? selectedIncoming.incomingNo : (viewMode ? '—' : '请选择来料确认单')}}
+      </view>
+    </picker>
+  </view>
+
+  <!-- ========== 2. 物料明细（系统自动填充，可改使用量） ========== -->
+  <view class="form-item" wx:if="{{selectedIncoming}}">
+    <view class="label-row">
+      <text class="label required">物料使用量（实际）</text>
+      <text class="label-tip">每项必填</text>
+    </view>
+    <view class="material-row" wx:for="{{materialList}}" wx:key="category_two" wx:for-item="mat">
+      <view class="material-name">
+        <text class="cat-one">{{mat.category_one || ''}}</text>
+        <text class="cat-two">{{mat.category_two}}</text>
+        <text class="mat-spec" wx:if="{{mat.spec}}">·{{mat.spec}}</text>
+        <text class="mat-stock" wx:if="{{mat.stock != null}}">现有库存: {{mat.stock}}{{mat.unit}}</text>
+      </view>
+      <view class="material-input-wrap">
+        <input
+          class="material-input {{mat.overStock ? 'over-stock' : ''}}"
+          type="digit"
+          value="{{mat.usage}}"
+          placeholder="{{mat.stock != null ? '≤' + mat.stock + mat.unit : '0'}}"
+          data-index="{{index}}"
+          bindinput="onMaterialUsageChange"
+          bindblur="onMaterialUsageBlur"
+          disabled="{{viewMode}}"
+        />
+        <text class="material-unit">{{mat.unit}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 3. 计划衣服信息（尺码多选 + 各尺码件数） ========== -->
+  <view class="form-item" wx:if="{{selectedIncoming}}">
+    <text class="label required">计划衣服信息</text>
+
+    <!-- 学校/款式/性别 -->
+    <view class="clothes-meta">
+      <view class="meta-item">
+        <text class="meta-label required">学校</text>
+        <picker mode="selector" range="{{schoolList}}" range-key="name" bindchange="onSchoolChange" disabled="{{viewMode}}">
+          <view class="picker-value-sm {{selectedSchool ? '' : 'placeholder'}}">
+            {{selectedSchool ? selectedSchool.name : (viewMode ? '—' : '请选择')}}
+          </view>
+        </picker>
+      </view>
+      <view class="meta-item">
+        <text class="meta-label required">款式</text>
+        <picker mode="selector" range="{{styleList}}" range-key="name" bindchange="onStyleChange" disabled="{{viewMode}}">
+          <view class="picker-value-sm {{selectedStyle ? '' : 'placeholder'}}">
+            {{selectedStyle ? selectedStyle.name : (viewMode ? '—' : '请选择')}}
+          </view>
+        </picker>
+      </view>
+      <view class="meta-item">
+        <text class="meta-label required">性别</text>
+        <picker mode="selector" range="{{genderList}}" range-key="name" bindchange="onGenderChange" disabled="{{viewMode}}">
+          <view class="picker-value-sm {{selectedGender ? '' : 'placeholder'}}">
+            {{selectedGender ? selectedGender.name : (viewMode ? '—' : '请选择')}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 尺码多选 -->
+    <view class="size-section">
+      <view class="label-row">
+        <text class="meta-label required">尺码（可多选）</text>
+        <text class="label-tip">勾选后填件数</text>
+      </view>
+      <view class="size-grid" wx:if="{{!viewMode}}">
+        <view
+          wx:for="{{sizeList}}"
+          wx:key="name"
+          class="size-chip {{isSizeSelected(item.name) ? 'active' : ''}}"
+          bindtap="onToggleSize"
+          data-name="{{item.name}}"
+        >
+          {{item.name}}
+        </view>
+      </view>
+      <view class="size-tags" wx:if="{{viewMode}}">
+        <text class="size-tag" wx:for="{{selectedSizes}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 各尺码件数 -->
+    <view class="plan-rows" wx:if="{{selectedSizes.length > 0}}">
+      <view class="plan-row" wx:for="{{planRows}}" wx:key="size" wx:for-item="row">
+        <view class="plan-size">
+          <text class="size-badge">{{row.size}}</text>
+        </view>
+        <view class="plan-input-wrap">
+          <input
+            class="plan-input"
+            type="number"
+            value="{{row.count}}"
+            placeholder="件数"
+            data-size="{{row.size}}"
+            bindinput="onPlanCountChange"
+            disabled="{{viewMode}}"
+          />
+          <text class="plan-unit">件</text>
+        </view>
+        <view class="plan-total" wx:if="{{!viewMode}}">
+          <text class="total-text">合计: {{totalCount}} 件</text>
+        </view>
+      </view>
+      <view class="plan-summary">
+        <text class="summary-text">总件数</text>
+        <text class="summary-num">{{totalCount}}</text>
+        <text class="summary-text">件</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 4. 目标车间 ========== -->
+  <view class="form-item">
+    <text class="label required">目标车间</text>
+    <picker mode="selector" range="{{workshopList}}" range-key="name" bindchange="onWorkshopChange" disabled="{{viewMode}}">
+      <view class="picker-value {{selectedWorkshop ? '' : 'placeholder'}}">
+        {{selectedWorkshop ? selectedWorkshop.name : (viewMode ? '—' : '请选择目标车间')}}
+      </view>
+    </picker>
+  </view>
+
+  <!-- ========== 5. 备注 ========== -->
+  <view class="form-item" wx:if="{{!viewMode || detail.remark}}">
+    <text class="label">备注</text>
+    <textarea
+      class="textarea"
+      value="{{remark}}"
+      placeholder="选填"
+      bindinput="onRemarkInput"
+      disabled="{{viewMode}}"
+      maxlength="200"
+      auto-height
+    />
+  </view>
+
+  <!-- ========== 6. 查看模式：照片 + 完整信息 ========== -->
+  <block wx:if="{{viewMode && detail}}">
+    <view class="form-item" wx:if="{{detail.photos && detail.photos.length > 0}}">
+      <text class="label">照片 ({{detail.photos.length}})</text>
+      <scroll-view class="photo-scroll" scroll-x="true">
+        <view class="photo-list">
+          <image
+            wx:for="{{detail.photos}}"
+            wx:for-item="photo"
+            wx:key="*this"
+            class="photo-thumb"
+            src="{{photo}}"
+            mode="aspectFill"
+            data-urls="{{detail.photos}}"
+            data-current="{{photo}}"
+            bindtap="onPreviewPhoto"
+          ></image>
+        </view>
+      </scroll-view>
+    </view>
+  </block>
+
+  <button class="btn-primary" bindtap="onSubmit">{{viewMode ? '返回' : '提交'}}</button>
+</view>
