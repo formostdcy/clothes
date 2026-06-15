@@ -20,6 +20,7 @@ const PUBLIC_FUNCS = new Set([
   'notification-list',
   'notification-markRead',
   'notification-unreadCount',
+  'notification-overview', // 首页通知概览（合并 unreadCount + todoList，1 次往返）
   'option-list',
   'option-detail',
   'supplier-list',

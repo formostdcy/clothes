@@ -96,6 +96,51 @@ async function ensureCollection(db, name) {
 
 async function initCollections(db) {
   const results = await Promise.all(COLLECTIONS.map(n => ensureCollection(db, n)));
+  // 关键优化：建完集合后立刻建索引（解决全表扫描慢的问题）
+  const indexResults = await initIndexes(db);
+  return [...results, ...indexResults];
+}
+
+/**
+ * 建关键索引（解决首页通知列表慢的问题）
+ * - 关键索引：receiver_id + role + created_at + is_read
+ *   涵盖 notification-overview 和 notification-list 的常用查询
+ */
+async function initIndexes(db) {
+  const INDEX_DEFS = [
+    {
+      collection: 'notification',
+      keys: [
+        { name: 'idx_receiver_created', keys: { receiver_id: 1, created_at: -1 } },
+        { name: 'idx_role_created',      keys: { role: 1, created_at: -1 } },
+        { name: 'idx_receiver_unread',   keys: { receiver_id: 1, is_read: 1 } },
+        { name: 'idx_role_unread',       keys: { role: 1, is_read: 1 } },
+      ],
+    },
+    {
+      collection: 'employee',
+      keys: [
+        { name: 'idx_account', keys: { account: 1 } },
+      ],
+    },
+  ];
+  const results = [];
+  for (const def of INDEX_DEFS) {
+    for (const idx of def.keys) {
+      try {
+        await db.collection(def.collection).createIndex(idx.keys, { name: idx.name });
+        results.push({ collection: def.collection, action: 'index_created', name: idx.name });
+      } catch (e) {
+        const msg = e.message || '';
+        // 已存在的索引不报错
+        if (/index.*exists|duplicate/i.test(msg)) {
+          results.push({ collection: def.collection, action: 'index_exists', name: idx.name });
+        } else {
+          results.push({ collection: def.collection, action: 'index_failed', name: idx.name, error: msg });
+        }
+      }
+    }
+  }
   return results;
 }
 

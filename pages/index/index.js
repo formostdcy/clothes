@@ -28,37 +28,34 @@ Page({
     });
 
     if (userInfo && userInfo._id) {
-      this.loadUnreadCount();
-      this.loadTodoList();
+      // 关键优化：用 1 次 notification-overview 调用拿回 unreadCount + todoList
+      // （之前是 2 次独立调用 = 2 次网络往返，登录后首页可见性延迟 2-3 秒）
+      this.loadNotificationOverview();
     }
   },
 
-  loadUnreadCount() {
+  loadNotificationOverview() {
     if (!app.getUserInfo()) return;
-    callCloud('notification-unreadCount', {
-      user_id: app.getUserInfo()._id,
-      role: app.getUserInfo().role,
-    }, false).then(data => {
-      this.setData({ unreadCount: (data && data.count) || 0 });
-    }).catch(() => {});
-  },
-
-  loadTodoList() {
-    if (!app.getUserInfo()) return;
-    callCloud('notification-list', {
-      user_id: app.getUserInfo()._id,
-      role: app.getUserInfo().role,
+    const userInfo = app.getUserInfo();
+    callCloud('notification-overview', {
+      user_id: userInfo._id,
+      role: userInfo.role,
       page: 1,
       pageSize: 5,
     }, { silent: true }).then(data => {
-      const todoList = (data.list || [])
-        .filter(item => !item.is_read)
-        .map(item => ({
+      if (!data) return;
+      const list = data.todoList || [];
+      this.setData({
+        unreadCount: data.unreadCount || 0,
+        todoList: list.map(item => ({
           ...item,
           timeText: timeAgo(item.created_at),
-        }));
-      this.setData({ todoList });
-    }).catch(() => {});
+        })),
+      });
+    }).catch(err => {
+      console.warn('[首页] 通知概览加载失败:', err);
+      // 静默失败，不影响首页主功能
+    });
   },
 
   goToModule(e) {
