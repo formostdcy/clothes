@@ -1,4 +1,26 @@
 /* pages/finished/stock/index.wxss */
+
+/* ====== 顶部返回条 ====== */
+.back-bar {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 16rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.back-icon {
+  font-size: 40rpx;
+  line-height: 1;
+  color: #1A73E8;
+  font-weight: 600;
+  margin-right: 6rpx;
+}
+.back-text {
+  font-size: 26rpx;
+  color: #1A73E8;
+  line-height: 1;
+}
+
 .container {
   min-height: 100vh;
   background-color: var(--bg-color);

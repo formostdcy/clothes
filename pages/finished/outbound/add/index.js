@@ -141,10 +141,14 @@ pageGuard({
     }).then(() => {
       wx.hideLoading();
       wx.showToast({ title: '出库成功' });
-      setTimeout(() => wx.navigateBack(), 1500);
+      setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 1500);
     }).catch(err => {
       wx.hideLoading();
       wx.showToast({ title: '出库失败：' + (err && err.message ? err.message : err), icon: 'none' });
     });
+  },
+
+  onBackHome() {
+    wx.switchTab({ url: '/pages/index/index' });
   }
 });

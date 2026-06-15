@@ -30,6 +30,10 @@ pageGuard({
     this.loadList().finally(() => wx.stopPullDownRefresh());
   },
 
+  onBackHome() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   loadList(concat = false) {
     this.setData({ loading: true });
     return callCloud('finished-confirmList', {

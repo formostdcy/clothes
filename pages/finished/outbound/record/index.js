@@ -35,6 +35,10 @@ pageGuard({
     this.loadList().finally(() => wx.stopPullDownRefresh());
   },
 
+  onBackHome() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   loadDestinations() {
     callCloud('option-list', { type: 'destination' }).then(res => {
       const arr = Array.isArray(res) ? res : (res && res.data) || [];

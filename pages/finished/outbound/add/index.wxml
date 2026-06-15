@@ -1,6 +1,9 @@
 <!-- pages/finished/outbound/add/index.wxml -->
 <view class="container">
-  <finished-tabs active="outbound" />
+  <view class="back-bar" bindtap="onBackHome">
+    <text class="back-icon">‹</text>
+    <text class="back-text">首页</text>
+  </view>
 
   <view class="form-container">
     <view class="form-item">

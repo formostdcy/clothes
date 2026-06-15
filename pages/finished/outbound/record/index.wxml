@@ -1,6 +1,9 @@
 <!-- pages/finished/outbound/record/index.wxml -->
 <view class="container">
-  <finished-tabs active="record" />
+  <view class="back-bar" bindtap="onBackHome">
+    <text class="back-icon">‹</text>
+    <text class="back-text">首页</text>
+  </view>
 
   <view class="filter-bar">
     <picker mode="selector" range="{{destinationList}}" range-key="name" bindchange="onDestinationChange">

@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "出库记录",
-  "usingComponents": {
-    "finished-tabs": "/components/finished-tabs/index"
-  }
+  "navigationBarTitleText": "出库记录"
 }

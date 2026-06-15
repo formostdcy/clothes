@@ -1,5 +1,8 @@
 <view class="container">
-  <finished-tabs active="stock" />
+  <view class="back-bar" bindtap="onBackHome">
+    <text class="back-icon">‹</text>
+    <text class="back-text">首页</text>
+  </view>
 
   <view class="filter-bar">
     <picker mode="selector" range="{{genderList}}" bindchange="onGenderChange">

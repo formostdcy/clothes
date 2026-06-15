@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "库存明细",
-  "usingComponents": {
-    "finished-tabs": "/components/finished-tabs/index"
-  }
+  "navigationBarTitleText": "库存明细"
 }

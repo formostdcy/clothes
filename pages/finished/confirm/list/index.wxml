@@ -1,6 +1,9 @@
 <!-- pages/finished/confirm/list/index.wxml -->
 <view class="container">
-  <finished-tabs active="confirm" />
+  <view class="back-bar" bindtap="onBackHome">
+    <text class="back-icon">‹</text>
+    <text class="back-text">首页</text>
+  </view>
 
   <view class="list">
     <view class="list-item list-item--todo" wx:for="{{list}}" wx:key="id">

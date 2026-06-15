@@ -44,6 +44,10 @@ pageGuard({
     this.loadList().finally(() => wx.stopPullDownRefresh());
   },
 
+  onBackHome() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   loadOptions() {
     Promise.all([
       callCloud('option-list', { type: 'school' }),
