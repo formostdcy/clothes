@@ -72,10 +72,13 @@ exports.main = async (event, context) => {
       return { success: false, error: '单据没有物料明细' };
     }
 
-    // ============ 2. 改状态（事务原子性） ============
-    // 关键：先单独跑一个事务把状态改了，保证"确认"语义一定生效
+    // ============ 2. 改状态 + 累加库存（同一事务原子性，失败自动回滚） ============
+    // 关键修复：之前把状态和库存拆开两步，库存失败时无法回滚状态。
+    // 现在合并为单事务：改状态 + 遍历 material_details 累加/新增 workshop_stock。
+    // 任意一步 throw，全部回滚。
     try {
       await db.runTransaction(async transaction => {
+        // 2.1 改状态
         await transaction.collection('workshop_incoming_confirm').doc(_id).update({
           data: {
             status: '已确认',
@@ -83,65 +86,55 @@ exports.main = async (event, context) => {
             updated_at: db.serverDate(),
           },
         });
-      });
-    } catch (txErr) {
-      console.error('车间入库 - 改状态事务失败:', txErr);
-      return { success: false, error: txErr.message || '确认失败' };
-    }
 
-    // ============ 3. 写库存（best-effort，失败不影响主流程） ============
-    // 拆出事务：状态已改，库存累计作为可降级步骤
-    try {
-      for (const item of materialDetails) {
-        const category_one = item.category_one || '辅料';
-        const category_two = item.category_two || '';
-        const quantity = Number(item.quantity) || 0;
-        const unit = item.unit || '';
-        if (!category_two || quantity <= 0) continue;
+        // 2.2 累加/新增 workshop_stock
+        for (const item of materialDetails) {
+          const category_one = item.category_one || '辅料';
+          const category_two = item.category_two || '';
+          const quantity = Number(item.quantity) || 0;
+          const unit = item.unit || '';
+          if (!category_two || quantity <= 0) continue;
 
-        // 查找是否已有该车间-辅料组合
-        const existRes = await db.collection('workshop_stock')
-          .where({
-            workshop_admin_id: targetAdminId,
-            category_one,
-            category_two,
-          })
-          .limit(1)
-          .get();
-
-        if (existRes.data && existRes.data.length > 0) {
-          // 已有：累加
-          await db.collection('workshop_stock').doc(existRes.data[0]._id)
-            .update({
-              data: {
-                total_quantity: _.inc(quantity),
-                unit: unit || existRes.data[0].unit || '',
-                updated_at: db.serverDate(),
-              },
-            });
-        } else {
-          // 没有：新增
-          await db.collection('workshop_stock').add({
-            data: {
+          const existRes = await transaction.collection('workshop_stock')
+            .where({
               workshop_admin_id: targetAdminId,
               category_one,
               category_two,
-              total_quantity: quantity,
-              unit: unit || '',
-              warning_threshold: 0,
-              created_at: db.serverDate(),
-              updated_at: db.serverDate(),
-            },
-          });
+            })
+            .limit(1)
+            .get();
+
+          if (existRes.data && existRes.data.length > 0) {
+            await transaction.collection('workshop_stock').doc(existRes.data[0]._id)
+              .update({
+                data: {
+                  total_quantity: _.inc(quantity),
+                  unit: unit || existRes.data[0].unit || '',
+                  updated_at: db.serverDate(),
+                },
+              });
+          } else {
+            await transaction.collection('workshop_stock').add({
+              data: {
+                workshop_admin_id: targetAdminId,
+                category_one,
+                category_two,
+                total_quantity: quantity,
+                unit: unit || '',
+                warning_threshold: 0,
+                created_at: db.serverDate(),
+                updated_at: db.serverDate(),
+              },
+            });
+          }
         }
-      }
-    } catch (stockErr) {
-      // 库存累计失败只记日志，不影响主流程
-      // 用户已经看到"确认成功"，但需要后续补库存
-      console.error('车间入库 - 写库存失败（不影响确认状态）:', stockErr);
+      });
+    } catch (txErr) {
+      console.error('车间入库 - 事务失败（状态和库存已回滚）:', txErr);
+      return { success: false, error: '入库确认失败，已回滚：' + (txErr.message || '未知错误') };
     }
 
-    // ============ 4. 发通知给领料人（best-effort） ============
+    // ============ 3. 发通知给领料人（best-effort） ============
     try {
       await db.collection('notification').add({
         data: {

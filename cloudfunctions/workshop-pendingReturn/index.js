@@ -18,6 +18,9 @@ exports.main = async (event, context) => {
   if (!_id) return { success: false, error: 'ID不能为空' };
   if (!return_reason) return { success: false, error: '请填写退回原因' };
 
+  // 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+  await ensureCollections();
+
   try {
     const orderRes = await db.collection('cutting_order').doc(_id).get();
     if (!orderRes.data) return { success: false, error: '裁剪单不存在' };
@@ -58,3 +61,21 @@ exports.main = async (event, context) => {
     return { success: false, error: '操作失败' };
   }
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ */
+async function ensureCollections() {
+  const collections = ['cutting_order', 'notification'];
+  for (const name of collections) {
+    try {
+      await cloud.database().createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) continue;
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}

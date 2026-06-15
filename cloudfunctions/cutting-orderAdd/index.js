@@ -57,6 +57,9 @@ exports.main = async (event, context) => {
     if (!p.gender) return { success: false, error: '请选择性别' };
   }
 
+  // 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+  await ensureCollections();
+
   try {
     // ============ 关键：扣减 cutting_incoming_confirm 的物料剩余量 ============
     // 逻辑：按 (category_one, category_two, spec, unit) 4 字段精匹配
@@ -101,6 +104,7 @@ exports.main = async (event, context) => {
     let stageError = null;
     let txRes = null;
     let failDetails = null;
+    let processingId = null; // cutting_order._id，用于通知关联
 
     const BATCH_SIZE = 5;
     const stockBatches = [];
@@ -108,9 +112,14 @@ exports.main = async (event, context) => {
       stockBatches.push(material_actual_usage.slice(i, i + BATCH_SIZE));
     }
 
+    const orderNo = generateOrderNo();
+
     try {
-      // 阶段 1：分批扣减物料剩余
-      for (const batch of stockBatches) {
+      // 关键修复：把 cutting_order 写入放进最后一个批次的事务内，保证
+      // "扣 remaining + 写 cutting_order" 原子性，失败时一并回滚。
+      for (let batchIdx = 0; batchIdx < stockBatches.length; batchIdx++) {
+        const batch = stockBatches[batchIdx];
+        const isLastBatch = batchIdx === stockBatches.length - 1;
         const batchSubtotal = [];
         await db.runTransaction(async (transaction) => {
           const incInTx = await transaction.collection('cutting_incoming_confirm').doc(incoming_confirm_id).get();
@@ -137,27 +146,30 @@ exports.main = async (event, context) => {
             data: { material_details: newDetails, updated_at: db.serverDate() },
           });
           batchSubtotal.push({ stockId: incoming_confirm_id, newDetails, action: 'update' });
+
+          // 最后一并写 cutting_order，保证事务原子性
+          if (isLastBatch) {
+            const addRes = await transaction.collection('cutting_order').add({
+              data: {
+                order_no: orderNo,
+                incoming_confirm_id,
+                outbound_order_id: outbound_order_id || null,
+                cutting_admin_id: cutting_admin_id || '',
+                material_actual_usage,
+                plan_clothes_detail,
+                target_workshop,
+                remark: remark || '',
+                status: '已确认',
+                created_at: db.serverDate(),
+                updated_at: db.serverDate(),
+              },
+            });
+            processingId = addRes._id;
+          }
         });
         writtenStocks.push(...batchSubtotal);
       }
-
-      // 阶段 2：写 cutting_order
-      const addRes = await db.collection('cutting_order').add({
-        data: {
-          order_no: generateOrderNo(),
-          incoming_confirm_id,
-          outbound_order_id: outbound_order_id || null,
-          cutting_admin_id: cutting_admin_id || '',
-          material_actual_usage,
-          plan_clothes_detail,
-          target_workshop,
-          remark: remark || '',
-          status: '已确认',
-          created_at: db.serverDate(),
-          updated_at: db.serverDate(),
-        },
-      });
-      txRes = addRes;
+      txRes = { _id: processingId, order_no: orderNo };
     } catch (e) {
       stageError = e;
     }
@@ -201,3 +213,26 @@ exports.main = async (event, context) => {
     return { success: false, error: '提交失败' };
   }
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ * - 失败若是 "ResourceExists"（已存在）则吞掉
+ * - 其它失败不抛错，只打日志
+ */
+async function ensureCollections() {
+  const db = cloud.database();
+  const collections = ['cutting_incoming_confirm', 'cutting_order', 'employee', 'notification'];
+  for (const name of collections) {
+    try {
+      await db.createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) {
+        continue;
+      }
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}

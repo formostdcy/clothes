@@ -24,6 +24,10 @@ function generateOrderNo() {
 }
 
 exports.main = async (event, context) => {
+// 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+await ensureCollections();
+
+
   const db = cloud.database();
   const { processing_order_id, outbound_details, destination, photos, creator_id } = event;
 
@@ -249,3 +253,22 @@ exports.main = async (event, context) => {
     return { success: false, error: e.message || '出库失败' };
   }
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ */
+async function ensureCollections() {
+  const collections = ['processing_order', 'finished_product_stock', 'finished_outbound_order'];
+  for (const name of collections) {
+    try {
+      await cloud.database().createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) continue;
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}
+

@@ -6,6 +6,10 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
  */
 
 exports.main = async (event, context) => {
+// 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+await ensureCollections();
+
+
   const db = cloud.database();
   const { _id } = event;
 
@@ -51,3 +55,22 @@ exports.main = async (event, context) => {
     return { success: false, error: e.message || '闂佸憡鐟﹂悧妤冪矓闁垮绶為弶鍫亯琚�' };
   }
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ */
+async function ensureCollections() {
+  const collections = ['raw_outbound_order', 'raw_material_stock'];
+  for (const name of collections) {
+    try {
+      await cloud.database().createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) continue;
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}
+

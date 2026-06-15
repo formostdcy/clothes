@@ -106,6 +106,43 @@ async function _main(event, context) {
     // force=true 时：先把状态重置回'待确认'，再走正常流程
     if (force && confirm.status === '已入库') {
       console.log('[finished-confirmIn] force=true, 重置状态后重试');
+      // 关键修复：force 重试场景下，stock_rebuilt=true 表示之前已经成功累加过库存，
+      // 此时再 force 累加会导致双倍入库；必须先扣除"已累加部分"，再走正常流程。
+      if (confirm.stock_rebuilt === true) {
+        console.log('[finished-confirmIn] force=true 且 stock_rebuilt=true，先回滚已累加库存');
+        // 拿到已入库的件数（confirm.actual_quantity 已被写为 validQuantities）
+        const rollbackQtys = (confirm.actual_quantity || [])
+          .map(q => ({ size: (q && q.size != null) ? String(q.size) : '', count: Number(q && q.count) || 0 }))
+          .filter(q => q.count > 0);
+        for (const item of rollbackQtys) {
+          const { size, count: qty } = item;
+          const whereStock = { gender, style, season, school, size };
+          try {
+            const stockRes = await db.collection('finished_product_stock').where(whereStock).limit(1).get();
+            if (stockRes.data && stockRes.data.length > 0) {
+              const stockId = stockRes.data[0]._id;
+              const curQty = Number(stockRes.data[0].quantity) || 0;
+              if (curQty >= qty) {
+                // 库存足够，直接扣回
+                await db.collection('finished_product_stock').doc(stockId).update({
+                  data: { quantity: _.inc(-qty), updated_at: db.serverDate() },
+                });
+              } else if (curQty > 0) {
+                // 库存不足但还有，扣到 0（理论不应发生，记日志）
+                console.warn(`[finished-confirmIn] force 回滚: ${JSON.stringify(whereStock)} 库存 ${curQty} < ${qty}，扣到 0`);
+                await db.collection('finished_product_stock').doc(stockId).update({
+                  data: { quantity: 0, updated_at: db.serverDate() },
+                });
+              } else {
+                // 库存已为 0（被人工/其它流程清空），不扣
+                console.warn(`[finished-confirmIn] force 回滚: ${JSON.stringify(whereStock)} 库存已为 0，跳过`);
+              }
+            }
+          } catch (e) {
+            console.error('[finished-confirmIn] force 回滚库存失败:', whereStock, e);
+          }
+        }
+      }
       try {
         await db.collection('finished_product_confirm').doc(_id).update({
           data: {

@@ -28,7 +28,7 @@ function generateOrderNo() {
   const now = new Date(Date.now() + 8 * 3600 * 1000);
   const pad = (n) => String(n).padStart(2, '0');
   const rand = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
-  return `JG-${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}-${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCMinutes())}${rand}`;
+  return `JG-${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}-${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}${rand}`;
 }
 
 exports.main = async (event, context) => {
@@ -156,7 +156,7 @@ exports.main = async (event, context) => {
 
     // ==================== 1.4 事务提交后：同步 cutting_order 状态 ====================
     // 关键修复：之前在事务内 try/catch 吞掉错误，会导致 cutting_order 状态可能不一致
-    // 移到事务外：失败只记日志，不影响主流程
+    // 移到事务外：失败则显式回滚辅料库存并通知，状态仍标记为"已加工"的副作用可由人工/运维修复
     if (source_type === 'cutting' && workshop_confirm_id) {
       try {
         await db.collection('cutting_order').doc(workshop_confirm_id)
@@ -164,7 +164,42 @@ exports.main = async (event, context) => {
             data: { status: '已加工', updated_at: db.serverDate() },
           });
       } catch (e) {
-        console.error('同步 cutting_order 终态失败（不影响主流程）:', e);
+        console.error('同步 cutting_order 终态失败，触发辅料库存回滚补偿:', e);
+        // 关键：cutting_order 状态同步失败时，辅料已被扣、processing_order 已写入；
+        // 此时业务上"加工完成"已发生（已发通知给成品管理员），cutting_order 终态只是辅助标记。
+        // 但若不修就会出现 cutting_order 仍为"已裁剪"，下次车间重做时会重复扣辅料。
+        // 解决：把已扣的辅料回滚到 workshop_stock，避免下次重做时库存对不上。
+        // 配合 finished_product_confirm 已写入（已发通知），业务上仍可继续。
+        let rolledBackQty = 0;
+        for (const w of writtenStocks) {
+          try {
+            if (w.action === 'dec') {
+              await db.collection('workshop_stock').doc(w.stockId).update({
+                data: { total_quantity: _.inc(w.qty), updated_at: db.serverDate() },
+              });
+              rolledBackQty++;
+            }
+          } catch (rollbackErr) {
+            console.error('[workshop-processingAdd] cutting_order 状态失败 → 回滚辅料库存失败:', w, rollbackErr);
+          }
+        }
+        // 通知老板进行人工核查
+        try {
+          await db.collection('notification').add({
+            data: {
+              receiver_id: null,
+              role: '老板',
+              type: 'cutting_status_sync_failed',
+              title: '裁剪单终态同步失败，已自动回滚辅料',
+              content: `加工单 ${orderNo} 已写入，但源裁剪单终态同步失败；辅料库存已回滚 ${rolledBackQty} 条，请人工核对 cutting_order 状态。processing_order_id=${processingId}`,
+              related_order_id: processingId,
+              is_read: 0,
+              created_at: db.serverDate(),
+            },
+          });
+        } catch (notifErr) {
+          console.error('发通知失败:', notifErr);
+        }
       }
     }
 

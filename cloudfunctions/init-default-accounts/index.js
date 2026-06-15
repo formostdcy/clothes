@@ -1,6 +1,19 @@
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
+// 关键修复：服务端角色白名单校验（防止越权）
+const ALLOWED_ROLES = ['老板'];
+async function requireRole(event, allowed) {
+  const role = event.current_user_role || event.role;
+  if (!role) {
+    return { ok: false, error: '未提供用户角色（请通过前端登录态传入 current_user_role）' };
+  }
+  if (!allowed.includes(role)) {
+    return { ok: false, error: `当前角色【${role}】无权调用此接口（仅限：${allowed.join('、')}）` };
+  }
+  return { ok: true };
+}
+
 /**
  * 一键初始化：自动建集合 + 插入/重置默认账号 + 插入系统选项
  * 幂等运行，可重复执行
@@ -218,9 +231,36 @@ async function initOptions(db) {
   return { created, skipped };
 }
 
-exports.main = async (event) => {
+exports.main = async (event, context) => {
   const db = cloud.database();
   const action = (event && event.action) || 'all';
+
+  // 关键修复：init-default-accounts 是系统引导函数，特殊处理：
+  //   - action=inspect（只读检查）→ 任何角色都能调用
+  //   - action=all/collections/accounts/options/reset/force-reset → 必须 role=老板
+  //   - 例外：如果数据库中没有任何 boss 账号（首次部署），允许匿名调用以完成初始化
+  if (action !== 'inspect') {
+    const role = event.current_user_role || event.role;
+    if (role !== '老板') {
+      // 检查是否首次部署：查 employee 表有没有老板
+      try {
+
+// 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+await ensureCollections();
+
+
+        const bossCount = await db.collection('employee').where({ role: '老板' }).count();
+        if (bossCount.total === 0) {
+          // 首次部署，跳过校验
+          console.log('[init-default-accounts] 首次部署（无老板账号），跳过 role 校验');
+        } else {
+          return { success: false, error: '当前角色【' + (role || '未登录') + '】无权调用此初始化接口（仅限：老板）' };
+        }
+      } catch (e) {
+        return { success: false, error: 'role 校验失败：' + (e.message || String(e)) };
+      }
+    }
+  }
 
   const result = { success: true, data: {} };
 
@@ -251,3 +291,22 @@ exports.main = async (event) => {
   result.data.message = `集合: 新建 ${createdCols} | 账号: 新建 ${createdAcc} / 重置 ${resetAcc} (删除 ${removedAcc} 条) | 选项: 新建 ${createdOpt}`;
   return result;
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ */
+async function ensureCollections() {
+  const collections = ['employee', 'system_option', 'supplier'];
+  for (const name of collections) {
+    try {
+      await cloud.database().createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) continue;
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}
+

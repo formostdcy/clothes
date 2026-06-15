@@ -16,6 +16,10 @@ function generateOrderNo() {
 }
 
 exports.main = async (event, context) => {
+// 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+await ensureCollections();
+
+
   const db = cloud.database();
   const { supplier_id, supplier_name, material_details, photos, remark, creator_id } = event;
 
@@ -93,3 +97,22 @@ await transaction.collection('raw_material_stock')
     return { success: false, error: '闂備礁鎼崐鐟邦熆濮椻偓璺柛鎰靛枛缁€澶愭煟濡灝鐨烘慨妯稿姂閺屾稑螖娴ｅ湱顦ラ梺闈涙处閸ㄥ綊骞忛敓锟`'};
   }
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ */
+async function ensureCollections() {
+  const collections = ['raw_inbound_order', 'raw_material_stock'];
+  for (const name of collections) {
+    try {
+      await cloud.database().createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) continue;
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}
+

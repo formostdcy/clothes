@@ -1,6 +1,19 @@
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
+// 关键修复：服务端角色白名单校验（防止越权）
+const ALLOWED_ROLES = ['老板'];
+async function requireRole(event, allowed) {
+  const role = event.current_user_role || event.role;
+  if (!role) {
+    return { ok: false, error: '未提供用户角色（请通过前端登录态传入 current_user_role）' };
+  }
+  if (!allowed.includes(role)) {
+    return { ok: false, error: `当前角色【${role}】无权调用此接口（仅限：${allowed.join('、')}）` };
+  }
+  return { ok: true };
+}
+
 /**
  * 老板 - 成品统计
  * 入参:
@@ -175,9 +188,13 @@ async function aggregateOutbound(db, groupBy) {
   };
 }
 
-exports.main = async (event) => {
+exports.main = async (event, context) => {
   const db = cloud.database();
   const { type = 'stock', groupBy = 'school' } = event;
+
+  // 关键修复：服务端 role 校验
+  const guard = await requireRole(event, ALLOWED_ROLES);
+  if (!guard.ok) return { success: false, error: guard.error };
 
   try {
     const result = type === 'outbound'

@@ -7,6 +7,20 @@
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
+// 关键修复：服务端 role 校验（防止越权）
+const ALLOWED_ROLES = ['老板'];
+async function requireRole(event, allowed) {
+  const role = event.current_user_role || event.role;
+  if (!role) {
+    return { ok: false, error: '未提供用户角色（请通过前端登录态传入 current_user_role）' };
+  }
+  if (!allowed.includes(role)) {
+    return { ok: false, error: `当前角色【${role}】无权调用此接口（仅限：${allowed.join('、')}）` };
+  }
+  return { ok: true };
+}
+
+
 // 模块配置
 const MODULES = {
   raw_inbound:     { col: 'raw_inbound_order',     label: '原材料入库', order_no_prefix: 'RK' },
@@ -85,6 +99,10 @@ function getSummary(item, module) {
 }
 
 exports.main = async (event, context) => {
+  // 关键修复：服务端 role 校验
+  const guard = await requireRole(event, ALLOWED_ROLES);
+  if (!guard.ok) return { success: false, error: guard.error };
+
   const db = cloud.database();
   const _ = db.command;
   const {

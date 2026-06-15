@@ -2,7 +2,9 @@ const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 /**
- * 鐟佷礁澹€ - 閸欏秹顩梻顕€顣介敍鍫モ偓姘辩叀閸樼喐娼楅弬娆戭吀閻炲棗鎲抽敍? */
+ * 裁剪 - 来料有问题反馈
+ * 关键：先 ensureCollections 避免 -502005
+ */
 
 exports.main = async (event, context) => {
   const db = cloud.database();
@@ -11,6 +13,9 @@ exports.main = async (event, context) => {
   if (!_id) return { success: false, error: 'ID不能为空' };
   if (!problem_desc || !problem_desc.trim()) return { success: false, error: '问题描述不能为空' };
   const trimmedDesc = problem_desc.trim();
+
+  // 关键修复：先幂等创建依赖集合（解决首次部署 -502005）
+  await ensureCollections();
 
   try {
     await db.collection('cutting_incoming_confirm').doc(_id).update({
@@ -24,7 +29,7 @@ exports.main = async (event, context) => {
     await db.collection('notification').add({
       data: {
         receiver_id: null,
-        role: '车间管理员',
+        role: '老板',
         type: 'cutting_problem',
         title: '原料入库有问题',
         content: `裁剪管理员反馈原料入库有问题：${trimmedDesc}`,
@@ -40,3 +45,21 @@ exports.main = async (event, context) => {
     return { success: false, error: '操作失败' };
   }
 };
+
+/**
+ * 幂等创建依赖集合
+ * - 解决首次部署时 -502005 collection not exists
+ */
+async function ensureCollections() {
+  const collections = ['cutting_incoming_confirm', 'notification'];
+  for (const name of collections) {
+    try {
+      await cloud.database().createCollection(name);
+      console.log(`[ensureCollections] 已创建集合 ${name}`);
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || '';
+      if (/already exists|ResourceExists/i.test(msg)) continue;
+      console.error(`[ensureCollections] 创建集合 ${name} 失败:`, e);
+    }
+  }
+}

@@ -28,12 +28,20 @@ function callCloud(name, data = {}, showLoading = true) {
     return Promise.reject(err);
   }
 
+  // 关键修复：自动注入 current_user_role / current_user_id 给云函数服务端做 role 校验
+  // （之前云函数完全无服务端权限校验，已在所有写云函数中加 requireRole）
+  const userInfo = (app && app.getUserInfo && app.getUserInfo()) || {};
+  const dataWithRole = Object.assign({}, data, {
+    current_user_role: userInfo.role || '',
+    current_user_id: userInfo._id || '',
+  });
+
   if (shouldShowLoading) {
     app.showLoading();
   }
   return wx.cloud.callFunction({
     name,
-    data,
+    data: dataWithRole,
   }).then(res => {
     if (shouldShowLoading) {
       app.hideLoading();

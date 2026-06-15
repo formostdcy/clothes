@@ -12,6 +12,19 @@
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
+// 关键修复：服务端 role 校验（防止越权）—— 仅老板可触发应急清空/重建
+const ALLOWED_ROLES = ['老板'];
+async function requireRole(event, allowed) {
+  const role = event.current_user_role || event.role;
+  if (!role) {
+    return { ok: false, error: '未提供用户角色（请通过前端登录态传入 current_user_role）' };
+  }
+  if (!allowed.includes(role)) {
+    return { ok: false, error: `当前角色【${role}】无权调用此接口（仅限：${allowed.join('、')}）` };
+  }
+  return { ok: true };
+}
+
 async function ensureCollections() {
   const db = cloud.database();
   const names = ['finished_product_confirm', 'processing_order', 'finished_product_stock'];
@@ -37,6 +50,10 @@ async function ensureCollections() {
 exports.main = async (event, context) => {
   const { force = false, dryRun = false, onlyId = null, reset = false } = event;
   console.log('[emergencyRebuildStock] 入参:', JSON.stringify({ force, dryRun, onlyId, reset }));
+
+  // 关键修复：服务端 role 校验（仅老板可调用）
+  const guard = await requireRole(event, ALLOWED_ROLES);
+  if (!guard.ok) return { success: false, error: guard.error };
 
   await ensureCollections();
 
@@ -85,27 +102,41 @@ exports.main = async (event, context) => {
     summary.scanned = all.length;
     console.log(`[emergencyRebuildStock] 扫到 ${all.length} 条 confirm 记录`);
 
+    // ============ 关键修复：reset=true 时先清空成品库存，再重置所有 stock_rebuilt 标记 ============
+    // 之前 reset=true 只重置 stock_rebuilt 标记，没清空库存，导致重建时是"在旧库存上叠加"
+    // 正确语义：reset = 从零开始重算 → 先清空 → 再重置标记 → 再走正常累加
+    if (reset && !dryRun) {
+      // 1) 清空 finished_product_stock（按 .remove() 删全部 SKU）
+      const stockAll = await db.collection('finished_product_stock').limit(1000).get();
+      for (const s of stockAll.data || []) {
+        try {
+          await db.collection('finished_product_stock').doc(s._id).remove();
+        } catch (e) {
+          console.error('[emergencyRebuildStock] reset 清空单条库存失败:', s._id, e);
+        }
+      }
+      console.log(`[emergencyRebuildStock] reset 清空了 ${(stockAll.data || []).length} 条成品库存`);
+      // 2) 重置所有 stock_rebuilt 标记为 false（不管当前是什么）
+      for (const c of all) {
+        try {
+          await db.collection('finished_product_confirm').doc(c._id).update({
+            data: { stock_rebuilt: false, updated_at: db.serverDate() },
+          });
+        } catch (e) {
+          console.error('[emergencyRebuildStock] reset 重置标记失败:', c._id, e);
+        }
+      }
+      summary.details.push({ action: 'reset_summary', clearedStock: (stockAll.data || []).length, resetMarks: all.length });
+      // 3) 继续走下面的"逐条累加"流程（此时所有 stock_rebuilt 都是 false，强制重算）
+    }
+
     // 3) 逐条处理
     for (const c of all) {
       summary.total += 1;
 
-      // 跳过已正确入库的
+      // 跳过已正确入库的（reset 模式下已重置全部标记，这里不会跳过）
       if (!force && !reset && c.status === '已入库' && c.stock_rebuilt === true) {
         summary.skipped += 1;
-        continue;
-      }
-
-      // reset=true 时重置 stock_rebuilt 标记
-      if (reset && c.stock_rebuilt === true) {
-        if (!dryRun) {
-          try {
-            await db.collection('finished_product_confirm').doc(c._id).update({
-              data: { stock_rebuilt: false, updated_at: db.serverDate() },
-            });
-          } catch (e) {
-            console.error('[emergencyRebuildStock] 重置标记失败:', c._id, e);
-          }
-        }
         continue;
       }
 
